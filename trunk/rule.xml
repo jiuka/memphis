@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ccr version="0.1" autor="MariusRieder">
+  <way type="polygone" color="0.4,0.4,0.9">
+    <tag k="natural" v="water"/>
+  </way>
+  <way type="polygone" color="0.1,0.9,0.1">
+    <tag k="natural" v="wood"/>
+  </way>
+  
+  <way type="street" color="0.8,0.8,0.8" width="2">
+    <tag k="highway" v="unclassified"/>
+  </way>
+  <way type="street" color="0.8,0.8,0.2" width="3">
+    <tag k="highway" v="secondary"/>
+  </way>
+  <way type="street" color="0.8,0.5,0.2" width="4">
+    <tag k="highway" v="primary"/>
+  </way>
+  
+  <way type="street" color="0.9,0.9,0.9" width="1">
+    <tag k="highway" v="unclassified"/>
+  </way>
+  <way type="street" color="0.9,0.9,0.3" width="2">
+    <tag k="highway" v="secondary"/>
+  </way>
+  <way type="street" color="0.9,0.6,0.3" width="3">
+    <tag k="highway" v="primary"/>
+  </way>
+</ccr>
