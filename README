@@ -1,0 +1,11 @@
+README
+
+
+Buliding:
+
+gcc `pkg-config --libs --cflags cairo` `xml2-config --libs --cflags` \
+    -o renderer main.c osm05.c img.c config01.c
+    
+Using:
+
+./renderer rule.xml map.osm
