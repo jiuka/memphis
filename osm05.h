@@ -1,7 +1,8 @@
 /*
+ * CCairoRenderer
  *
+ * Author: Marius Rieder <marius.rieder@durchmesser.ch>
  */
-
 
 #ifndef OSM05_H
 #define OSM05_H
@@ -51,7 +52,22 @@ struct _osmWay {
         osmWay  *next;
     };
 
+typedef struct _osmMember osmMember;
 
+struct _osmMember {
+        osmNode     *node;
+        osmWay      *way;
+        char        *role;
+        osmMember   *next;
+    };
+
+typedef struct _osmRelation omsRelation;
+
+struct _osmRelation {
+        int         id;
+        osmTag      *tag;
+        osmMember   *member;
+    };
 
 typedef struct _osmFile osmFile;
 struct _osmFile {

@@ -42,10 +42,8 @@ static void osm05startDocument(void *ctx) {
  * called when the document end has been detected.
  */
 static void osm05endDocument(void *ctx) {
-    if (debug > 1)
-        fprintf(stdout,"osm05endDocument\n");
-    if (debug > 0)
-        fprintf(stdout,"Finished Parsing\n Bounds: %f,%f,%f,%f\n Nodes: % 8i\n Tags:  % 8i\n Ways:  % 8i\n Nds:   % 8i\n", cBounds->minlat, cBounds->minlon, cBounds->maxlat, cBounds->maxlon, cntNode, cntTag, cntWay, cntNd);
+     fprintf(stdout,"  Bounds: %f,%f,%f,%f\n", cFile->bounds->minlat, cFile->bounds->minlon, cFile->bounds->maxlat, cFile->bounds->maxlon);
+    fprintf(stdout,"  Nodes: % 8i\n  Tags:  % 8i\n  Ways:  % 8i\n  Nds:   % 8i\n", cntNode, cntTag, cntWay, cntNd);
 }
 
 /**
@@ -58,11 +56,11 @@ static void osm05endDocument(void *ctx) {
  */
 static void osm05startElement(void *ctx, const xmlChar *name,
 		                      const xmlChar **attributes) {
-    if (debug > 1)
+     if (debug > 1)
         fprintf(stdout,"osm05startElement\n");
     // Parsing Bounds
     if (strncmp((char *) name, "bounds", 6) == 0) {
-        if (debug > 1)
+         if (debug > 1)
             fprintf(stdout,"Parsing Bounds\n");
         while (*attributes != NULL) {
             if(strncmp((char *) *(attributes), "minlat", 6) == 0) {
@@ -77,9 +75,9 @@ static void osm05startElement(void *ctx, const xmlChar *name,
             attributes+=2;
         }
     }
-    // Parsing Nodes
+    // Parsing Node
     else if (strncmp((char *) name, "node", 4) == 0) {
-        cntNode++;
+         cntNode++;
         cNode = malloc(sizeof(osmNode));
         while (*attributes != NULL) {
             if(strncmp((char *) *(attributes), "id", 2) == 0) {
@@ -103,7 +101,7 @@ static void osm05startElement(void *ctx, const xmlChar *name,
     }
     // Parsing Tags
     else if (strncmp((char *) name, "tag", 4) == 0) {
-        cntTag++;
+         cntTag++;
         cTag = malloc(sizeof(osmTag));
         while (*attributes != NULL) {
             if(strncmp((char *) *(attributes), "k", 1) == 0) {
@@ -145,7 +143,7 @@ static void osm05startElement(void *ctx, const xmlChar *name,
     }
     // Parsing Way
     else if (strncmp((char *) name, "way", 3) == 0) {
-        cntWay++;
+         cntWay++;
         cWay = malloc(sizeof(osmWay));
         while (*attributes != NULL) {
             if(strncmp((char *) *(attributes), "id", 2) == 0) {
@@ -167,7 +165,7 @@ static void osm05startElement(void *ctx, const xmlChar *name,
     }
     // Parsing WayNode
     else if (strncmp((char *) name, "nd", 2) == 0) {
-        cntNd++;
+         cntNd++;
         int ref = 0;
         while (*attributes != NULL) {
             if(strncmp((char *) *(attributes), "ref", 2) == 0) {
@@ -264,7 +262,9 @@ osmFile* osmRead(char *filename) {
     cFile->ways = NULL;
     cFile->nodes = NULL;
     
+fprintf(stdout,"Parsing Start\n");
     res = xmlSAXUserParseFile(osmSAX2Handler, NULL, filename);
+fprintf(stdout,"Parsing End\n");
     
     xmlCleanupParser();
     xmlMemoryDump();
