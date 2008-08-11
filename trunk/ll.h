@@ -46,7 +46,7 @@
             (list) = _node;                             \
     } while (0)
 
-#define LL_APPEND(node_,list)                 \
+#define LL_APPEND(node_,list)                   \
     do {                                        \
         typeof(list) _node = (node_);           \
         typeof(_node) *_nextptr = &(list);      \
