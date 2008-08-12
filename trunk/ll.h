@@ -29,6 +29,23 @@
             (list) = _node;                             \
     } while (0)
 
+#define LL_INSERT_STR(node_,list)                              \
+    do {                                                                    \
+        typeof(list) _node = (node_);                   \
+        typeof(_node) _ptr, _prev;                      \
+        for (_ptr = (list), _prev = NULL; _ptr;         \
+             _prev = _ptr, _ptr = _ptr->next            \
+        ) {                                             \
+            if (strcmp(_node->srt, _ptr->srt) > 0)      \
+                break;                                  \
+        }                                               \
+        _node->next = _ptr;                             \
+        if (_prev)                                      \
+            _prev->next = _node;                        \
+        else                                            \
+            (list) = _node;                             \
+    } while (0)
+
 #define LL_INSERT_ID(node_,list)                              \
     do {                                                                    \
         typeof(list) _node = (node_);                   \
