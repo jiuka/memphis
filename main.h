@@ -3,5 +3,6 @@
 #define MAIN_H
 
 int debug;
+int tiled;
 
 #endif MAIN_H

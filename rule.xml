@@ -12,42 +12,43 @@
             <draw type="line" color="0.38,0.65,0.44" width="1"/>
         </rule>
     </layer>
+    
     <layer name="PathOuter">
         
-        <rule type="way" layer="14:17">
+        <rule type="way">
             <tag k="railway" v="rail"/>
-            <draw type="line" color="0.1,0.1,0.1" width="4"/>
+            <draw type="road" border="0.1,0.1,0.1" color="1.0,1.0,1.0" width="4"/>
         </rule>
         
-        <rule type="way" layer="14:17">
-            <tag k="railway" v="rail"/>
-            <draw type="line" color="1.0,1.0,1.0" width="3"/>
-        </rule>
-        
-        <rule type="way" layer="14:17">
+        <rule type="way">
             <tag k="highway" v="footway"/>
-            <draw type="line" color="0.6,0.6,0.2" width="1"/>
+            <draw type="road" border ="0.6,0.6,0.2" color="0.7,0.7,0.3" width="1"  layer="17:17"/>
+        </rule>
+        
+        <rule type="way">
+            <tag k="highway" v="track"/>
+            <draw type="road" border ="0.6,0.6,0.2" color="0.7,0.7,0.3" width="2"  layer="16:17"/>
+        </rule>
+        
+        <rule type="way" layer="13:17">
+            <tag k="highway" v="unclassified"/>
+            <draw type="road" border ="0.8,0.8,0.8" color="1.0,1.0,1.0" width="3"/>
         </rule>
         <rule type="way" layer="13:17">
-            <tag k="highway" v="track"/>
-            <draw type="line" color="0.6,0.6,0.2" width="2"/>
-        </rule>
-        <rule type="way" layer="12:17">
-            <tag k="highway" v="unclassified"/>
-            <draw type="line" color="0.8,0.8,0.8" width="3"/>
-        </rule>
-        <rule type="way" layer="12:17">
             <tag k="highway" v="residential"/>
-            <draw type="line" color="0.8,0.8,0.8" width="3"/>
+            <draw type="road" border ="0.8,0.8,0.8" color="1.0,1.0,1.0" width="3"/>
         </rule>
+        
         <rule type="way" layer="12:17">
             <tag k="highway" v="secondary"/>
-            <draw type="line" color="0.8,0.8,0.8" width="4"/>
+            <draw type="road" border ="0.8,0.8,0.8" color="1.0,1.0,1.0" width="4"/>
         </rule>
+        
         <rule type="way" layer="12:17">
             <tag k="highway" v="primary"/>
-            <draw type="line" color="0.90,0.87,0.51" width="5"/>
+            <draw type="road" border ="0.90,0.87,0.51" color="0.99,0.97,0.56" width="5"/>
         </rule>
+        
         <rule type="way" layer="12:17">
             <tag k="highway" v="trunk"/>
             <draw type="line" color="0.83,0.70,0.25" width="6"/>
@@ -56,30 +57,11 @@
             <tag k="highway" v="motorway"/>
             <draw type="line" color="0.72,0.46,0.25" width="7"/>
         </rule>
-        <rule type="way" layer="14:17">
-            <tag k="highway" v="footway"/>
-            <draw type="line" color="0.7,0.7,0.3" width="0.5"/>
-        </rule>
         <rule type="way" layer="13:17">
             <tag k="highway" v="track"/>
             <draw type="line" color="0.7,0.7,0.3" width="1"/>
         </rule>
-        <rule type="way" layer="12:17">
-            <tag k="highway" v="unclassified"/>
-            <draw type="line" color="1.0,1.0,1.0" width="2"/>
-        </rule>
-        <rule type="way" layer="12:17">
-            <tag k="highway" v="residential"/>
-            <draw type="line" color="1.0,1.0,1.0" width="2"/>
-        </rule>
-        <rule type="way" layer="12:17">
-            <tag k="highway" v="secondary"/>
-            <draw type="line" color="1.0,1.0,1.0" width="3"/>
-        </rule>
-        <rule type="way" layer="12:17">
-            <tag k="highway" v="primary"/>
-            <draw type="line" color="0.99,0.97,0.56" width="4"/>
-        </rule>
+        
         <rule type="way" layer="12:17">
             <tag k="highway" v="trunk"/>
             <draw type="line" color="0.92,0.78,0.29" width="5"/>
