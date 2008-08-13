@@ -88,13 +88,42 @@ void strokePath(renderInfo *info) {
 void drawPolygone(renderInfo *info, cfgDraw *draw) {
     if (debug > 1)
         fprintf(stdout,"drawPolygone\n");
+        
+    cairo_surface_t *image;
+    cairo_pattern_t *pattern;
+        
+    if(draw->pattern) {
+        char * filename = malloc(50*sizeof(char));
+        int w, h;
+        
+        sprintf(filename,"pattern/%s.png",draw->pattern);
+        image = cairo_image_surface_create_from_png(filename);
+        free(filename);
+        
+        w = cairo_image_surface_get_width (image);
+        h = cairo_image_surface_get_height (image);
+
+
+                
+        pattern = cairo_pattern_create_for_surface (image);
+        cairo_pattern_set_extend (pattern, CAIRO_EXTEND_REPEAT);
+    }
     
     int i;
     for (i=0;i<=LAYERMAX-LAYERMIN;i++) {
         cairo_set_fill_rule (info->cr[i], CAIRO_FILL_RULE_EVEN_ODD);
-        cairo_set_source_rgb (info->cr[i], draw->color[0],draw->color[1],
+        if(draw->pattern)
+            cairo_set_source (info->cr[i], pattern);
+        else
+            cairo_set_source_rgb (info->cr[i], draw->color[0],draw->color[1],
                                         draw->color[2]);
+        
         cairo_fill_preserve(info->cr[i]);
+    }
+        
+    if(draw->pattern) {
+        //cairo_pattern_destroy (pattern);
+        //cairo_surface_destroy (image);
     }
 }
 
@@ -157,33 +186,42 @@ int matchRule(cfgRule *rule, osmTag *tag) {
     return(0);
 }
 
-cfgDraw* applyWayRule(cfgRule *rule, osmWay *way) {
+int checkRule(cfgRule *rule, osmTag *tag, short int type) {
     if (debug > 1)
-        fprintf(stdout,"applyWayRule\n");
-    cfgRule *end = rule->next;
-    while(rule) {
-        if(rule == end)
-            break;
-        if(matchRule(rule, way->tag)) {
-            
-            if (rule->sub != NULL)
-                rule = rule->sub;
-            else
-                return rule->draw;
-        } else {
-            if (rule->nsub != NULL) {
-                if (rule->nsub->sub != NULL)
-                    rule = rule->nsub->sub;
-                else
-                    return rule->nsub->draw;
-            } else {
-                rule = rule->next;
-            }
+        fprintf(stdout,"checkRule\n");
+
+    int not;
+    cfgRule *iter;
+    
+    if(rule->nparent) {
+        iter = rule->nparent;
+        not = 1;
+    } else {
+        iter = rule->parent;
+        not = 0;
+    }
+    
+    while(iter) {
+        
+        if(matchRule(iter, tag) == not) {
+            return(0);
         }
         
-	}
-	return(NULL);
-};
+        if(iter->nparent) {
+            iter = iter->nparent;
+            not = 1;
+        } else {
+            iter = iter->parent;
+            not = 0;
+        }
+    }
+    
+    if(matchRule(rule, tag)) {
+        return(1);
+    } else {
+        return(-1);
+    }
+}
 
 int renderCairo(cfgRules *ruleset, osmFile *osm) {
     if (debug > 1)
@@ -201,6 +239,10 @@ int renderCairo(cfgRules *ruleset, osmFile *osm) {
         info->surface[z] = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
                     TILESIZE*numTiles(z), TILESIZE* numTiles(z));
         info->cr[z] = cairo_create(info->surface[z]);
+        
+        cairo_rectangle (info->cr[z], 0, 0, TILESIZE* numTiles(z), TILESIZE* numTiles(z));
+        cairo_set_source_rgb (info->cr[z], 0.95,0.95,0.95);
+        cairo_fill(info->cr[z]);
    }
     
     // Vars uder while looping throug data
@@ -208,24 +250,33 @@ int renderCairo(cfgRules *ruleset, osmFile *osm) {
     //osmTag      *tag;
     cfgRule     *rule;
     cfgDraw     *draw;
+    int         paths;
     
     long start = (long)clock();
     
-    // Process Rule by Rule
-    LIST_FOREACH(rule, ruleset->rule) {
-        if (debug > 1)
-            fprintf(stdout,"rule\n");
-        
-        // Start checking osm from bottom layer.
-        for(l=-5;l<=5;l++) {
-            // Loop throug osmdata
-            LIST_FOREACH(way, osm->ways) {
-                //Only objects on current layer
-                if(way->layer != l)
-                    continue;
-                draw = applyWayRule(rule,way);
-                if(draw) {
-                    drawPath(info, way->nd);
+    
+    // Start checking osm from bottom layer.
+    for(l=-5;l<=5;l++) {
+            
+        // Process Rule by Rule
+        LIST_FOREACH(rule, ruleset->rule) {
+            
+            if(rule->draw != NULL) { // Draw Match first
+            
+                paths = 0;
+                // Loop through ways for
+                LIST_FOREACH(way, osm->ways) {
+                    //Only objects on current layer
+                    if(way->layer != l)
+                        continue;
+                    
+                    if( checkRule(rule, way->tag, WAY) == 1) {
+                        drawPath(info, way->nd);
+                        paths++;
+                    }
+                }
+                if(paths) {
+                    draw = rule->draw;
                     while(draw) {
                         switch(draw->type) {
                             case POLYGONE:
@@ -237,12 +288,41 @@ int renderCairo(cfgRules *ruleset, osmFile *osm) {
                         }
                         draw = draw->next;
                     }
-                    strokePath(info);
                 }
+                strokePath(info);
+            }
+            if (rule->ndraw != NULL) { // Draw Else after
+                     
+                paths = 0;
+                // Loop through ways for
+                LIST_FOREACH(way, osm->ways) {
+                    //Only objects on current layer
+                    if(way->layer != l)
+                        continue;
+                    
+                    if( checkRule(rule, way->tag, WAY) == -1) {
+                        drawPath(info, way->nd);
+                        paths++;
+                    }         
+                }
+                if(paths) {
+                    draw = rule->ndraw;
+                    while(draw) {
+                        switch(draw->type) {
+                            case POLYGONE:
+                                drawPolygone(info,draw);
+                                break;
+                            case LINE:
+                                drawLine(info,draw);
+                                break;
+                        }
+                        draw = draw->next;
+                    }
+                }
+                strokePath(info);
             }
         }
     }
-    
     
     if (debug > 0)
         fprintf(stdout," Cairo draw done.  [%fs]\n",

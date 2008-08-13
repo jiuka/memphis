@@ -31,6 +31,7 @@
 int         debug;
 strList     *keyStrings;
 strList     *valStrings;
+strList     *patternStrings;
 
 void banner() {
 	fprintf(stdout,"Memphis OSM Renderer\n");
