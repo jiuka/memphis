@@ -35,7 +35,8 @@ typedef struct _cfgDraw cfgDraw;
 struct _cfgDraw {
         short int   type;
         float       color[3];
-        short int   width;
+        char*       pattern;
+        float       width;
         cfgDraw     *next;
     };
 
@@ -57,10 +58,11 @@ struct _cfgRule {
         short int   type;
         char        **key;
         char        **value;
-        cfgRule     *sub;
-        cfgElse     *nsub;
+        cfgRule     *parent;
+        cfgRule     *nparent;
         cfgRule     *next;
         cfgDraw     *draw;
+        cfgDraw     *ndraw;
 #ifdef DEBUG
         int         d;
 #endif

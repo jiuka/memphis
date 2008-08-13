@@ -35,10 +35,11 @@
 extern int      debug;
 extern strList  *keyStrings;
 extern strList  *valStrings;
+extern strList  *patternStrings;
 
 // Pointers to work with
-cfgRule     *currentRule[MAXDEPTH];
-cfgRule     *closeRule[MAXDEPTH];
+cfgRule     *currentRule;
+cfgRule     *ruleStack[MAXSTACK];
 char        **stringStack;
 
 // Counts
@@ -83,12 +84,12 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
         ruleset->depth++;
         
         // Create Rule
-        cfgRule *new, *rulebuf, *rulebuf2;
+        cfgRule *new;
         new = malloc(sizeof(cfgRule));
         new->next = NULL;
         new->type = 0;
-        new->sub = NULL;
-        new->nsub = NULL;
+        new->parent = NULL;
+        new->nparent = NULL;
 
         char *buf, *buf2;
         stringStack = malloc(MAXSTACK*sizeof(char *));
@@ -147,45 +148,21 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
         
         free(stringStack);
  
-        // Insert Rule
+        // Insert Rule to chain
         if(ruleset->rule == NULL)
             ruleset->rule = new;
+        else    
+            currentRule->next = new;
+        currentRule = new;
         
+        // Adding to stack
+        ruleStack[ruleset->depth] = currentRule;
         
-        for(c=ruleset->depth;c< MAXDEPTH;c++) {
-            if (closeRule[c] == NULL)
-                break;
-                
-            rulebuf = closeRule[c];
-	        while(rulebuf) {
-	           rulebuf2 = rulebuf;
-	           rulebuf = rulebuf->next;
-	           rulebuf2->next = new;
-	        }
-            closeRule[c] = NULL;
-        }
-        
-        new->next = closeRule[ruleset->depth];
-        closeRule[ruleset->depth] = new;
-       
-        for(c=ruleset->depth+1;c< MAXDEPTH;c++) {
-            currentRule[c] = NULL;
-        }
-        
-        if (currentRule[ruleset->depth] == NULL && ruleset->depth > 0) {
-            currentRule[ruleset->depth-1]->sub = new;
-        }
-        
-        currentRule[ruleset->depth] = new;        
     }
     // Parsing Else
     else if (strcmp(name, "else") == 0) {
         ruleset->cntElse++;
         ruleset->depth++;
-        
-        // Create Else
-        cfgElse *new;
-        new = malloc(sizeof(cfgElse));
         
 #ifdef DEBUG        
         new->d = ruleset->depth;
@@ -196,11 +173,6 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
         }
         fprintf(stdout,"else\n");
 #endif        
-        
-        // Insert Else
-        if (currentRule[ruleset->depth] != NULL) {
-            currentRule[ruleset->depth]->nsub = new;
-        }
     }
     // Parsing Polygone, etc.
     else if (
@@ -209,7 +181,8 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
     ) {
         // Create Draw
         cfgDraw *new;
-        new = malloc(sizeof(cfgDraw));      
+        new = malloc(sizeof(cfgDraw));  
+        new->pattern = NULL;    
         
         // Populate Draw
         if (strcmp(name, "polygone") == 0)
@@ -222,13 +195,18 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
                 sscanf((char *) *(atts+1),"%f,%f,%f",&new->color[0],
                             &new->color[1],&new->color[2]);
             } else if(strcmp((char *) *(atts), "width") == 0) {
-                sscanf((char *) *(atts+1),"%hi",&new->width);
+                sscanf((char *) *(atts+1),"%f",&new->width);
+            } else if(strcmp((char *) *(atts), "pattern") == 0) {
+                STRLIST_GET(patternStrings,(char *) *(atts+1),new->pattern);
             }
             atts+=2;
         }
         
         // Insert Draw
-        LL_APPEND(new,currentRule[ruleset->depth]->draw);
+        if(currentRule->parent == 0)
+            LL_APPEND(new,ruleStack[ruleset->depth]->draw);
+        else
+            LL_APPEND(new,ruleStack[ruleset->depth]->ndraw);
     }
 }
 
@@ -244,7 +222,17 @@ cfgEndElement(void *userData, const char *name) {
     cfgRules *ruleset = (cfgRules *)userData;
     if (debug > 1)
         fprintf(stdout,"cfgEndElement\n");
+        
     if (strcmp(name, "rule") == 0) {
+        // Fetching Parrent from stack
+        if(ruleset->depth > 0) {
+            if (ruleStack[ruleset->depth-1]->parent == NULL) {
+                ruleStack[ruleset->depth]->parent = ruleStack[ruleset->depth-1];
+            } else {   // If parent allready closed we are else.
+                ruleStack[ruleset->depth]->nparent = ruleStack[ruleset->depth-1];
+            }
+        }
+        
         ruleset->depth--;
     } else if (strcmp(name, "else") == 0) {
         ruleset->depth--;
@@ -266,8 +254,7 @@ cfgRules* rulesetRead(char *filename) {
     
     // NULL rule stack
     for (len=0;len<MAXDEPTH;len++) {
-        currentRule[len] = NULL;
-        closeRule[len] = NULL;
+        ruleStack[len] = NULL;
     }
     
     // Open file
@@ -287,6 +274,7 @@ cfgRules* rulesetRead(char *filename) {
     // Create XML Parser
     XML_Parser parser = XML_ParserCreate(NULL);
     XML_SetElementHandler(parser, cfgStartElement, cfgEndElement);
+
     XML_SetUserData(parser, ruleset);
     
     // Create Buffer
