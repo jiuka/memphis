@@ -24,21 +24,19 @@
 #define NODE        2
 #define RELATION    4
 
+#define LINE        1
+#define POLYGONE    2
+#define TEXT        4
+
 /*
  * LinkedList Struct for Draws
  */
 typedef struct _cfgDraw cfgDraw;
 struct _cfgDraw {
         short int   type;
-    };
-
-/*
- * LinkedList Struct for Strings
- */
-typedef struct _cfgStr cfgStr;
-struct _cfgStr {
-        char    *str;
-        cfgStr  *next;
+        float       color[3];
+        short int   width;
+        cfgDraw     *next;
     };
 
 /*
@@ -50,6 +48,7 @@ typedef struct _cfgElse cfgElse;
 struct _cfgElse {
         cfgRule     *sub;
         cfgRule     *next;
+        cfgDraw     *draw;
 #ifdef DEBUG
         int         d;
 #endif
@@ -61,6 +60,7 @@ struct _cfgRule {
         cfgRule     *sub;
         cfgElse     *nsub;
         cfgRule     *next;
+        cfgDraw     *draw;
 #ifdef DEBUG
         int         d;
 #endif
@@ -73,12 +73,11 @@ typedef struct _cfgRules cfgRules;
 struct _cfgRules {
         int         cntRule;
         int         cntElse;
+        int         depth;
+        
         char        *data;
         float       scale;
         cfgRule     *rule;
-        
-        cfgStr      *keys;
-        cfgStr      *values;
     };
 
 /*

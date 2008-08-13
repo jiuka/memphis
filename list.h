@@ -21,31 +21,15 @@
 #ifndef LIST_H
 #define LIST_H
 
-#include "ruleset.h"
-
-// Generic
-#define LIST_FOREACH(iter,list) \
-    for ((iter) = (list); (iter); (iter) = (iter)->next)
-    
-#define STRLL_GET(list,target,result)    \
-    do {                                                        \
-        LIST_FOREACH ((result), (list)) {                       \
-            int i = strcmp((result)->str, (target));            \
-            if (i > 0)                                          \
-                (result) = NULL;                                \
-            if (i >= 0)                                         \
-                break;                                          \
-        }                                                       \
-    } while (0)
-    
-#define STRLL_ADD(list, node_)                                  \
-    do {                                                        \
-        __typeof__(list) _node = (node_);                   \
-        __typeof__(_node) _ptr, _prev;                      \
+// Inserts
+#define LL_INSERT_ID(node_,list)                        \
+    do {                                                \
+        __typeof__(list) _node = (node_);               \
+        __typeof__(_node) _ptr, _prev;                  \
         for (_ptr = (list), _prev = NULL; _ptr;         \
              _prev = _ptr, _ptr = _ptr->next            \
         ) {                                             \
-            if (strcmp(_node->str, _ptr->str) < 0)      \
+            if (_node->id <_ptr->id)                    \
                 break;                                  \
         }                                               \
         _node->next = _ptr;                             \
@@ -54,9 +38,53 @@
         else                                            \
             (list) = _node;                             \
     } while (0)
-    
-char* strlist_getpointer(cfgStr *list, char *str);
 
+#define LL_INSERT_KEY(node_,list)                       \
+    do {                                                \
+        __typeof__(list) _node = (node_);               \
+        __typeof__(_node) _ptr, _prev;                  \
+        for (_ptr = (list), _prev = NULL; _ptr;         \
+             _prev = _ptr, _ptr = _ptr->next            \
+        ) {                                             \
+            if (strcmp(_node->key, _ptr->key) > 0)      \
+                break;                                  \
+        }                                               \
+        _node->next = _ptr;                             \
+        if (_prev)                                      \
+            _prev->next = _node;                        \
+        else                                            \
+            (list) = _node;                             \
+    } while (0)
+   
+#define LL_APPEND(node_,list)                           \
+    do {                                                \
+        __typeof__(list) _node = (node_);               \
+        __typeof__(_node) *_nextptr = &(list);          \
+        __typeof__(_node) _prev = NULL;                 \
+        while (*_nextptr) {                             \
+            _prev = *_nextptr;                          \
+            _nextptr = &((*_nextptr)->next);            \
+        }                                               \
+        *_nextptr = _node;                              \
+        _node->next = NULL;                             \
+    } while (0)
+
+// Search
+#define LL_SEARCH_ID(list,target,result)                \
+    do {                                                \
+        for ((result) = (list); (result); (result) = (result)->next) { \
+            int i = (result)->id - (target);            \
+            if (i > 0)                                  \
+                (result) = NULL;                        \
+            if (i >= 0)                                 \
+                break;                                  \
+        }                                               \
+    } while (0)
+
+// LOOP
+#define LIST_FOREACH(iter,list)                         \
+    for ((iter) = (list); (iter); (iter) = (iter)->next)
+        
 #endif /* LIST_H */
 
 /*

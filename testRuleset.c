@@ -3,17 +3,26 @@
 
 #include "ruleset.h"
 #include "list.h"
+#include "strlist.h"
 
 #include <stdio.h>
 
+// Global Vars
+int         debug;
+strList     *keyStrings;
+strList     *valStrings;
 
 int main(int argc, char **argv) {
 	cfgRules   *rules;
 	cfgRule    *rule;
+	cfgDraw    *draw;
 	int        i=0;
 	char       **ref;
 	
-	rules = (cfgRules *) rulesetRead("test/ruleset.xml");
+	debug = 2;
+	
+	rules = (cfgRules *) rulesetRead("rule.xml");
+	
 	fprintf(stdout,"------------------------\n");
 	rule = rules->rule;
 	while(rule) {
@@ -35,6 +44,12 @@ int main(int argc, char **argv) {
             fprintf(stdout," V: %s\n", *(ref));
             ref++;
        }
+       
+	   draw = rule->draw;
+	   while (draw) {
+            fprintf(stdout," D: %i\n", draw->type);
+            draw = draw->next;
+       }
 	   
 	   
 	   if(rule->nsub) {
@@ -53,12 +68,4 @@ int main(int argc, char **argv) {
 	fprintf(stdout,"Rules %i:%i\n", rules->cntRule, i);
 	fprintf(stdout,"Else  %i\n", rules->cntElse);
 	fprintf(stdout,"------------------------\n");
-	
-	cfgStr *iter;
-	LIST_FOREACH(iter, rules->keys) {
-	   fprintf(stdout,"Key: %s\n", iter->str);
-	}
-	LIST_FOREACH(iter, rules->values) {
-	   fprintf(stdout,"Value: %s\n", iter->str);
-	}
 }

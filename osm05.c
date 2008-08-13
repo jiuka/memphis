@@ -1,16 +1,40 @@
-#include "libxml/parser.h"
-#include "stdio.h"
+/*
+ * Memphis - Cairo Rederer for OSM in C
+ * Copyright (C) 2008  <marius.rieder@durchmesser.ch>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+
+#include <time.h>
+#include <expat.h>
+#include <stdio.h>
 #include <string.h>
 
-#include "osm05.h"
+#include "list.h"
+#include "strlist.h"
 #include "main.h"
-#include "ll.h"
+#include "osm05.h"
 
-char string1[]="user";
-char string2[]="timestamp";
+#define BUFFSIZE 1024
+
+// External Vars
+extern int      debug;
+extern strList  *keyStrings;
+extern strList  *valStrings;
 
 // Pointers to work with
-osmFile     *cFile = NULL;
 osmTag      *cTag = NULL;
 osmNode     *cNode = NULL;
 osmNd       *cNd = NULL;
@@ -22,113 +46,90 @@ int     cntTag = 0;
 int     cntNode = 0;
 int     cntWay = 0;
 int     cntNd = 0;
-
-
+		                          
 /**
- * osm05startDocument:
- * @ctxt:  An XML parser context
- *
- * called when the document start has been detected.
- */
-static void osm05startDocument(void *ctx) {
-    if (debug > 1)
-        fprintf(stdout,"osm05startDocument\n");
-}
-
-/**
- * osm05endDocument:
- * @ctxt:  An XML parser context
- *
- * called when the document end has been detected.
- */
-static void osm05endDocument(void *ctx) {
-     fprintf(stdout,"  Bounds: %f,%f,%f,%f\n", cFile->bounds->minlat, cFile->bounds->minlon, cFile->bounds->maxlat, cFile->bounds->maxlon);
-    fprintf(stdout,"  Nodes: % 8i\n  Tags:  % 8i\n  Ways:  % 8i\n  Nds:   % 8i\n", cntNode, cntTag, cntWay, cntNd);
-}
-
-/**
- * osm05startElement:
- * @ctxt:  An XML parser context
+ * osmStartElement:
+ * @userdata:  Void
  * @name:  The element name
- * @attributes: The element attribs
+ * @atts: The element attribs
  *
  * called when the start of an element has been detected.
  */
-static void osm05startElement(void *ctx, const xmlChar *name,
-		                      const xmlChar **attributes) {
+static void XMLCALL
+osmStartElement(void *userData, const char *name, const char **atts) {
+    osmFile *osm = (osmFile *) userData;
      if (debug > 1)
         fprintf(stdout,"osm05startElement\n");
     // Parsing Bounds
     if (strncmp((char *) name, "bounds", 6) == 0) {
-         if (debug > 1)
+        if (debug > 1)
             fprintf(stdout,"Parsing Bounds\n");
-        while (*attributes != NULL) {
-            if(strncmp((char *) *(attributes), "minlat", 6) == 0) {
-                sscanf((char *) *(attributes+1),"%f",&cFile->bounds->minlat);
-            } else if(strncmp((char *) *(attributes), "minlon", 6) == 0) {
-                sscanf((char *) *(attributes+1),"%f",&cFile->bounds->minlon);
-            } else if(strncmp((char *) *(attributes), "maxlat", 6) == 0) {
-                sscanf((char *) *(attributes+1),"%f",&cFile->bounds->maxlat);
-            } else if(strncmp((char *) *(attributes), "maxlon", 6) == 0) {
-                sscanf((char *) *(attributes+1),"%f",&cFile->bounds->maxlon);
+        while (*atts != NULL) {
+            if(strncmp((char *) *(atts), "minlat", 6) == 0) {
+                sscanf((char *) *(atts+1),"%f",&osm->bounds->minlat);
+            } else if(strncmp((char *) *(atts), "minlon", 6) == 0) {
+                sscanf((char *) *(atts+1),"%f",&osm->bounds->minlon);
+            } else if(strncmp((char *) *(atts), "maxlat", 6) == 0) {
+                sscanf((char *) *(atts+1),"%f",&osm->bounds->maxlat);
+            } else if(strncmp((char *) *(atts), "maxlon", 6) == 0) {
+                sscanf((char *) *(atts+1),"%f",&osm->bounds->maxlon);
             }
-            attributes+=2;
+            atts+=2;
         }
     }
     // Parsing Node
     else if (strncmp((char *) name, "node", 4) == 0) {
-         cntNode++;
+        if (debug > 1)
+            fprintf(stdout,"Parsing Node\n");
+        cntNode++;
         cNode = malloc(sizeof(osmNode));
-        while (*attributes != NULL) {
-            if(strncmp((char *) *(attributes), "id", 2) == 0) {
-                sscanf((char *) *(attributes+1),"%i",& cNode->id);
-            } else if(strncmp((char *) *(attributes), "lat", 3) == 0) {
-                sscanf((char *) *(attributes+1),"%f",& cNode->lat);
-            } else if(strncmp((char *) *(attributes), "lon", 3) == 0) {
-                sscanf((char *) *(attributes+1),"%f",& cNode->lon);
+        while (*atts != NULL) {
+            if(strncmp((char *) *(atts), "id", 2) == 0) {
+                sscanf((char *) *(atts+1),"%i",&cNode->id);
+            } else if(strncmp((char *) *(atts), "lat", 3) == 0) {
+                sscanf((char *) *(atts+1),"%f",&cNode->lat);
+            } else if(strncmp((char *) *(atts), "lon", 3) == 0) {
+                sscanf((char *) *(atts+1),"%f",&cNode->lon);
             }
-            attributes+=2;
+            atts+=2;
 	   }
 	   
 	   cNode->tag = NULL;
 	   cNode->layer = 0;
 	   
 	   // Insert Node
-	   LL_INSERT_ID(cNode,cFile->nodes);
+	   LL_INSERT_ID(cNode,osm->nodes);
 	   
 	   if (debug > 1)
 	       fprintf(stdout,"NODE: %i %f %f\n", cNode->id, cNode->lat, cNode->lon);
     }
     // Parsing Tags
     else if (strncmp((char *) name, "tag", 4) == 0) {
-         cntTag++;
+        if (debug > 1)
+            fprintf(stdout,"Parsing Tag\n");
+        cntTag++;
         cTag = malloc(sizeof(osmTag));
-        while (*attributes != NULL) {
-            if(strncmp((char *) *(attributes), "k", 1) == 0) {
-                if(strncmp((char *) *(attributes+1), "created_by", 10) == 0) {
+        while (*atts != NULL) {
+            if(strncmp((char *) *(atts), "k", 1) == 0) {
+                if(strncmp((char *) *(atts+1), "created_by", 10) == 0) {
                     free(cTag);
 	                cTag = NULL;
                     return;
                 }
-                size_t c = strlen((char *) *(attributes+1)) +1;
-                cTag->key = malloc(c);
-                strncpy((char *) cTag->key,(char *) *(attributes+1), c);
-            } else 
-            if(strncmp((char *) *(attributes), "v", 1) == 0) {
+                STRLIST_GET(keyStrings,(char *) *(atts+1),cTag->key);
+            } else if(strncmp((char *) *(atts), "v", 1) == 0) {
                 if(strncmp(cTag->key, "layer", 5) == 0) {
                     free(cTag);
                     cTag = NULL;
                     if (cNode)
-                        sscanf((char *) *(attributes+1),"%i",& cNode->layer);
+                        sscanf((char *) *(atts+1),"%hi",& cNode->layer);
                     if (cWay)
-                        sscanf((char *) *(attributes+1),"%i",& cWay->layer);
+                        sscanf((char *) *(atts+1),"%hi",& cWay->layer);
                     return;
                 }
-                size_t c = strlen((char *) *(attributes+1)) +1;
-                cTag->value = malloc(c);
-                strncpy((char *) cTag-> value,(char *) *(attributes+1), c);
+                STRLIST_GET(valStrings,(char *) *(atts+1),cTag->value);
             }  
-            attributes+=2;
+            atts+=2;
 	   }
 	   
 	   if (debug > 1)
@@ -143,14 +144,16 @@ static void osm05startElement(void *ctx, const xmlChar *name,
     }
     // Parsing Way
     else if (strncmp((char *) name, "way", 3) == 0) {
-         cntWay++;
+        if (debug > 1)
+            fprintf(stdout,"Parsing Way\n");
+        cntWay++;
         cWay = malloc(sizeof(osmWay));
-        while (*attributes != NULL) {
-            if(strncmp((char *) *(attributes), "id", 2) == 0) {
-                sscanf((char *) *(attributes+1),"%i",&cWay->id);
+        while (*atts != NULL) {
+            if(strncmp((char *) *(atts), "id", 2) == 0) {
+                sscanf((char *) *(atts+1),"%i",&cWay->id);
                 break;
             }
-            attributes+=2;
+            atts+=2;
 	   }
 	   
 	   cWay->tag = NULL;
@@ -158,27 +161,29 @@ static void osm05startElement(void *ctx, const xmlChar *name,
 	   cWay->layer = 0;
 	   
 	   // Insert Way
-	   LL_INSERT_ID(cWay,cFile->ways);
+	   LL_INSERT_ID(cWay,osm->ways);
 	   
 	   if (debug > 1)
 	       fprintf(stdout,"WAY(%i)\n", cWay->id);
     }
     // Parsing WayNode
     else if (strncmp((char *) name, "nd", 2) == 0) {
-         cntNd++;
+        if (debug > 1)
+            fprintf(stdout,"Parsing Nd\n");
+        cntNd++;
         int ref = 0;
-        while (*attributes != NULL) {
-            if(strncmp((char *) *(attributes), "ref", 2) == 0) {
-                sscanf((char *) *(attributes+1),"%i",&ref);
+        while (*atts != NULL) {
+            if(strncmp((char *) *(atts), "ref", 2) == 0) {
+                sscanf((char *) *(atts+1),"%i",&ref);
                 break;
             }
-            attributes+=2;
+            atts+=2;
         }
         
         if (ref) {
             cNd = malloc(sizeof(osmNd));
             
-            LL_SEARCH_ID(cFile->nodes,ref,cNd->node);
+            LL_SEARCH_ID(osm->nodes,ref,cNd->node);
 
             // Insert WayNode
             LL_APPEND(cNd,cWay->nd);
@@ -192,14 +197,16 @@ static void osm05startElement(void *ctx, const xmlChar *name,
     }
 }
 
+    
 /**
- * osm05endElement:
- * @ctxt:  An XML parser context
+ * osmEndElement:
+ * @userData:  Void
  * @name:  The element name
  *
  * called when the end of an element has been detected.
  */
-static void osm05endElement(void *ctx, const xmlChar *name) {
+static void XMLCALL
+osmEndElement(void *userData, const char *name) {
     if (debug > 1)
         fprintf(stdout,"osm05endElement\n");
     if (strncmp((char *) name, "node", 4) == 0) {
@@ -209,65 +216,72 @@ static void osm05endElement(void *ctx, const xmlChar *name) {
     }
 }
 
-
-xmlSAXHandler osmSAX2HandlerStruct = {
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    osm05endDocument,
-    osm05startElement,
-    osm05endElement,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    0,
-    NULL,
-    NULL,
-    NULL,
-    NULL
-};
-
-xmlSAXHandlerPtr osmSAX2Handler = &osmSAX2HandlerStruct;
-
+/**
+ * rulesetRead
+ */
 osmFile* osmRead(char *filename) {
     if (debug > 1)
         fprintf(stdout,"osmRead\n");
     
-    xmlInitParser();
+    // Init vars
+    cntTag = 0;
+    cntNode = 0;
+    cntWay = 0;
+    cntNd = 0;
     
-    xmlParserCtxtPtr ctxt;
-    int res;
+    // Local Vars
+    int len;
+    int done;
+    char *buf;
+    osmFile *osm = NULL;
     
-    cFile = NULL;
-    cFile = malloc(sizeof(cFile));
-    cFile->bounds = malloc(sizeof(osmBounds));
-    cFile->ways = NULL;
-    cFile->nodes = NULL;
+    // Open file
+    FILE *fd = fopen(filename,"r");
+    if(fd == NULL) {
+        fprintf(stderr,"Error: Can't open file \"%s\"\n",filename);
+        return NULL;
+    }
     
-fprintf(stdout,"Parsing Start\n");
-    res = xmlSAXUserParseFile(osmSAX2Handler, NULL, filename);
-fprintf(stdout,"Parsing End\n");
+    osm = malloc(sizeof(osmFile));
+    osm->bounds = malloc(sizeof(osmBounds));
+    osm->nodes = NULL;
+    osm->ways = NULL;
     
-    xmlCleanupParser();
-    xmlMemoryDump();
-
-    return(cFile);
+    long start = (long)clock();
+    
+    // Create XML Parser
+    XML_Parser parser = XML_ParserCreate(NULL);
+    XML_SetElementHandler(parser, osmStartElement, osmEndElement);
+    XML_SetUserData(parser, osm);
+    
+    // Create Buffer
+    buf = malloc(BUFFSIZE*sizeof(char));
+    
+    // Looping over XML
+    while(!feof(fd)) {
+         len = (int)fread(buf, 1, BUFFSIZE, fd);
+         if (ferror(fd)) {
+            fprintf(stderr, "Read error\n");
+            return NULL;;
+        }
+        done = len < sizeof(buf);
+        if (XML_Parse(parser, buf, len, done) == XML_STATUS_ERROR) {
+            fprintf(stderr, "Parse error at line %iu:\n%s\n",
+                (int) XML_GetCurrentLineNumber(parser),
+                XML_ErrorString(XML_GetErrorCode(parser)));
+            exit(-1);
+        }
+    }
+    
+    // Cleaning Memory
+    XML_ParserFree(parser);
+    free(buf);
+    fclose(fd);
+    
+    if (debug > 0)
+        fprintf(stdout," OSM parsing done. (%i/%i/%i/%i) [%fs]\n",
+                cntNode, cntWay, cntTag, cntNd,
+                ((long)clock()-start)/(double)CLOCKS_PER_SEC);   
+    
+    return(osm);
 }

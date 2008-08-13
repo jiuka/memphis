@@ -1,19 +1,21 @@
 # scons build file
 
-envXML = Environment()
-envCairo = Environment()
+env = Environment()
 
 SOURCES = [
+    'libmercator.c',
+    'main.c',
+    'osm05.c',
+    'renderer.c',
     'ruleset.c'
 ]
 
-envXML.MergeFlags(['-Wall -g -lm -std=c99 -lexpat',
-                ])
-envCairo.MergeFlags(['-Wall -g -lm -std=c99 -lexpat',
+env.MergeFlags(['-Wall -g -lm -std=c99 -lexpat',
                     '!pkg-config cairo --cflags --libs',
                 ])
                
-m = envCairo.Program('memphis', source = SOURCES)
-Default(m)
+Default(env.Program('memphis', source = SOURCES))
 
-envXML.Program('testRuleset', source=['ruleset.c','testRuleset.c'])
+env.Program('testRuleset', source=['ruleset.c','testRuleset.c'])
+env.Program('testStrlist', source=['testStrlist.c'])
+env.Program('testOSM', source=['osm05.c','testOSM.c'])
