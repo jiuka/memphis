@@ -72,11 +72,10 @@ void drawPath(renderInfo *info, osmNd *nd) {
  * This function is stroke all current path without drawing anithing.
  */
 void strokePath(renderInfo *info) {
-    int i;
+    int z;
     
-    for (i=0;i<=LAYERMAX-LAYERMIN;i++) {
-        cairo_set_line_width (info->cr[i], 0);
-       cairo_stroke(info->cr[i]);
+    for (z=0;z<=LAYERMAX-LAYERMIN;z++) {
+       cairo_new_path(info->cr[z]);
     }
 }
 
@@ -109,16 +108,20 @@ void drawPolygone(renderInfo *info, cfgDraw *draw) {
         cairo_pattern_set_extend (pattern, CAIRO_EXTEND_REPEAT);
     }
     
-    int i;
-    for (i=0;i<=LAYERMAX-LAYERMIN;i++) {
-        cairo_set_fill_rule (info->cr[i], CAIRO_FILL_RULE_EVEN_ODD);
+    int z;
+    for (z=0;z<=LAYERMAX-LAYERMIN;z++) {
+        if (LAYERMIN+z<draw->minlayer || LAYERMIN+z>draw->maxlayer)
+            continue;
+        cairo_set_fill_rule (info->cr[z], CAIRO_FILL_RULE_EVEN_ODD);
         if(draw->pattern)
-            cairo_set_source (info->cr[i], pattern);
+            cairo_set_source (info->cr[z], pattern);
         else
-            cairo_set_source_rgb (info->cr[i], draw->color[0],draw->color[1],
-                                        draw->color[2]);
+            cairo_set_source_rgb (info->cr[z],
+                                    (double)draw->color[0]/(double)255,
+                                    (double)draw->color[1]/(double)255,
+                                    (double)draw->color[2]/(double)255);
         
-        cairo_fill_preserve(info->cr[i]);
+        cairo_fill_preserve(info->cr[z]);
     }
         
     if(draw->pattern) {
@@ -136,17 +139,25 @@ void drawLine(renderInfo *info, cfgDraw *draw) {
     if (debug > 1)
         fprintf(stdout,"drawLine\n");
     
-    int i;
-    for (i=0;i<=LAYERMAX-LAYERMIN;i++) {
-        cairo_set_line_cap  (info->cr[i], CAIRO_LINE_CAP_ROUND);
-        cairo_set_line_width (info->cr[i], draw->width*LINESIZE(i));
+    int z;
+    for (z=0;z<=LAYERMAX-LAYERMIN;z++) {
+        if (z < draw->minlayer-LAYERMIN || z > draw->maxlayer-LAYERMIN)
+            continue;
+        
+        cairo_set_line_cap  (info->cr[z], CAIRO_LINE_CAP_ROUND);
+        cairo_set_line_width (info->cr[z], draw->width*LINESIZE(z));
 
-        cairo_set_source_rgb (info->cr[i], draw->color[0],draw->color[1],
-                                        draw->color[2]);
-        cairo_stroke_preserve(info->cr[i]);
+        cairo_set_source_rgb (info->cr[z],
+                                    (double)draw->color[0]/(double)255,
+                                    (double)draw->color[1]/(double)255,
+                                    (double)draw->color[2]/(double)255);
+        cairo_stroke_preserve(info->cr[z]);
     }
 }
 
+/**
+ *
+ */
 int stringInStrings(char *string, char **strings) {
     if (debug > 1)
         fprintf(stdout,"stringInStrings\n");

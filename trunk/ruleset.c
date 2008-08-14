@@ -182,7 +182,9 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
         // Create Draw
         cfgDraw *new;
         new = malloc(sizeof(cfgDraw));  
-        new->pattern = NULL;    
+        new->pattern = NULL;   
+        new->minlayer = 0;
+        new->maxlayer = 99; 
         
         // Populate Draw
         if (strcmp(name, "polygone") == 0)
@@ -192,12 +194,18 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
         
         while (*atts != NULL) {
             if(strcmp((char *) *(atts), "color") == 0) {
-                sscanf((char *) *(atts+1),"%f,%f,%f",&new->color[0],
-                            &new->color[1],&new->color[2]);
+                sscanf((char *) *(atts+1),"#%2x%2x%2x",
+                                            (unsigned int *)&new->color[0],
+                                            (unsigned int *)&new->color[1],
+                                            (unsigned int *)&new->color[2]);
             } else if(strcmp((char *) *(atts), "width") == 0) {
                 sscanf((char *) *(atts+1),"%f",&new->width);
             } else if(strcmp((char *) *(atts), "pattern") == 0) {
                 STRLIST_GET(patternStrings,(char *) *(atts+1),new->pattern);
+            } else if(strcmp((char *) *(atts), "layer") == 0) {
+                sscanf((char *) *(atts+1),"%hi:%hi",
+                                            &new->minlayer,
+                                            &new->maxlayer);
             }
             atts+=2;
         }

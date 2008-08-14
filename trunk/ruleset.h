@@ -34,7 +34,9 @@
 typedef struct _cfgDraw cfgDraw;
 struct _cfgDraw {
         short int   type;
-        float       color[3];
+        short int   minlayer;
+        short int   maxlayer;
+        short int   color[3];
         char*       pattern;
         float       width;
         cfgDraw     *next;
