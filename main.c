@@ -21,17 +21,20 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <expat.h>
 
+#include "main.h"
 #include "osm05.h"
 #include "renderer.h"
 #include "ruleset.h"
 #include "strlist.h"
 
 // Global Vars
-int         debug;
+int         debug=1;
 strList     *keyStrings;
 strList     *valStrings;
 strList     *patternStrings;
+memphisOpt  *opts;
 
 void banner() {
 	fprintf(stdout,"Memphis OSM Renderer\n");
@@ -39,44 +42,50 @@ void banner() {
 
 void usage(char *prog) {
     banner();
-	fprintf(stdout,"%s [-v] <configfile> <datafile>\n", prog);
+	fprintf(stdout,"%s [-v|-q] <configfile> <datafile>\n", prog);
 }
 
 int main(int argc, char **argv) {
-    debug = 1;
-    char *cfgfn = NULL;
-    char *osmfn = NULL;
+    
+    opts = malloc(sizeof(memphisOpt));
+    opts->debug = 1;
+    opts->cfgfn = NULL;
+    opts->osmfn = NULL;
    
     int i;
     for (i = 1; i < argc ; i++) {
         if ((!strcmp(argv[i], "-q")) || (!strcmp(argv[i], "--quiet"))) {
-            debug--;
+            opts->debug--;
         } else if ((!strcmp(argv[i], "-v")) || (!strcmp(argv[i], "--verbose"))) {
-            debug++;
-        } else if (cfgfn == NULL) {
-            cfgfn = argv[i];
-        } else if (osmfn == NULL) {
-            osmfn = argv[i];
+            opts->debug++;
+        } else if (opts->cfgfn == NULL) {
+            opts->cfgfn = argv[i];
+        } else if (opts->osmfn == NULL) {
+            opts->osmfn = argv[i];
         } else {
             usage((char *) *argv);
             exit(-1);
         }
     }
     
-    if (argc < 2 || cfgfn == NULL || osmfn == NULL) {
+    if (argc < 2 || opts->cfgfn == NULL || opts->osmfn == NULL) {
         usage((char *) *argv);
         exit(-1);
     }
                     	
-	banner();
-	
-	cfgRules *ruleset;
-	ruleset = (cfgRules *) rulesetRead(cfgfn);
+    banner();
+    
+    cfgRules *ruleset;
+    ruleset = (cfgRules *) rulesetRead(opts->cfgfn);
+    if(ruleset == NULL)
+        return(-1);
 
-	osmFile *osm;
-	osm = (osmFile *) osmRead(osmfn);
-	
-	renderCairo(ruleset, osm);
+    osmFile *osm;
+    osm = (osmFile *) osmRead(opts->osmfn);
+    if(ruleset == NULL)
+        return(-1);
+    
+    renderCairo(ruleset, osm);
     
     return(0);
 }
