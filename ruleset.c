@@ -16,15 +16,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
 #include <time.h>
 #include <expat.h>
 #include <stdio.h>
 #include <string.h>
 
+#include "main.h"
 #include "list.h"
 #include "strlist.h"
-#include "main.h"
 #include "ruleset.h"
 
 #define BUFFSIZE 1024
@@ -32,48 +31,43 @@
 #define MAXSTACK 20
 
 // External Vars
-extern int      debug;
-extern strList  *keyStrings;
-extern strList  *valStrings;
-extern strList  *patternStrings;
+extern memphisOpt   *opts;
+extern strList      *keyStrings;
+extern strList      *valStrings;
+extern strList      *patternStrings;
 
 // Pointers to work with
 cfgRule     *currentRule;
 cfgRule     *ruleStack[MAXSTACK];
 char        **stringStack;
 
-// Counts
-int     cntCfgRule = 0;
-
 /**
  * cfgStartElement:
- * @userdata:  Void
- * @name:  The element name
- * @attributes: The element attribs
+ * @userdata:   cfgRules struct to work with
+ * @name:       The element name
+ * @atts:       The element attributes
  *
- * called when the start of an element has been detected.
+ * Called when the start of an element has been detected.
  */
 static void XMLCALL
 cfgStartElement(void *userData, const char *name, const char **atts) {
     cfgRules *ruleset = (cfgRules *)userData;
-    if (debug > 1)
+    if (opts->debug > 1)
         fprintf(stdout,"cfgStartElement\n");
 
     // Parsing Rules
     if (strcmp((char *) name, "rules") == 0) {
         // Init Ruleset
-        ruleset = malloc(sizeof(cfgRules));
         ruleset->data = NULL;
         ruleset->scale=1;
         ruleset->rule = NULL;
         
         while (*atts != NULL) {
-            if(strcmp((char *) *(atts), "data") == 0) {
-                size_t c = strlen((char *) *(atts +1)) +1;
-                ruleset->data = malloc(c);
-                strncpy((char *) ruleset->data, (char *) *(atts +1), c);
-            } else if(strcmp((char *) *(atts), "scale") == 0) {
-                sscanf((char *) *(atts +1),"%f",&ruleset->scale);
+            if(strcmp((char *) *(atts), "background") == 0) {
+                sscanf((char *) *(atts+1),"#%2x%2x%2x",
+                                    (unsigned int *)&ruleset->background[0],
+                                    (unsigned int *)&ruleset->background[1],
+                                    (unsigned int *)&ruleset->background[2]);
             }
             atts+=2;
         }
@@ -94,16 +88,6 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
         char *buf, *buf2;
         stringStack = malloc(MAXSTACK*sizeof(char *));
         int c;
-        
-#ifdef DEBUG        
-        new->d = ruleset->depth;
-        
-        int h;
-        for(h=0;h<ruleset->depth;h++){
-            fprintf(stdout,"-");
-        }
-        fprintf(stdout,"rule\n");
-#endif        
         
         // Populate Rule
         while (*atts != NULL) {
@@ -163,16 +147,6 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
     else if (strcmp(name, "else") == 0) {
         ruleset->cntElse++;
         ruleset->depth++;
-        
-#ifdef DEBUG        
-        new->d = ruleset->depth;
-        
-        int h;
-        for(h=0;h<ruleset->depth;h++){
-            fprintf(stdout,"-");
-        }
-        fprintf(stdout,"else\n");
-#endif        
     }
     // Parsing Polygone, etc.
     else if (
@@ -220,15 +194,15 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
 
 /**
  * cfgEndElement:
- * @userData:  Void
- * @name:  The element name
+ * @userdata:   cfgRules struct to work with
+ * @name:       The element name
  *
- * called when the end of an element has been detected.
+ * Called when the end of an element has been detected.
  */
 static void XMLCALL
 cfgEndElement(void *userData, const char *name) {
     cfgRules *ruleset = (cfgRules *)userData;
-    if (debug > 1)
+    if (opts->debug > 1)
         fprintf(stdout,"cfgEndElement\n");
         
     if (strcmp(name, "rule") == 0) {
@@ -248,10 +222,13 @@ cfgEndElement(void *userData, const char *name) {
 }
 
 /**
- * rulesetRead
+ * rulesetRead:
+ * @filename:   Filename of the rule file
+ *
+ * Called to parse rules in the rulefile. Returns a cfgRules struct.
  */
 cfgRules* rulesetRead(char *filename) {
-    if (debug > 1)
+    if (opts->debug > 1)
         fprintf(stdout,"rulesetRead\n");
     
     // Local Vars
@@ -276,6 +253,12 @@ cfgRules* rulesetRead(char *filename) {
     ruleset->depth = -1;
     ruleset->cntRule = 0;
     ruleset->cntElse = 0;
+    
+    
+    if (opts->debug > 0) {
+        fprintf(stdout," Ruleset parsing");
+        fflush(stdout);
+    }
     
     long start = (long)clock();
     
@@ -309,8 +292,8 @@ cfgRules* rulesetRead(char *filename) {
     free(buf);
     fclose(fd);
     
-    if (debug > 0)
-        fprintf(stdout," Ruleset parsing done. (%i/%i) [%fs]\n",
+    if (opts->debug > 0)
+        fprintf(stdout," done. (%i/%i) [%fs]\n",
                 ruleset->cntRule, ruleset->cntElse,
                 ((long)clock()-start)/(double)CLOCKS_PER_SEC);   
     

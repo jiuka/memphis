@@ -3,9 +3,8 @@ README
 
 Buliding:
 
-gcc `pkg-config --libs --cflags cairo` `xml2-config --libs --cflags` \
-    -o memphis main.c osm05.c img.c config02.c
+$ scons
     
 Using:
 
-./memphis rule.xml map.osm
+$ ./memphis rule.xml map.osm

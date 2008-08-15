@@ -31,9 +31,11 @@
 
 typedef struct _renderInfo renderInfo;
 struct _renderInfo {
-        coordinates offset[LAYERMAX-LAYERMIN+1];
+        coordinates     offset[LAYERMAX-LAYERMIN+1];
         cairo_surface_t *surface[LAYERMAX-LAYERMIN+1];
-        cairo_t *cr[LAYERMAX-LAYERMIN+1];
+        cairo_t         *cr[LAYERMAX-LAYERMIN+1];
+        short int       minlayer;
+        short int       maxlayer;
    };
 
 /*

@@ -30,7 +30,6 @@
 #include "strlist.h"
 
 // Global Vars
-int         debug=1;
 strList     *keyStrings;
 strList     *valStrings;
 strList     *patternStrings;
@@ -42,15 +41,20 @@ void banner() {
 
 void usage(char *prog) {
     banner();
-	fprintf(stdout,"%s [-v|-q] <configfile> <datafile>\n", prog);
+	fprintf(stdout,"%s [-v|-q] [-m|-t <X> <Y>] <configfile> <datafile>\n", prog);
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv) {    
+    cfgRules *ruleset;
+    osmFile *osm;
     
     opts = malloc(sizeof(memphisOpt));
     opts->debug = 1;
     opts->cfgfn = NULL;
     opts->osmfn = NULL;
+    opts->mode = MODE_MAP;
+    opts->minlayer = 12;
+    opts->maxlayer = 17;
    
     int i;
     for (i = 1; i < argc ; i++) {
@@ -58,6 +62,15 @@ int main(int argc, char **argv) {
             opts->debug--;
         } else if ((!strcmp(argv[i], "-v")) || (!strcmp(argv[i], "--verbose"))) {
             opts->debug++;
+        } else if ((!strcmp(argv[i], "-m")) || (!strcmp(argv[i], "--map"))) {
+            opts->mode = MODE_MAP;
+        } else if ((!strcmp(argv[i], "-t")) || (!strcmp(argv[i], "--tile"))) {
+            if(sscanf(argv[i+1],"%hi",&opts->tile_x)!=1 ||
+               sscanf(argv[i+2],"%hi",&opts->tile_y)!=1 ) {
+                usage((char *) *argv);
+                exit(-1);
+            }
+            i+=2;
         } else if (opts->cfgfn == NULL) {
             opts->cfgfn = argv[i];
         } else if (opts->osmfn == NULL) {
@@ -75,12 +88,10 @@ int main(int argc, char **argv) {
                     	
     banner();
     
-    cfgRules *ruleset;
     ruleset = (cfgRules *) rulesetRead(opts->cfgfn);
     if(ruleset == NULL)
         return(-1);
 
-    osmFile *osm;
     osm = (osmFile *) osmRead(opts->osmfn);
     if(ruleset == NULL)
         return(-1);
