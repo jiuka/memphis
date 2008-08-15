@@ -49,7 +49,7 @@ void drawPath(renderInfo *info, osmNd *nd) {
         fprintf(stdout,"drawPath\n");
     coordinates xy;
     int z;
-    
+
     for (z=0;z<=opts->maxlayer-opts->minlayer;z++) {
         xy = coord2xy(nd->node->lat, nd->node->lon, z+opts->minlayer);
         cairo_move_to(info->cr[z], xy.x-info->offset[z].x,
@@ -77,7 +77,7 @@ void strokePath(renderInfo *info) {
     if (opts->debug > 1)
         fprintf(stdout,"strokePath\n");
     int z;
-    
+
     for (z=0;z<=opts->maxlayer-opts->minlayer;z++) {
        cairo_set_line_width (info->cr[z], 0);
        cairo_stroke(info->cr[z]);
@@ -92,27 +92,27 @@ void strokePath(renderInfo *info) {
 void drawPolygone(renderInfo *info, cfgDraw *draw) {
     if (opts->debug > 1)
         fprintf(stdout,"drawPolygone\n");
-    
+
     cairo_surface_t *image;
     cairo_pattern_t *pattern;
-        
+
     if(draw->pattern) {
         char * filename = malloc(50*sizeof(char));
         int w, h;
-        
+
         sprintf(filename,"pattern/%s.png",draw->pattern);
         image = cairo_image_surface_create_from_png(filename);
         free(filename);
-        
+
         w = cairo_image_surface_get_width (image);
         h = cairo_image_surface_get_height (image);
 
 
-                
+
         pattern = cairo_pattern_create_for_surface (image);
         cairo_pattern_set_extend (pattern, CAIRO_EXTEND_REPEAT);
     }
-    
+
     int z;
     for (z=0;z<=opts->maxlayer-opts->minlayer;z++) {
         if (opts->minlayer+z<draw->minlayer || opts->minlayer+z>draw->maxlayer)
@@ -125,10 +125,10 @@ void drawPolygone(renderInfo *info, cfgDraw *draw) {
                                     (double)draw->color[0]/(double)255,
                                     (double)draw->color[1]/(double)255,
                                     (double)draw->color[2]/(double)255);
-        
+
         cairo_fill_preserve(info->cr[z]);
     }
-        
+
     if(draw->pattern) {
         cairo_pattern_destroy (pattern);
         cairo_surface_destroy (image);
@@ -143,12 +143,12 @@ void drawPolygone(renderInfo *info, cfgDraw *draw) {
 void drawLine(renderInfo *info, cfgDraw *draw) {
     if (opts->debug > 1)
         fprintf(stdout,"drawLine\n");
-    
+
     int z;
     for (z=0;z<=opts->maxlayer-opts->minlayer;z++) {
         if (opts->minlayer+z<draw->minlayer || opts->minlayer+z>draw->maxlayer)
             continue;
-        
+
         cairo_set_line_cap  (info->cr[z], CAIRO_LINE_CAP_ROUND);
         cairo_set_line_width (info->cr[z], draw->width*LINESIZE(z));
 
@@ -159,42 +159,6 @@ void drawLine(renderInfo *info, cfgDraw *draw) {
         cairo_stroke_preserve(info->cr[z]);
     }
 }
-
-/*
- * function: drawBorder
- *
- * This function draw a border to the prepared paths with the configured color.
- *
-void drawBorder(renderInfo *info, cfgDraw *draw) {
-    if (opts->debug > 1)
-        fprintf(stdout,"drawBorder\n");
-    
-    int z;
-    for (z=0;z<=LAYERMAX-LAYERMIN;z++) {
-        if (z < draw->minlayer-LAYERMIN || z > draw->maxlayer-LAYERMIN)
-            continue;
-        
-        cairo_push_group(cr);
-            cairo_set_line_cap  (info->cr[z], CAIRO_LINE_CAP_ROUND);
-            cairo_set_line_width (info->cr[z], (draw->width+1)*LINESIZE(z));
-
-            cairo_set_source_rgb (info->cr[z],
-                                    (double)draw->color[0]/(double)255,
-                                    (double)draw->color[1]/(double)255,
-                                    (double)draw->color[2]/(double)255);
-            cairo_stroke_preserve(info->cr[z]);
-        
-            cairo_set_operator(info->cr[z,CAIRO_OPERATOR_CLEAR);
-            cairo_set_line_width (info->cr[z], draw->width*LINESIZE(z));
-            cairo_stroke_preserve(info->cr[z]);
-            cairo_set_operator(info->cr[z,CAIRO_OPERATOR_OVER);
-	
-	   cairo_pop_group_to_source (info->cr[z);
-	   cairo_rectangle (info->cr[z, 0, 0, TILESIZE*numTiles(z),
-	                                       TILESIZE*numTiles(z));
-	   cairo_fill (info->cr[z);
-    }
-}*/
 
 /**
  *
@@ -211,8 +175,8 @@ int stringInStrings(char *string, char **strings) {
             r = 2;
         if(strcmp(*strings,"~") == 0)
             r = 3;
-        
-        *strings++;
+
+        strings++;
     }
     return(r);
 }
@@ -226,14 +190,14 @@ int matchRule(cfgRule *rule, osmTag *tag) {
         k = stringInStrings(tag->key, rule->key);
         v = 0;
         v = stringInStrings(tag->value, rule->value);
-                
+
         if (k==1 && v==1)
             return(1);
         if (k==1 && v==2)
             return(1);
         if (k==0 && v==3)
             return(1);
-        
+
         tag = tag->next;
     }
     return(0);
@@ -245,7 +209,7 @@ int checkRule(cfgRule *rule, osmTag *tag, short int type) {
 
     int not;
     cfgRule *iter;
-    
+
     if(rule->nparent) {
         iter = rule->nparent;
         not = 1;
@@ -253,13 +217,13 @@ int checkRule(cfgRule *rule, osmTag *tag, short int type) {
         iter = rule->parent;
         not = 0;
     }
-    
+
     while(iter) {
-        
+
         if(matchRule(iter, tag) == not) {
             return(0);
         }
-        
+
         if(iter->nparent) {
             iter = iter->nparent;
             not = 1;
@@ -268,13 +232,13 @@ int checkRule(cfgRule *rule, osmTag *tag, short int type) {
             not = 0;
         }
     }
-    
+
     if(matchRule(rule, tag)) {
         return(1);
     } else {
         return(-1);
     }
-    
+
 }
 
 int renderCairo(cfgRules *ruleset, osmFile *osm) {
@@ -282,22 +246,22 @@ int renderCairo(cfgRules *ruleset, osmFile *osm) {
         fprintf(stdout,"renderCairo\n");
     int z, l;
     renderInfo *info;
-    
+
     info = malloc(sizeof(renderInfo));
-        
+
     // Initialize all layers
     for (z=0;z<=opts->maxlayer-opts->minlayer;z++) {
         coordinates min, max;
         min = coord2xy(osm->minlat, osm->minlon, z+opts->minlayer);
-        max = coord2xy(osm->maxlat, osm->maxlon, z+opts->minlayer); 
+        max = coord2xy(osm->maxlat, osm->maxlon, z+opts->minlayer);
         int w = (int)ceil(max.x-min.x);
         int h = (int)ceil(min.y-max.y);
-        
+
         info->offset[z] = coord2xy(osm->maxlat, osm->minlon, z+opts->minlayer);
-                                    
+
         info->surface[z] = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,w,h);
         info->cr[z] = cairo_create(info->surface[z]);
-        
+
         cairo_rectangle(info->cr[z], 0, 0, w, h);
         cairo_set_source_rgb(info->cr[z],
                                     (double)ruleset->background[0]/(double)255,
@@ -305,7 +269,7 @@ int renderCairo(cfgRules *ruleset, osmFile *osm) {
                                     (double)ruleset->background[2]/(double)255);
         cairo_fill(info->cr[z]);
     }
-    
+
     // Vars uder while looping throug data
     osmWay      *way;
     cfgRule     *rule;
@@ -313,27 +277,27 @@ int renderCairo(cfgRules *ruleset, osmFile *osm) {
     int         paths;
 
     long start = (long)clock();
-            
+
     // Start checking osm from bottom layer.
     for(l=-5;l<=5;l++) {
-        
+
         if (opts->debug > 0) {
             fprintf(stdout,"\r Cairo drawing Layer % 2i", l);
             fflush(stdout);
         }
-        
+
         // Process Rule by Rule
         LIST_FOREACH(rule, ruleset->rule) {
-            
+
             if(rule->draw != NULL) { // Draw Match first
-            
+
                 paths = 0;
                 // Loop through ways for
                 LIST_FOREACH(way, osm->ways) {
                     //Only objects on current layer
                     if(way->layer != l)
                         continue;
-                    
+
                     if( checkRule(rule, way->tag, WAY) == 1) {
                         drawPath(info, way->nd);
                         paths++;
@@ -356,18 +320,18 @@ int renderCairo(cfgRules *ruleset, osmFile *osm) {
                 strokePath(info);
             }
             if (rule->ndraw != NULL) { // Draw Else after
-                     
+
                 paths = 0;
                 // Loop through ways for
                 LIST_FOREACH(way, osm->ways) {
                     //Only objects on current layer
                     if(way->layer != l)
                         continue;
-                    
+
                     if( checkRule(rule, way->tag, WAY) == -1) {
                         drawPath(info, way->nd);
                         paths++;
-                    }         
+                    }
                 }
                 if(paths) {
                     draw = rule->ndraw;
@@ -387,20 +351,20 @@ int renderCairo(cfgRules *ruleset, osmFile *osm) {
             }
         }
     }
-    
+
     if (opts->debug > 0)
         fprintf(stdout,"\r Cairo drawing done. [%fs]\n",
-                    ((long)clock()-start)/(double)CLOCKS_PER_SEC); 
-    
+                    ((long)clock()-start)/(double)CLOCKS_PER_SEC);
+
     // Saving Images
     char *filename;
     filename = malloc(sizeof(char)*50);
-    
+
     for (z=0;z<=opts->maxlayer-opts->minlayer;z++) {
         if (opts->debug > 0) {
             fprintf(stdout,"  Cairo rendering Z%i", z+LAYERMIN);
             fflush(stdout);
-        } 
+        }
         start = (long)clock();
         sprintf(filename,"tiles/%02i.png",z+LAYERMIN);
         cairo_surface_write_to_png(info->surface[z], filename);
@@ -408,11 +372,13 @@ int renderCairo(cfgRules *ruleset, osmFile *osm) {
         cairo_surface_destroy(info->surface[z]);
         if (opts->debug > 0)
             fprintf(stdout," done.  [%fs]\n",
-                    ((long)clock()-start)/(double)CLOCKS_PER_SEC); 
+                    ((long)clock()-start)/(double)CLOCKS_PER_SEC);
    }
-   
-
-    
 
     return(0);
 }
+
+/*
+ * vim: expandtab shiftwidth=4 tabstop=4:
+ */
+

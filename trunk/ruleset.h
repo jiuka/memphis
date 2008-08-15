@@ -78,9 +78,9 @@ struct _cfgRules {
         int         cntRule;
         int         cntElse;
         int         depth;
-        
+
         short int   background[3];
-        
+
         char        *data;
         float       scale;
         cfgRule     *rule;
@@ -94,5 +94,6 @@ cfgRules* rulesetRead(char *filename);
 #endif /* RULESET_H */
 
 /*
- * vim: expandtab shiftwidth=4:
+ * vim: expandtab shiftwidth=4 tabstop=4:
  */
+

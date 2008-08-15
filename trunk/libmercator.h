@@ -19,7 +19,11 @@
 
 #ifndef LIBMERCATOR_H
 #define LIBMERCATOR_H
- 
+
+#ifndef M_PI
+# define M_PI           3.14159265358979323846  /* pi */
+#endif
+
 #define numTiles(z) exp2(z)
 #define sec(x)  (1/cos(x))
 #define degrees(a) (a*180.0/M_PI)
@@ -61,5 +65,6 @@ edges tileEdges(int x, int y, int z);
 #endif //LIBMERCATOR_H
 
 /*
- * vim: expandtab shiftwidth=4:
+ * vim: expandtab shiftwidth=4 tabstop=4:
  */
+

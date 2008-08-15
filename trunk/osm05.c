@@ -22,6 +22,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "compat.h"
+
 #include "list.h"
 #include "strlist.h"
 #include "main.h"
@@ -45,7 +47,7 @@ int     cntTag = 0;
 int     cntNode = 0;
 int     cntWay = 0;
 int     cntNd = 0;
-		                          
+
 /**
  * osmStartElement:
  * @userdata:  Void
@@ -92,13 +94,13 @@ osmStartElement(void *userData, const char *name, const char **atts) {
             }
             atts+=2;
 	   }
-	   
+
 	   cNode->tag = NULL;
 	   cNode->layer = 0;
-	   
+
 	   // Insert Node
 	   LL_INSERT_ID(cNode,osm->nodes);
-	   
+
 	   if (opts->debug > 1)
 	       fprintf(stdout,"NODE: %i %f %f\n", cNode->id, cNode->lat, cNode->lon);
     }
@@ -127,18 +129,18 @@ osmStartElement(void *userData, const char *name, const char **atts) {
                     return;
                 }
                 STRLIST_GET(valStrings,(char *) *(atts+1),cTag->value);
-            }  
+            }
             atts+=2;
 	   }
-	   
+
 	   if (opts->debug > 1)
 	       fprintf(stdout,"Tag: %s => %s\n", cTag->key, cTag->value);
-	   
+
 	   if (cNode)
 	       LL_INSERT_KEY(cTag,cNode->tag);
 	   if (cWay)
 	       LL_INSERT_KEY(cTag,cWay->tag);
-	   
+
 	   cTag = NULL;
     }
     // Parsing Way
@@ -154,14 +156,14 @@ osmStartElement(void *userData, const char *name, const char **atts) {
             }
             atts+=2;
 	   }
-	   
+
 	   cWay->tag = NULL;
 	   cWay->nd = NULL;
 	   cWay->layer = 0;
-	   
+
 	   // Insert Way
 	   LL_INSERT_ID(cWay,osm->ways);
-	   
+
 	   if (opts->debug > 1)
 	       fprintf(stdout,"WAY(%i)\n", cWay->id);
     }
@@ -178,25 +180,25 @@ osmStartElement(void *userData, const char *name, const char **atts) {
             }
             atts+=2;
         }
-        
+
         if (ref) {
             cNd = malloc(sizeof(osmNd));
-            
+
             LL_SEARCH_ID(osm->nodes,ref,cNd->node);
 
             // Insert WayNode
             LL_APPEND(cNd,cWay->nd);
-       
+
             if (opts->debug > 1)
                 fprintf(stdout," ND( %f %f )\n", cNd->node->lat, cNd->node->lon);
-                
+
             cNode=NULL;
             cNd = NULL;
         }
     }
 }
 
-    
+
 /**
  * osmEndElement:
  * @userData:  Void
@@ -221,13 +223,13 @@ osmEndElement(void *userData, const char *name) {
 osmFile* osmRead(char *filename) {
     if (opts->debug > 1)
         fprintf(stdout,"osmRead\n");
-    
+
     // Init vars
     cntTag = 0;
     cntNode = 0;
     cntWay = 0;
     cntNd = 0;
-    
+
     // Local Vars
     short int i = 0;
     char spin[] = "/-\\|";
@@ -235,14 +237,14 @@ osmFile* osmRead(char *filename) {
     int done;
     char *buf;
     osmFile *osm = NULL;
-    
+
     // Open file
     FILE *fd = fopen(filename,"r");
     if(fd == NULL) {
         fprintf(stderr,"Error: Can't open file \"%s\"\n",filename);
         return NULL;
     }
-    
+
     osm = malloc(sizeof(osmFile));
     osm->nodes = NULL;
     osm->ways = NULL;
@@ -250,23 +252,22 @@ osmFile* osmRead(char *filename) {
     osm->minlat = -190;
     osm->maxlon = -190;
     osm->maxlat = -190;
-    
-    
+
     if (opts->debug > 0) {
         fprintf(stdout," OSM parsing  ");
         fflush(stdout);
     }
-    
+
     long start = (long)clock();
-    
+
     // Create XML Parser
     XML_Parser parser = XML_ParserCreate(NULL);
     XML_SetElementHandler(parser, osmStartElement, osmEndElement);
     XML_SetUserData(parser, osm);
-    
+
     // Create Buffer
     buf = malloc(BUFFSIZE*sizeof(char));
-    
+
     // Looping over XML
     while(!feof(fd)) {
         fprintf(stdout,"\b%c",spin[i++]);
@@ -285,21 +286,21 @@ osmFile* osmRead(char *filename) {
             exit(-1);
         }
     }
-    
+
     // Cleaning Memory
     XML_ParserFree(parser);
     free(buf);
     fclose(fd);
-    
+
     // No bounds set
     if(osm->minlon == -190 || osm->minlat == -190 ||
        osm->maxlon == -190 || osm->maxlat == -190) {
-        
+
         osm->minlon = osm->nodes->lon;
         osm->minlat = osm->nodes->lat;
         osm->maxlon = osm->nodes->lon;
         osm->maxlat = osm->nodes->lat;
-        
+
         osmNode *node;
         LIST_FOREACH(node, osm->nodes) {
             if(node->lon < osm->minlon)
@@ -312,11 +313,16 @@ osmFile* osmRead(char *filename) {
                 osm->maxlat = node->lat;
         }
     }
-    
+
     if (opts->debug > 0)
         fprintf(stdout,"\r OSM parsing done. (%i/%i/%i/%i) [%fs]\n",
                 cntNode, cntWay, cntTag, cntNd,
-                ((long)clock()-start)/(double)CLOCKS_PER_SEC);   
-    
+                ((long)clock()-start)/(double)CLOCKS_PER_SEC);
+
     return(osm);
 }
+
+/*
+ * vim: expandtab shiftwidth=4 tabstop=4:
+ */
+
