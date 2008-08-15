@@ -20,17 +20,7 @@
 #ifndef OSM05_H
 #define OSM05_H
 
-typedef struct _osmBounds osmBounds;
-
-struct _osmBounds {
-        float minlat;
-        float minlon;
-        float maxlat;
-        float maxlon;
-    };
-
 typedef struct _osmTag osmTag;
-
 struct _osmTag {
         char *key;
         char *value;
@@ -84,9 +74,12 @@ struct _osmRelation {
 
 typedef struct _osmFile osmFile;
 struct _osmFile {
-        osmBounds   *bounds;
         osmNode     *nodes;
         osmWay      *ways;
+        float       minlat;
+        float       minlon;
+        float       maxlat;
+        float       maxlon;
     };
 
 /*

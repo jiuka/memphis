@@ -79,6 +79,8 @@ struct _cfgRules {
         int         cntElse;
         int         depth;
         
+        short int   background[3];
+        
         char        *data;
         float       scale;
         cfgRule     *rule;
