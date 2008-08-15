@@ -46,5 +46,6 @@ int renderCairo(cfgRules *ruleset, osmFile *osm);
 #endif /* RENDER_H */
 
 /*
- * vim: expandtab shiftwidth=4:
+ * vim: expandtab shiftwidth=4 tabstop=4:
  */
+

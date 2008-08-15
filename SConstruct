@@ -7,13 +7,14 @@ SOURCES = [
     'main.c',
     'osm05.c',
     'renderer.c',
-    'ruleset.c'
+    'ruleset.c',
+    'compat.c'
 ]
 
 env.MergeFlags(['-Wall -g -lm -std=c99 -lexpat',
                     '!pkg-config cairo --cflags --libs',
                 ])
-               
+
 Default(env.Program('memphis', source = SOURCES))
 
 env.Program('testRuleset', source=['ruleset.c','testRuleset.c'])

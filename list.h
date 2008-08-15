@@ -88,5 +88,6 @@
 #endif /* LIST_H */
 
 /*
- * vim: expandtab shiftwidth=4:
+ * vim: expandtab shiftwidth=4 tabstop=4:
  */
+

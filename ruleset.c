@@ -21,6 +21,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "compat.h"
+
 #include "main.h"
 #include "list.h"
 #include "strlist.h"
@@ -61,7 +63,7 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
         ruleset->data = NULL;
         ruleset->scale=1;
         ruleset->rule = NULL;
-        
+
         while (*atts != NULL) {
             if(strcmp((char *) *(atts), "background") == 0) {
                 sscanf((char *) *(atts+1),"#%2x%2x%2x",
@@ -76,7 +78,7 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
     else if (strcmp(name, "rule") == 0) {
         ruleset->cntRule++;
         ruleset->depth++;
-        
+
         // Create Rule
         cfgRule *new;
         new = malloc(sizeof(cfgRule));
@@ -84,11 +86,12 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
         new->type = 0;
         new->parent = NULL;
         new->nparent = NULL;
+        new->draw = NULL;
+        new->ndraw = NULL;
 
         char *buf, *buf2;
-        stringStack = malloc(MAXSTACK*sizeof(char *));
         int c;
-        
+
         // Populate Rule
         while (*atts != NULL) {
             if(strcmp((char *) *(atts), "e") == 0) {
@@ -97,10 +100,11 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
                 if(strstr((char *) *(atts +1),"node") != NULL)
                     new->type |= NODE;
             } else if(strcmp((char *) *(atts), "k") == 0) {
+	            stringStack = malloc(MAXSTACK*sizeof(char *));
                 buf2 = strdup((char *) *(atts +1));
                 c = 0;
                 while((buf = strsep(&buf2, "|")) != NULL) {
-                     *(stringStack+c) = malloc(strlen(buf)+1);
+                    *(stringStack+c) = malloc(strlen(buf)+1);
                     strncpy((char *) *(stringStack+c),buf,strlen(buf)+1);
                     c++;
                 }
@@ -108,10 +112,12 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
                 *(new->key+c) = NULL;
                 while(c--) {
                     STRLIST_GET(keyStrings,*(stringStack+c),*(new->key+c));
-                    *(stringStack+c) = NULL;
-                } 
+		            free(*(stringStack+c));
+                }
                 free(buf2);
+                free(stringStack);
             } else if(strcmp((char *) *(atts), "v") == 0) {
+	            stringStack = malloc(MAXSTACK*sizeof(char *));
                 buf2 = strdup((char *) *(atts +1));
                 c = 0;
                 while((buf = strsep(&buf2, "|")) != NULL) {
@@ -123,25 +129,24 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
                 *(new->value+c) = NULL;
                 while(c--) {
                     STRLIST_GET(valStrings,*(stringStack+c),*(new->value+c));
-                    *(stringStack+c) = NULL;
-                } 
+		            free(*(stringStack+c));
+                }
                 free(buf2);
+                free(stringStack);
             }
             atts+=2;
         }
-        
-        free(stringStack);
- 
+
         // Insert Rule to chain
         if(ruleset->rule == NULL)
             ruleset->rule = new;
-        else    
+        else
             currentRule->next = new;
         currentRule = new;
-        
+
         // Adding to stack
         ruleStack[ruleset->depth] = currentRule;
-        
+
     }
     // Parsing Else
     else if (strcmp(name, "else") == 0) {
@@ -155,17 +160,17 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
     ) {
         // Create Draw
         cfgDraw *new;
-        new = malloc(sizeof(cfgDraw));  
-        new->pattern = NULL;   
+        new = malloc(sizeof(cfgDraw));
+        new->pattern = NULL;
         new->minlayer = 0;
-        new->maxlayer = 99; 
-        
+        new->maxlayer = 99;
+
         // Populate Draw
         if (strcmp(name, "polygone") == 0)
             new->type = POLYGONE;
         else if (strcmp(name, "line") == 0)
-            new->type = LINE;  
-        
+            new->type = LINE;
+
         while (*atts != NULL) {
             if(strcmp((char *) *(atts), "color") == 0) {
                 sscanf((char *) *(atts+1),"#%2x%2x%2x",
@@ -183,7 +188,7 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
             }
             atts+=2;
         }
-        
+
         // Insert Draw
         if(currentRule->parent == 0)
             LL_APPEND(new,ruleStack[ruleset->depth]->draw);
@@ -204,7 +209,7 @@ cfgEndElement(void *userData, const char *name) {
     cfgRules *ruleset = (cfgRules *)userData;
     if (opts->debug > 1)
         fprintf(stdout,"cfgEndElement\n");
-        
+
     if (strcmp(name, "rule") == 0) {
         // Fetching Parrent from stack
         if(ruleset->depth > 0) {
@@ -214,7 +219,7 @@ cfgEndElement(void *userData, const char *name) {
                 ruleStack[ruleset->depth]->nparent = ruleStack[ruleset->depth-1];
             }
         }
-        
+
         ruleset->depth--;
     } else if (strcmp(name, "else") == 0) {
         ruleset->depth--;
@@ -230,47 +235,47 @@ cfgEndElement(void *userData, const char *name) {
 cfgRules* rulesetRead(char *filename) {
     if (opts->debug > 1)
         fprintf(stdout,"rulesetRead\n");
-    
+
     // Local Vars
     int         len;
     int         done;
     char        *buf;
-    cfgRules    *ruleset = NULL;    
-    
+    cfgRules    *ruleset = NULL;
+
     // NULL rule stack
     for (len=0;len<MAXDEPTH;len++) {
         ruleStack[len] = NULL;
     }
-    
+
     // Open file
     FILE *fd = fopen(filename,"r");
     if(fd == NULL) {
         fprintf(stderr,"Error: Can't open file \"%s\"\n",filename);
         return NULL;
     }
-    
+
     ruleset = malloc(sizeof(cfgRules));
     ruleset->depth = -1;
     ruleset->cntRule = 0;
     ruleset->cntElse = 0;
-    
-    
+
+
     if (opts->debug > 0) {
         fprintf(stdout," Ruleset parsing");
         fflush(stdout);
     }
-    
+
     long start = (long)clock();
-    
+
     // Create XML Parser
     XML_Parser parser = XML_ParserCreate(NULL);
     XML_SetElementHandler(parser, cfgStartElement, cfgEndElement);
 
     XML_SetUserData(parser, ruleset);
-    
+
     // Create Buffer
     buf = malloc(BUFFSIZE*sizeof(char));
-    
+
     // Looping over XML
     while(!feof(fd)) {
          len = (int)fread(buf, 1, BUFFSIZE, fd);
@@ -284,18 +289,23 @@ cfgRules* rulesetRead(char *filename) {
                 (int) XML_GetCurrentLineNumber(parser),
                 XML_ErrorString(XML_GetErrorCode(parser)));
             exit(-1);
-        }        
+        }
     }
-    
+
     // Cleaning Memory
     XML_ParserFree(parser);
     free(buf);
     fclose(fd);
-    
+
     if (opts->debug > 0)
         fprintf(stdout," done. (%i/%i) [%fs]\n",
                 ruleset->cntRule, ruleset->cntElse,
-                ((long)clock()-start)/(double)CLOCKS_PER_SEC);   
-    
+                ((long)clock()-start)/(double)CLOCKS_PER_SEC);
+
     return(ruleset);
 }
+
+/*
+ * vim: expandtab shiftwidth=4 tabstop=4:
+ */
+

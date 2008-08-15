@@ -38,8 +38,9 @@ struct _memphisOpt {
         char        *osmfn;
     };
 
-#endif MAIN_H
+#endif /* MAIN_H */
 
 /*
  * vim: expandtab shiftwidth=4:
  */
+

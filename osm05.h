@@ -26,9 +26,8 @@ struct _osmTag {
         char *value;
         osmTag *next;
     };
-    
+
 typedef struct _osmNode osmNode;
-    
 struct _osmNode {
         int id;
         float lat;
@@ -37,16 +36,14 @@ struct _osmNode {
         osmTag *tag;
         osmNode *next;
     };
-    
-typedef struct _osmNd osmNd;
 
+typedef struct _osmNd osmNd;
 struct _osmNd {
         osmNode *node;
         osmNd   *next;
     };
-    
-typedef struct _osmWay osmWay;
 
+typedef struct _osmWay osmWay;
 struct _osmWay {
         int id;
         short int layer;
@@ -56,7 +53,6 @@ struct _osmWay {
     };
 
 typedef struct _osmMember osmMember;
-
 struct _osmMember {
         osmNode     *node;
         osmWay      *way;
@@ -65,7 +61,6 @@ struct _osmMember {
     };
 
 typedef struct _osmRelation omsRelation;
-
 struct _osmRelation {
         int         id;
         osmTag      *tag;
@@ -90,5 +85,6 @@ osmFile* osmRead(char *filename);
 #endif /* OSM05_H */
 
 /*
- * vim: expandtab shiftwidth=4:
+ * vim: expandtab shiftwidth=4 tabstop=4:
  */
+
