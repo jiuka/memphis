@@ -6,12 +6,12 @@ env.ParseConfig('pkg-config --cflags --libs cairo')
 
 conf = Configure(env)
 
-if not conf.CheckFunc('strsep'):
+if not conf.CheckDeclaration('strsep',includes="#include <string.h>"):
     print 'Did not find strsep(), using local version'
 else:
     conf.env.Append(CCFLAGS = '-DHAVE_STRSEP')
 
-if not conf.CheckFunc('strdup'):
+if not conf.CheckDeclaration('strdup',includes="#include <string.h>"):
     print 'Did not find strdup(), using local version'
 else:
     conf.env.Append(CCFLAGS = '-DHAVE_STRDUP')
