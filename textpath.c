@@ -27,11 +27,11 @@ void point_on_path(cairo_path_t *path, double *lengths, double *x, double *y) {
     int i;
     double ratio, the_y = *y, the_x = *x, dx, dy;
     cairo_path_data_t *data, current_point;
-    
+
     for (i=0; i + path->data[i].header.length < path->num_data &&
 	    (the_x > lengths[i] || path->data[i].header.type == CAIRO_PATH_MOVE_TO);
         i += path->data[i].header.length) {
-        
+
         the_x -= lengths[i];
         data = &path->data[i];
         switch (data->header.type) {
@@ -49,7 +49,7 @@ void point_on_path(cairo_path_t *path, double *lengths, double *x, double *y) {
         }
     }
     data = &path->data[i];
-    
+
     switch (data->header.type) {
         case CAIRO_PATH_MOVE_TO:
             break;
@@ -59,11 +59,11 @@ void point_on_path(cairo_path_t *path, double *lengths, double *x, double *y) {
                 /* Line polynomial */
                 *x = current_point.point.x * (1 - ratio) + data[1].point.x * ratio;
                 *y = current_point.point.y * (1 - ratio) + data[1].point.y * ratio;
-                
+
                 /* Line gradient */
                 dx = -(current_point.point.x - data[1].point.x);
                 dy = -(current_point.point.y - data[1].point.y);
-                
+
                 /*optimization for: ratio = the_y / sqrt (dx * dx + dy * dy);*/
                 ratio = the_y / lengths[i];
                 *x += -dy * ratio;
@@ -81,7 +81,7 @@ void transform_path(cairo_path_t *path, trans_point_func_t f,
                     cairo_path_t *dpath, double *lengths) {
     int i;
     cairo_path_data_t *data;
-    
+
     for (i=0; i < path->num_data; i += path->data[i].header.length) {
         data = &path->data[i];
         switch (data->header.type) {
@@ -97,14 +97,14 @@ void transform_path(cairo_path_t *path, trans_point_func_t f,
         }
     }
 }
- 
+
 double* pathLength(cairo_path_t *path) {
     int i;
     cairo_path_data_t *data, current_point;
     double *lengths;
-    
+
     lengths = malloc((path->num_data+1) * sizeof (double));
-    
+
     for (i=0; i < path->num_data; i += path->data[i].header.length) {
         data = &path->data[i];
         lengths[i] = 0.0;
@@ -127,61 +127,54 @@ double* pathLength(cairo_path_t *path) {
         }
         lengths[path->num_data] += lengths[i];
     }
-    
+
     return lengths;
 }
 
 void textPath(cairo_t *cr, char *text, cfgDraw *draw) {
     int i, n;
-    double *lengths, length, x, y;
+    double *lengths, x, y;
     cairo_path_t *path;
     cairo_text_extents_t extents;
-    
+
     path = cairo_copy_path_flat(cr);
-    
+
     lengths = pathLength(path);
-     
+
     cairo_select_font_face (cr, "Sans", CAIRO_FONT_SLANT_NORMAL,
                                         CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_source_rgb (cr, (double)draw->color[0]/(double)255,
                               (double)draw->color[1]/(double)255,
                               (double)draw->color[2]/(double)255);
     cairo_set_font_size (cr, draw->width);
-    
+
     cairo_text_extents (cr, text, &extents);
-    
-    
+
     n = (int) (lengths[path->num_data]/extents.width/3);
     if (n == 0 && lengths[path->num_data] > extents.width)
         n = 1;
-    
-    printf("%s, %f %i\n",text, lengths[path->num_data], n);
-        
-    
+
     cairo_new_path (cr);
-    
+
     y = 0-(extents.height/2 + extents.y_bearing);
     for(i=0;i<n;i++) {
-        
+
         x = (lengths[path->num_data]/n/2)*((2*i)+1)-(extents.width/2 + extents.x_bearing);
-        
-        
-        printf("%f %i\n",x,i);
-        
+
         cairo_move_to (cr, x,y);
         cairo_text_path (cr, text);
     }
-    
+
     // Map o path
     cairo_path_t *current_path;
     current_path = cairo_copy_path (cr);
     cairo_new_path (cr);
-    
+
     transform_path (current_path,
 		  (trans_point_func_t) point_on_path, path, lengths);
 
     cairo_append_path (cr, current_path);
-    
+
     cairo_fill(cr);
 
 }
@@ -189,3 +182,4 @@ void textPath(cairo_t *cr, char *text, cfgDraw *draw) {
 /*
  * vim: expandtab shiftwidth=4 tabstop=4:
  */
+
