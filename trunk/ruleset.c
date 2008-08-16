@@ -259,7 +259,6 @@ cfgRules* rulesetRead(char *filename) {
     ruleset->cntRule = 0;
     ruleset->cntElse = 0;
 
-
     if (opts->debug > 0) {
         fprintf(stdout," Ruleset parsing");
         fflush(stdout);

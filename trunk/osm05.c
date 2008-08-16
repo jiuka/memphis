@@ -66,13 +66,13 @@ osmStartElement(void *userData, const char *name, const char **atts) {
         if (opts->debug > 1)
             fprintf(stdout,"Parsing Bounds\n");
         while (*atts != NULL) {
-            if(strncmp((char *) *(atts), "minlat", 6) == 0) {
+            if(strcmp((char *) *(atts), "minlat" ) == 0) {
                 sscanf((char *) *(atts+1),"%f",&osm->minlat);
-            } else if(strncmp((char *) *(atts), "minlon", 6) == 0) {
+            } else if(strcmp((char *) *(atts), "minlon") == 0) {
                 sscanf((char *) *(atts+1),"%f",&osm->minlon);
-            } else if(strncmp((char *) *(atts), "maxlat", 6) == 0) {
+            } else if(strcmp((char *) *(atts), "maxlat") == 0) {
                 sscanf((char *) *(atts+1),"%f",&osm->maxlat);
-            } else if(strncmp((char *) *(atts), "maxlon", 6) == 0) {
+            } else if(strcmp((char *) *(atts), "maxlon") == 0) {
                 sscanf((char *) *(atts+1),"%f",&osm->maxlon);
             }
             atts+=2;
@@ -85,11 +85,11 @@ osmStartElement(void *userData, const char *name, const char **atts) {
         cntNode++;
         cNode = malloc(sizeof(osmNode));
         while (*atts != NULL) {
-            if(strncmp((char *) *(atts), "id", 2) == 0) {
+            if(strcmp((char *) *(atts), "id") == 0) {
                 sscanf((char *) *(atts+1),"%i",&cNode->id);
-            } else if(strncmp((char *) *(atts), "lat", 3) == 0) {
+            } else if(strcmp((char *) *(atts), "lat") == 0) {
                 sscanf((char *) *(atts+1),"%f",&cNode->lat);
-            } else if(strncmp((char *) *(atts), "lon", 3) == 0) {
+            } else if(strcmp((char *) *(atts), "lon") == 0) {
                 sscanf((char *) *(atts+1),"%f",&cNode->lon);
             }
             atts+=2;
@@ -112,14 +112,14 @@ osmStartElement(void *userData, const char *name, const char **atts) {
         cTag = malloc(sizeof(osmTag));
         while (*atts != NULL) {
             if(strncmp((char *) *(atts), "k", 1) == 0) {
-                if(strncmp((char *) *(atts+1), "created_by", 10) == 0) {
+                if(strcmp((char *) *(atts+1), "created_by") == 0) {
                     free(cTag);
 	                cTag = NULL;
                     return;
                 }
                 STRLIST_GET(keyStrings,(char *) *(atts+1),cTag->key);
             } else if(strncmp((char *) *(atts), "v", 1) == 0) {
-                if(strncmp(cTag->key, "layer", 5) == 0) {
+                if(strcmp(cTag->key, "layer") == 0) {
                     free(cTag);
                     cTag = NULL;
                     if (cNode)
