@@ -127,6 +127,12 @@ osmStartElement(void *userData, const char *name, const char **atts) {
                     if (cWay)
                         sscanf((char *) *(atts+1),"%hi",& cWay->layer);
                     return;
+                } else if(strcmp(cTag->key, "name") == 0) {
+                    free(cTag);
+                    cTag = NULL;
+                    if (cWay)
+                        cWay->name = strlist_get(valStrings,(char *) *(atts+1));
+                    return;
                 }
                 cTag->value = strlist_get(valStrings,(char *) *(atts+1));
             }
@@ -159,6 +165,7 @@ osmStartElement(void *userData, const char *name, const char **atts) {
 
 	   cWay->tag = NULL;
 	   cWay->nd = NULL;
+	   cWay->name = NULL;
 	   cWay->layer = 0;
 
 	   // Insert Way
