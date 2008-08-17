@@ -117,7 +117,7 @@ osmStartElement(void *userData, const char *name, const char **atts) {
 	                cTag = NULL;
                     return;
                 }
-                STRLIST_GET(keyStrings,(char *) *(atts+1),cTag->key);
+                cTag-> key = strlist_get(keyStrings,(char *) *(atts+1));
             } else if(strncmp((char *) *(atts), "v", 1) == 0) {
                 if(strcmp(cTag->key, "layer") == 0) {
                     free(cTag);
@@ -128,7 +128,7 @@ osmStartElement(void *userData, const char *name, const char **atts) {
                         sscanf((char *) *(atts+1),"%hi",& cWay->layer);
                     return;
                 }
-                STRLIST_GET(valStrings,(char *) *(atts+1),cTag->value);
+                cTag->value = strlist_get(valStrings,(char *) *(atts+1));
             }
             atts+=2;
 	   }

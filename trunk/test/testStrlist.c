@@ -16,33 +16,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+#include <stdio.h>
 
-#ifndef STRLIST_H
-#define STRLIST_H
+#include "../strlist.h"
 
-/*
- * LinkedList Struct for Strings
- */
-typedef struct _strListNode strListNode;
-struct _strListNode {
-        char        *str;
-        strListNode *next;
-    };
+int main(int argc, char **argv) {
     
-typedef struct _strList strList;
-struct _strList {
-        strListNode *next;
-    };
-
-/*
- * Prototype
- */
-
-strList *strlist_init();
-char *strlist_get(strList *list, char *str);
-
-#endif /* STRLIST_H */
+    strList *list;
+    strListNode *node;
+    
+    list = strlist_init();
+    
+    strlist_get(list, "bString");
+    strlist_get(list, "dString");
+    
+    for(node = list->next;node;node=node->next) {
+        fprintf(stdout,"%s\n",node->str);
+    }
+    fprintf(stdout,"-------\n");
+    
+    strlist_get(list, "aString");
+    strlist_get(list, "cString");
+    strlist_get(list, "eString");
+    
+    for(node = list->next;node;node=node->next) {
+        fprintf(stdout,"%s\n",node->str);
+    }
+    	
+	return(0);
+}
 
 /*
  * vim: expandtab shiftwidth=4 tabstop=4:
  */
+ 

@@ -33,6 +33,7 @@ SOURCES = [
     'renderer.c',
     'ruleset.c',
     'compat.c',
+    'strlist.c',
     'textpath.c'
 ]
 
@@ -40,7 +41,8 @@ env.MergeFlags(['-Wall -g -lm -std=c99 -lexpat'])
 
 Default(env.Program('memphis', source = SOURCES))
 
-#env.Program('testRuleset', source=['ruleset.c','testRuleset.c'])
-#env.Program('testStrlist', source=['testStrlist.c'])
-#env.Program('testOSM', source=['osm05.c','testOSM.c'])
 env.Program('testTextPath', source=['test/testTextPath.c','textpath.c'])
+env.Program('testStrlist', source=['test/testStrlist.c','strlist.c'])
+
+#env.Program('testRuleset', source=['ruleset.c','testRuleset.c'])
+#env.Program('testOSM', source=['osm05.c','testOSM.c'])
