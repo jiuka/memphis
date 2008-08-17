@@ -85,6 +85,10 @@ int main(int argc, char **argv) {
         usage((char *) *argv);
         exit(-1);
     }
+    
+    keyStrings = strlist_init();
+    valStrings = strlist_init();
+    patternStrings = strlist_init();
                     	
     banner();
     

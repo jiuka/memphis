@@ -111,7 +111,7 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
                 new->key = malloc((c+1)*sizeof(char *));
                 *(new->key+c) = NULL;
                 while(c--) {
-                    STRLIST_GET(keyStrings,*(stringStack+c),*(new->key+c));
+                    *(new->key+c) = strlist_get(keyStrings,*(stringStack+c));
 		            free(*(stringStack+c));
                 }
                 free(buf2);
@@ -128,7 +128,7 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
                 new->value = malloc((c+1)*sizeof(char *));
                 *(new->value+c) = NULL;
                 while(c--) {
-                    STRLIST_GET(valStrings,*(stringStack+c),*(new->value+c));
+                    *(new->value+c) = strlist_get(valStrings,*(stringStack+c));
 		            free(*(stringStack+c));
                 }
                 free(buf2);
@@ -180,7 +180,7 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
             } else if(strcmp((char *) *(atts), "width") == 0) {
                 sscanf((char *) *(atts+1),"%f",&new->width);
             } else if(strcmp((char *) *(atts), "pattern") == 0) {
-                STRLIST_GET(patternStrings,(char *) *(atts+1),new->pattern);
+                new->pattern = strlist_get(patternStrings,*(atts+1));
             } else if(strcmp((char *) *(atts), "layer") == 0) {
                 sscanf((char *) *(atts+1),"%hi:%hi",
                                             &new->minlayer,
