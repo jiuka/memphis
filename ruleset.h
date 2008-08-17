@@ -26,7 +26,7 @@
 
 #define LINE        1
 #define POLYGONE    2
-#define TEXT        4
+#define TEXT        3
 
 /*
  * LinkedList Struct for Draws

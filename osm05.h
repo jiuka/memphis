@@ -47,6 +47,7 @@ typedef struct _osmWay osmWay;
 struct _osmWay {
         int id;
         short int layer;
+        char    *name;
         osmTag  *tag;
         osmNd   *nd;
         osmWay  *next;

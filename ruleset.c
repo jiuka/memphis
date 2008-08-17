@@ -156,7 +156,8 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
     // Parsing Polygone, etc.
     else if (
         strcmp(name, "polygone") == 0 ||
-        strcmp(name, "line") == 0
+        strcmp(name, "line") == 0 ||
+        strcmp(name, "text") == 0
     ) {
         // Create Draw
         cfgDraw *new;
@@ -170,6 +171,8 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
             new->type = POLYGONE;
         else if (strcmp(name, "line") == 0)
             new->type = LINE;
+        else if (strcmp(name, "text") == 0)
+            new->type = TEXT;
 
         while (*atts != NULL) {
             if(strcmp((char *) *(atts), "color") == 0) {
@@ -180,7 +183,7 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
             } else if(strcmp((char *) *(atts), "width") == 0) {
                 sscanf((char *) *(atts+1),"%f",&new->width);
             } else if(strcmp((char *) *(atts), "pattern") == 0) {
-                new->pattern = strlist_get(patternStrings,*(atts+1));
+                new->pattern = strlist_get(patternStrings,(char *)*(atts+1));
             } else if(strcmp((char *) *(atts), "layer") == 0) {
                 sscanf((char *) *(atts+1),"%hi:%hi",
                                             &new->minlayer,

@@ -31,6 +31,7 @@
 #include "renderer.h"
 #include "ruleset.h"
 #include "strlist.h"
+#include "textpath.h"
 
 // External Vars
 extern memphisOpt   *opts;
@@ -157,6 +158,28 @@ void drawLine(renderInfo *info, cfgDraw *draw) {
                                     (double)draw->color[1]/(double)255,
                                     (double)draw->color[2]/(double)255);
         cairo_stroke_preserve(info->cr[z]);
+    }
+}
+
+/*
+ * function: drawText
+ */
+void drawText(renderInfo *info, char *text, cfgDraw *draw) {
+    if (opts->debug > 1)
+        fprintf(stdout,"drawText\n");
+
+    int z;
+    for (z=0;z<=opts->maxlayer-opts->minlayer;z++) {
+        if (opts->minlayer+z<draw->minlayer || opts->minlayer+z>draw->maxlayer)
+            continue;
+            
+        cairo_select_font_face (info->cr[z], "Sans", CAIRO_FONT_SLANT_NORMAL,
+                                        CAIRO_FONT_WEIGHT_NORMAL);
+        cairo_set_source_rgb (info->cr[z], (double)draw->color[0]/(double)255,
+                              (double)draw->color[1]/(double)255,
+                              (double)draw->color[2]/(double)255);
+        cairo_set_font_size (info->cr[z], draw->width*LINESIZE(z));
+        textPath(info->cr[z], text);
     }
 }
 
@@ -316,6 +339,34 @@ int renderCairo(cfgRules *ruleset, osmFile *osm) {
                         }
                         draw = draw->next;
                     }
+                }
+                strokePath(info);
+                
+                paths = 0;
+                // Text Rendering
+                draw = rule->draw;
+                while(draw) {
+                    switch(draw->type) {
+                        case TEXT:
+                            paths++;
+                            break;
+                    }
+                    if(paths)
+                        break;
+                    draw = draw->next;
+                }
+                if(paths) {
+                    LIST_FOREACH(way, osm->ways) {
+                        //Only objects on current layer
+                        if(way->layer != l || way->name == NULL)
+                            continue;
+
+                        if( checkRule(rule, way->tag, WAY) == 1) {
+                            drawPath(info, way->nd);
+                            drawText(info, way->name, draw);
+                        }
+                    }
+
                 }
                 strokePath(info);
             }

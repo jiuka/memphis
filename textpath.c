@@ -18,6 +18,7 @@
  */
 #include <math.h>
 #include <cairo.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "ruleset.h"
@@ -131,7 +132,7 @@ double* pathLength(cairo_path_t *path) {
     return lengths;
 }
 
-void textPath(cairo_t *cr, char *text, cfgDraw *draw) {
+void textPath(cairo_t *cr, char *text) {
     int i, n;
     double *lengths, x, y;
     cairo_path_t *path;
@@ -141,19 +142,12 @@ void textPath(cairo_t *cr, char *text, cfgDraw *draw) {
 
     lengths = pathLength(path);
 
-    cairo_select_font_face (cr, "Sans", CAIRO_FONT_SLANT_NORMAL,
-                                        CAIRO_FONT_WEIGHT_NORMAL);
-    cairo_set_source_rgb (cr, (double)draw->color[0]/(double)255,
-                              (double)draw->color[1]/(double)255,
-                              (double)draw->color[2]/(double)255);
-    cairo_set_font_size (cr, draw->width);
-
     cairo_text_extents (cr, text, &extents);
 
-    n = (int) (lengths[path->num_data]/extents.width/3);
+    n = (int) (lengths[path->num_data]/extents.width/6);
     if (n == 0 && lengths[path->num_data] > extents.width)
         n = 1;
-
+    
     cairo_new_path (cr);
 
     y = 0-(extents.height/2 + extents.y_bearing);
