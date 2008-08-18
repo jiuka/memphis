@@ -1,16 +1,17 @@
 # scons build file
 
 env = Environment()
+env.MergeFlags(['-Wall -g -lm -std=c99 -lexpat'])
 
-env.ParseConfig('/opt/local/bin/pkg-config --cflags --libs cairo')
-env.ParseConfig('/opt/local/bin/pkg-config --cflags --libs glib-2.0')
+env.ParseConfig('pkg-config --cflags --libs cairo')
+env.ParseConfig('pkg-config --cflags --libs glib-2.0')
 
 conf = Configure(env)
-    
+
 if not conf.CheckLibWithHeader('expat','expat.h','C'):
     print 'Did not find expat, exiting!'
     Exit(1)
-    
+
 if not conf.CheckLibWithHeader('cairo','cairo.h','C'):
     print 'Did not find cairo, exiting!'
     Exit(1)
@@ -25,8 +26,6 @@ SOURCES = [
     'ruleset.c',
     'textpath.c'
 ]
-
-env.MergeFlags(['-Wall -g -lm -std=c99 -lexpat'])              
 
 Default(env.Program('memphis', source = SOURCES))
 

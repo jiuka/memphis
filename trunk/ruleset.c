@@ -87,7 +87,6 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
         new->draw = NULL;
         new->ndraw = NULL;
 
-        char *buf, *buf2;
         int c;
 
         // Populate Rule
