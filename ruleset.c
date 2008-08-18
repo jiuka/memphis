@@ -16,16 +16,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+#include <glib.h>
 #include <time.h>
 #include <expat.h>
 #include <stdio.h>
 #include <string.h>
 
-#include "compat.h"
-
 #include "main.h"
 #include "list.h"
-#include "strlist.h"
 #include "ruleset.h"
 
 #define BUFFSIZE 1024
@@ -34,9 +32,9 @@
 
 // External Vars
 extern memphisOpt   *opts;
-extern strList      *keyStrings;
-extern strList      *valStrings;
-extern strList      *patternStrings;
+extern GTree        *keyStrings;
+extern GTree        *valStrings;
+extern GTree        *patternStrings;
 
 // Pointers to work with
 cfgRule     *currentRule;
@@ -100,39 +98,31 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
                 if(strstr((char *) *(atts +1),"node") != NULL)
                     new->type |= NODE;
             } else if(strcmp((char *) *(atts), "k") == 0) {
-	            stringStack = malloc(MAXSTACK*sizeof(char *));
-                buf2 = strdup((char *) *(atts +1));
-                c = 0;
-                while((buf = strsep(&buf2, "|")) != NULL) {
-                    *(stringStack+c) = malloc(strlen(buf)+1);
-                    strncpy((char *) *(stringStack+c),buf,strlen(buf)+1);
-                    c++;
+                new->key = g_strsplit((char *) *(atts +1), "|", 0);
+                for(c=0;c<g_strv_length(new->key);c++) {
+                    char *tmp;
+                    tmp = *(new->key+c);
+                    *(new->key+c) = g_tree_lookup(keyStrings, tmp);
+                    if(*(new->key+c) == NULL) {
+                        g_tree_insert(keyStrings, tmp, tmp);
+                        *(new->key+c) = tmp;
+                    } else  {
+		              free(tmp);
+                    }
                 }
-                new->key = malloc((c+1)*sizeof(char *));
-                *(new->key+c) = NULL;
-                while(c--) {
-                    *(new->key+c) = strlist_get(keyStrings,*(stringStack+c));
-		            free(*(stringStack+c));
-                }
-                free(buf2);
-                free(stringStack);
             } else if(strcmp((char *) *(atts), "v") == 0) {
-	            stringStack = malloc(MAXSTACK*sizeof(char *));
-                buf2 = strdup((char *) *(atts +1));
-                c = 0;
-                while((buf = strsep(&buf2, "|")) != NULL) {
-                    *(stringStack+c) = malloc(strlen(buf)+1);
-                    strncpy((char *) *(stringStack+c),buf,strlen(buf)+1);
-                    c++;
+                new->value = g_strsplit((char *) *(atts +1), "|", 0);
+                for(c=0;c<g_strv_length(new->value);c++) {
+                    char *tmp;
+                    tmp = *(new->value+c);
+                    *(new->value+c) = g_tree_lookup(valStrings, tmp);
+                    if(*(new->value+c) == NULL) {
+                        g_tree_insert(valStrings, tmp, tmp);
+                        *(new->value+c) = tmp;
+                    } else  {
+		              free(tmp);
+                    }
                 }
-                new->value = malloc((c+1)*sizeof(char *));
-                *(new->value+c) = NULL;
-                while(c--) {
-                    *(new->value+c) = strlist_get(valStrings,*(stringStack+c));
-		            free(*(stringStack+c));
-                }
-                free(buf2);
-                free(stringStack);
             }
             atts+=2;
         }
@@ -183,7 +173,11 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
             } else if(strcmp((char *) *(atts), "width") == 0) {
                 sscanf((char *) *(atts+1),"%f",&new->width);
             } else if(strcmp((char *) *(atts), "pattern") == 0) {
-                new->pattern = strlist_get(patternStrings,(char *)*(atts+1));
+                new->pattern = g_tree_lookup(patternStrings, (char *) *(atts+1));
+                if(new->pattern == NULL) {
+                    new->pattern = g_strdup((char *) *(atts+1));
+                    g_tree_insert(patternStrings, (char *) *(atts+1), new->pattern);
+                }
             } else if(strcmp((char *) *(atts), "layer") == 0) {
                 sscanf((char *) *(atts+1),"%hi:%hi",
                                             &new->minlayer,

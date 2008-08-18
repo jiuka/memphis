@@ -16,16 +16,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
+#include <glib.h>
 #include <time.h>
 #include <expat.h>
 #include <stdio.h>
 #include <string.h>
 
-#include "compat.h"
-
 #include "list.h"
-#include "strlist.h"
 #include "main.h"
 #include "osm05.h"
 
@@ -33,13 +30,12 @@
 
 // External Vars
 extern memphisOpt   *opts;
-extern strList      *keyStrings;
-extern strList      *valStrings;
+GTree               *keyStrings;
+GTree               *valStrings;
 
 // Pointers to work with
 osmTag      *cTag = NULL;
 osmNode     *cNode = NULL;
-osmNd       *cNd = NULL;
 osmWay      *cWay = NULL;
 
 // Counts
@@ -99,7 +95,7 @@ osmStartElement(void *userData, const char *name, const char **atts) {
 	   cNode->layer = 0;
 
 	   // Insert Node
-	   LL_INSERT_ID(cNode,osm->nodes);
+       g_hash_table_insert(osm->nodeidx, &cNode->id, cNode);
 
 	   if (opts->debug > 1)
 	       fprintf(stdout,"NODE: %i %f %f\n", cNode->id, cNode->lat, cNode->lon);
@@ -117,7 +113,11 @@ osmStartElement(void *userData, const char *name, const char **atts) {
 	                cTag = NULL;
                     return;
                 }
-                cTag-> key = strlist_get(keyStrings,(char *) *(atts+1));
+                cTag->key = g_tree_lookup(keyStrings, (char *) *(atts+1));
+                if(cTag->key == NULL) {
+                    cTag->key = g_strdup((char *) *(atts+1));
+                    g_tree_insert(keyStrings, cTag->key, cTag->key);
+                }
             } else if(strncmp((char *) *(atts), "v", 1) == 0) {
                 if(strcmp(cTag->key, "layer") == 0) {
                     free(cTag);
@@ -130,15 +130,24 @@ osmStartElement(void *userData, const char *name, const char **atts) {
                 } else if(strcmp(cTag->key, "name") == 0) {
                     free(cTag);
                     cTag = NULL;
-                    if (cWay)
-                        cWay->name = strlist_get(valStrings,(char *) *(atts+1));
+                    if (cWay) {
+                        cWay->name = g_tree_lookup(valStrings, (char *) *(atts+1));
+                        if(cWay->name == NULL) {
+                            cWay->name = g_strdup((char *) *(atts+1));
+                            g_tree_insert(valStrings, cWay->name, cWay->name);
+                        }
+                    }
                     return;
                 }
-                cTag->value = strlist_get(valStrings,(char *) *(atts+1));
+                cTag->value = g_tree_lookup(valStrings, (char *) *(atts+1));
+                if(cTag->value == NULL) {
+                    cTag->value = g_strdup((char *) *(atts+1));
+                    g_tree_insert(valStrings, cTag->value, cTag->value);
+                }
             }
             atts+=2;
 	   }
-
+	   
 	   if (opts->debug > 1)
 	       fprintf(stdout,"Tag: %s => %s\n", cTag->key, cTag->value);
 
@@ -161,18 +170,18 @@ osmStartElement(void *userData, const char *name, const char **atts) {
                 break;
             }
             atts+=2;
-	   }
+     }
 
-	   cWay->tag = NULL;
-	   cWay->nd = NULL;
-	   cWay->name = NULL;
-	   cWay->layer = 0;
+        cWay->tag = NULL;
+        cWay->nd = NULL;
+        cWay->name = NULL;
+        cWay->layer = 0;
 
-	   // Insert Way
-	   LL_INSERT_ID(cWay,osm->ways);
+        // Insert Way
+        LL_INSERT_ID(cWay,osm->ways);
 
-	   if (opts->debug > 1)
-	       fprintf(stdout,"WAY(%i)\n", cWay->id);
+        if (opts->debug > 1)
+            fprintf(stdout,"WAY(%i)\n", cWay->id);
     }
     // Parsing WayNode
     else if (strncmp((char *) name, "nd", 2) == 0) {
@@ -189,18 +198,17 @@ osmStartElement(void *userData, const char *name, const char **atts) {
         }
 
         if (ref) {
-            cNd = malloc(sizeof(osmNd));
-
-            LL_SEARCH_ID(osm->nodes,ref,cNd->node);
-
+            osmNode *n;
+            
+            n = g_hash_table_lookup(osm->nodeidx, &ref); /* TODO check return value */
+ 
             // Insert WayNode
-            LL_APPEND(cNd,cWay->nd);
-
+            cWay->nd = g_slist_prepend(cWay->nd, n);
+ 
             if (opts->debug > 1)
-                fprintf(stdout," ND( %f %f )\n", cNd->node->lat, cNd->node->lon);
+                fprintf(stdout," ND( %f %f )\n", n->lat, n->lon);
 
             cNode=NULL;
-            cNd = NULL;
         }
     }
 }
@@ -220,6 +228,8 @@ osmEndElement(void *userData, const char *name) {
     if (strncmp((char *) name, "node", 4) == 0) {
         cNode = NULL;
     } else if (strncmp((char *) name, "way", 3) == 0) {
+        if (cWay->nd != NULL)
+            cWay->nd = g_slist_reverse(cWay->nd);
         cWay = NULL;
     }
 }
@@ -254,6 +264,7 @@ osmFile* osmRead(char *filename) {
 
     osm = malloc(sizeof(osmFile));
     osm->nodes = NULL;
+    osm->nodeidx = g_hash_table_new(g_int_hash, g_int_equal);
     osm->ways = NULL;
     osm->minlon = -190;
     osm->minlat = -190;

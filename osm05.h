@@ -20,6 +20,8 @@
 #ifndef OSM05_H
 #define OSM05_H
 
+#include <glib.h>
+
 typedef struct _osmTag osmTag;
 struct _osmTag {
         char *key;
@@ -37,19 +39,13 @@ struct _osmNode {
         osmNode *next;
     };
 
-typedef struct _osmNd osmNd;
-struct _osmNd {
-        osmNode *node;
-        osmNd   *next;
-    };
-
 typedef struct _osmWay osmWay;
 struct _osmWay {
         int id;
         short int layer;
         char    *name;
         osmTag  *tag;
-        osmNd   *nd;
+        GSList  *nd;
         osmWay  *next;
     };
 
@@ -71,6 +67,7 @@ struct _osmRelation {
 typedef struct _osmFile osmFile;
 struct _osmFile {
         osmNode     *nodes;
+        GHashTable  *nodeidx;
         osmWay      *ways;
         float       minlat;
         float       minlon;

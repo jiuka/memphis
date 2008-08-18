@@ -45,26 +45,33 @@ extern strList      *valStrings;
  *
  * This function is used to prepare a Path.
  */
-void drawPath(renderInfo *info, osmNd *nd) {
-    if (opts->debug > 1)
-        fprintf(stdout,"drawPath\n");
+void drawPath(renderInfo *info, GSList *nodes) {
+    GSList *iter;
+    osmNode *nd;
     coordinates xy;
     int z;
+    
+    if (opts->debug > 1)
+        fprintf(stdout,"drawPath\n");
 
-    for (z=0;z<=opts->maxlayer-opts->minlayer;z++) {
-        xy = coord2xy(nd->node->lat, nd->node->lon, z+opts->minlayer);
+    iter = nodes;
+    for (z = 0; z <= opts->maxlayer-opts->minlayer; z++) {
+        nd = iter->data;
+        xy = coord2xy(nd->lat, nd->lon, z + opts->minlayer);
         cairo_move_to(info->cr[z], xy.x-info->offset[z].x,
                                     xy.y-info->offset[z].y);
     }
-    nd = nd->next;
-    while(nd) {
-        for (z=0;z<=opts->maxlayer-opts->minlayer;z++) {
-            xy = coord2xy(nd->node->lat, nd->node->lon, z+opts->minlayer);
+    
+    iter = g_slist_next(iter);
+    while(iter) {
+        nd = iter->data;
+        for (z = 0; z <= opts->maxlayer - opts->minlayer; z++) {
+            xy = coord2xy(nd->lat, nd->lon, z + opts->minlayer);
             cairo_line_to(info->cr[z],
-                            xy.x-info->offset[z].x,
-                            xy.y-info->offset[z].y);
+                          xy.x-info->offset[z].x,
+                          xy.y-info->offset[z].y);
         }
-        nd = nd->next;
+        iter = g_slist_next(iter);
     }
 }
 
