@@ -335,7 +335,9 @@ osmFile* osmRead(char *filename) {
     if (opts->debug > 0)
         fprintf(stdout,"\r OSM parsing done. (%i/%i/%i/%i) [%fs]\n",
                 cntNode, cntWay, cntTag, cntNd,
-                ((long)clock()-start)/(double)CLOCKS_PER_SEC);
+                ((long)clock()-start)/(double)CLOCKS_PER_SEC);                
+    
+    g_hash_table_remove_all(osm->nodeidx);
 
     return(osm);
 }

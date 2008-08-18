@@ -16,6 +16,10 @@ if not conf.CheckLibWithHeader('cairo','cairo.h','C'):
     print 'Did not find cairo, exiting!'
     Exit(1)
 
+if not conf.CheckLibWithHeader('glib-2.0','glib.h','C'):
+    print 'Did not find cairo, exiting!'
+    Exit(1)
+
 env = conf.Finish()
 
 SOURCES = [
