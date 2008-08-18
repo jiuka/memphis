@@ -16,7 +16,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
+#include <glib.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -27,13 +27,17 @@
 #include "osm05.h"
 #include "renderer.h"
 #include "ruleset.h"
-#include "strlist.h"
+#include "list.h"
 
 // Global Vars
-strList     *keyStrings;
-strList     *valStrings;
-strList     *patternStrings;
+GTree       *keyStrings;
+GTree       *valStrings;
+GTree       *patternStrings;
 memphisOpt  *opts;
+
+gint g_strcmp(gconstpointer  a, gconstpointer  b) {
+    return strcmp((char *)a,(char *)b);
+}
 
 void banner() {
 	fprintf(stdout,"Memphis OSM Renderer\n");
@@ -86,9 +90,9 @@ int main(int argc, char **argv) {
         exit(-1);
     }
     
-    keyStrings = strlist_init();
-    valStrings = strlist_init();
-    patternStrings = strlist_init();
+    keyStrings = g_tree_new(g_strcmp);
+    valStrings = g_tree_new(g_strcmp);
+    patternStrings = g_tree_new(g_strcmp);
                     	
     banner();
     
@@ -99,6 +103,17 @@ int main(int argc, char **argv) {
     osm = (osmFile *) osmRead(opts->osmfn);
     if(ruleset == NULL)
         return(-1);
+    
+    osmWay *way;
+    osmTag *tag;
+    LIST_FOREACH(way, osm->ways) {
+        if(way->id != 4719299)
+            continue;
+        printf("Way: %i\n",way->id);
+        LIST_FOREACH(tag, way->tag) {
+            printf(" %s: %s\n",tag->key, tag->value);
+        }
+    }
     
     renderCairo(ruleset, osm);
     
