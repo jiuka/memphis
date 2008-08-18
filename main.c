@@ -48,10 +48,10 @@ void usage(char *prog) {
 	fprintf(stdout,"%s [-v|-q] [-m|-t <X> <Y>] <configfile> <datafile>\n", prog);
 }
 
-int main(int argc, char **argv) {    
+int main(int argc, char **argv) {
     cfgRules *ruleset;
     osmFile *osm;
-    
+
     opts = malloc(sizeof(memphisOpt));
     opts->debug = 1;
     opts->cfgfn = NULL;
@@ -59,7 +59,7 @@ int main(int argc, char **argv) {
     opts->mode = MODE_MAP;
     opts->minlayer = 12;
     opts->maxlayer = 17;
-   
+
     int i;
     for (i = 1; i < argc ; i++) {
         if ((!strcmp(argv[i], "-q")) || (!strcmp(argv[i], "--quiet"))) {
@@ -84,18 +84,18 @@ int main(int argc, char **argv) {
             exit(-1);
         }
     }
-    
+
     if (argc < 2 || opts->cfgfn == NULL || opts->osmfn == NULL) {
         usage((char *) *argv);
         exit(-1);
     }
-    
+
     keyStrings = g_tree_new(g_strcmp);
     valStrings = g_tree_new(g_strcmp);
     patternStrings = g_tree_new(g_strcmp);
-                    	
+
     banner();
-    
+
     ruleset = (cfgRules *) rulesetRead(opts->cfgfn);
     if(ruleset == NULL)
         return(-1);
@@ -103,20 +103,13 @@ int main(int argc, char **argv) {
     osm = (osmFile *) osmRead(opts->osmfn);
     if(ruleset == NULL)
         return(-1);
-    
-    osmWay *way;
-    osmTag *tag;
-    LIST_FOREACH(way, osm->ways) {
-        if(way->id != 4719299)
-            continue;
-        printf("Way: %i\n",way->id);
-        LIST_FOREACH(tag, way->tag) {
-            printf(" %s: %s\n",tag->key, tag->value);
-        }
-    }
-    
+
     renderCairo(ruleset, osm);
-    
+
     return(0);
 }
+
+/*
+ * vim: expandtab shiftwidth=4 tabstop=4:
+ */
 
