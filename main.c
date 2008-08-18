@@ -23,6 +23,8 @@
 #include <string.h>
 #include <expat.h>
 
+#include <sys/resource.h>
+
 #include "main.h"
 #include "osm05.h"
 #include "renderer.h"
@@ -40,15 +42,16 @@ gint g_strcmp(gconstpointer  a, gconstpointer  b) {
 }
 
 void banner() {
-	fprintf(stdout,"Memphis OSM Renderer\n");
+    fprintf(stdout,"Memphis OSM Renderer\n");
 }
 
 void usage(char *prog) {
     banner();
-	fprintf(stdout,"%s [-v|-q] [-m|-t <X> <Y>] <configfile> <datafile>\n", prog);
+    fprintf(stdout,"%s [-v|-q] [-m|-t <X> <Y>] <configfile> <datafile>\n", prog);
 }
 
 int main(int argc, char **argv) {
+    
     cfgRules *ruleset;
     osmFile *osm;
 
@@ -103,6 +106,10 @@ int main(int argc, char **argv) {
     osm = (osmFile *) osmRead(opts->osmfn);
     if(ruleset == NULL)
         return(-1);
+        
+    g_tree_destroy(keyStrings);
+    g_tree_destroy(valStrings);
+    g_tree_destroy(patternStrings);
 
     renderCairo(ruleset, osm);
 

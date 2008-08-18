@@ -30,13 +30,12 @@
 #include "list.h"
 #include "renderer.h"
 #include "ruleset.h"
-#include "strlist.h"
 #include "textpath.h"
 
 // External Vars
 extern memphisOpt   *opts;
-extern strList      *keyStrings;
-extern strList      *valStrings;
+extern GTree        *keyStrings;
+extern GTree        *valStrings;
 
 /*
  * function: drawPath
@@ -305,6 +304,8 @@ int renderCairo(cfgRules *ruleset, osmFile *osm) {
     cfgRule     *rule;
     cfgDraw     *draw;
     int         paths;
+    
+    
 
     long start = (long)clock();
 
