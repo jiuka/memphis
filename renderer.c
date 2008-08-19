@@ -38,6 +38,16 @@ extern GTree        *keyStrings;
 extern GTree        *valStrings;
 
 /*
+ * Internal used return values for stringInStrings.
+ */
+typedef enum compare_result_e {
+    TAG_CMP_NOT_EQUAL   = 0,
+    TAG_CMP_EQUAL       = 1,
+    TAG_CMP_ANY         = 2,
+    TAG_CMP_MISSING     = 3,
+} compare_result_e;
+
+/*
  * function: drawPath
  * @cr  Array of cairo resources
  * @nd  Liked list if osmNd's
@@ -144,6 +154,8 @@ void drawLine(renderInfo *info, cfgDraw *draw) {
 
 /*
  * function: drawText
+ *
+ * This function draw the given text along the current path.
  */
 void drawText(renderInfo *info, char *text, cfgDraw *draw) {
     if (opts->debug > 1)
@@ -158,49 +170,61 @@ void drawText(renderInfo *info, char *text, cfgDraw *draw) {
     textPath(info->cr, text);
 }
 
-/**
+/*
+ * function: stringInStrings
  *
+ * Check if string is an strings.
  */
-int stringInStrings(char *string, char **strings) {
+compare_result_e stringInStrings(char *string, char **strings) {
     if (opts->debug > 1)
         fprintf(stdout,"stringInStrings\n");
-    int r=0;
+    compare_result_e r = TAG_CMP_NOT_EQUAL;
     while (*strings != NULL) {
         if (string == *strings) {
-            return(1);
+            return TAG_CMP_EQUAL;
         }
         if(strcmp(*strings,"*") == 0)
-            r = 2;
+            r = TAG_CMP_ANY;
         if(strcmp(*strings,"~") == 0)
-            r = 3;
+            r = TAG_CMP_MISSING;
 
         strings++;
     }
-    return(r);
+    return (r);
 }
 
+/*
+ * function: matchRule
+ *
+ * Check if a element matchs a rule.
+ */
 int matchRule(cfgRule *rule, osmTag *tag) {
+    int k, v;
+    
     if (opts->debug > 1)
         fprintf(stdout,"matchRule\n");
-    int k, v;
+        
     while(tag) {
-        k = 0;
         k = stringInStrings(tag->key, rule->key);
-        v = 0;
         v = stringInStrings(tag->value, rule->value);
 
-        if (k==1 && v==1)
-            return(1);
-        if (k==1 && v==2)
-            return(1);
-        if (k==0 && v==3)
-            return(1);
+        if (k == TAG_CMP_EQUAL && v == TAG_CMP_EQUAL)
+            return TRUE;
+        if (k == TAG_CMP_EQUAL && v == TAG_CMP_ANY)
+            return TRUE;
+        if (k == TAG_CMP_NOT_EQUAL && v == TAG_CMP_MISSING)
+            return TRUE;
 
         tag = tag->next;
     }
-    return(0);
+    return FALSE;
 }
 
+/*
+ * function: checkRule
+ *
+ * Check if a element match to a rule and all it's parent.
+ */
 int checkRule(cfgRule *rule, osmTag *tag, short int type) {
     if (opts->debug > 1)
         fprintf(stdout,"checkRule\n");
@@ -210,10 +234,10 @@ int checkRule(cfgRule *rule, osmTag *tag, short int type) {
 
     if(rule->nparent) {
         iter = rule->nparent;
-        not = 1;
+        not = TRUE;
     } else {
         iter = rule->parent;
-        not = 0;
+        not = FALSE;
     }
 
     while(iter) {
@@ -224,10 +248,10 @@ int checkRule(cfgRule *rule, osmTag *tag, short int type) {
 
         if(iter->nparent) {
             iter = iter->nparent;
-            not = 1;
+            not = TRUE;
         } else {
             iter = iter->parent;
-            not = 0;
+            not = FALSE;
         }
     }
 
@@ -239,6 +263,9 @@ int checkRule(cfgRule *rule, osmTag *tag, short int type) {
 
 }
 
+/*
+ * function: renderCairoRun
+ */
 int renderCairoRun(renderInfo *info) {
     if (opts->debug > 1)
         fprintf(stdout,"renderCairoRun\n");
@@ -358,6 +385,9 @@ int renderCairoRun(renderInfo *info) {
     return(0);
 }
 
+/*
+ * function: renderCairo
+ */
 int renderCairo(cfgRules *ruleset, osmFile *osm) {
     if (opts->debug > 1)
         fprintf(stdout,"renderCairo\n");
