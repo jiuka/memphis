@@ -20,20 +20,24 @@
 #ifndef RULESET_H
 #define RULESET_H
 
-#define WAY         1
-#define NODE        2
-#define RELATION    4
+typedef enum osmTypes {
+    WAY         = 1,
+    NODE        = 2,
+    RELATION    = 4,
+} osmTypes;
 
-#define LINE        1
-#define POLYGONE    2
-#define TEXT        3
+typedef enum mapPrimitives {
+    LINE        = 1,
+    POLYGONE    = 2,
+    TEXT        = 3,
+} mapPrimitives;
 
 /*
  * LinkedList Struct for Draws
  */
 typedef struct _cfgDraw cfgDraw;
 struct _cfgDraw {
-        short int   type;
+        mapPrimitives type;
         short int   minlayer;
         short int   maxlayer;
         short int   color[3];
