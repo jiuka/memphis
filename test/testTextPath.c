@@ -34,7 +34,6 @@ int main () {
 	draw->color[0] = 0;
 	draw->color[1] = 0;
 	draw->color[2] = 0;
-	draw->width = 20.0;
 
 	double width=400, height=400;
 
@@ -45,6 +44,11 @@ int main () {
 	cairo_set_source_rgb (cr, 1,1,1);
 	cairo_fill (cr);
 	
+	cairo_select_font_face (cr, "Sans", CAIRO_FONT_SLANT_NORMAL,
+                            CAIRO_FONT_WEIGHT_NORMAL);
+    cairo_set_source_rgb (cr, 0.0, 0.0, 0.0);
+    cairo_set_font_size (cr, 20.0);
+	
 	//Test1
     cairo_move_to(cr,  50,  50);
     cairo_line_to(cr, 350,  50);
@@ -53,7 +57,7 @@ int main () {
     cairo_set_line_width (cr, 1.0);
     cairo_stroke_preserve(cr);
     
-    textPath(cr, "Test1", draw);
+    textPath(cr, "Test1");
 	
 	//Test2
     cairo_move_to(cr,  50, 100);
@@ -64,7 +68,7 @@ int main () {
     cairo_set_line_width (cr, 1.0);
     cairo_stroke_preserve(cr);
     
-    textPath(cr, "Test2", draw);
+    textPath(cr, "Test2");
 	
 	//Test3
     cairo_move_to(cr,  50, 150);
@@ -76,7 +80,7 @@ int main () {
     cairo_set_line_width (cr, 1.0);
     cairo_stroke_preserve(cr);
     
-    textPath(cr, "Test3", draw);
+    textPath(cr, "Test3");
 	
 	//Test4
     cairo_move_to(cr,  50, 200);
@@ -93,7 +97,7 @@ int main () {
     cairo_set_line_width (cr, 1.0);
     cairo_stroke_preserve(cr);
     
-    textPath(cr, "Test4", draw);
+    textPath(cr, "Test4");
 
     
 	cairo_surface_write_to_png (surf, "testTextPath.png");

@@ -30,7 +30,7 @@
 #define radians(a) (a*M_PI/180.0)
 
 #define TILESIZE        256
-#define LINESIZE(z)     (int)(exp2(z)/(z+1))
+#define LINESIZE(z)     (int)(exp2(z-12)/(z-12+1))
 
 
 #define mercatorToLat(Y) degrees(atan(sinh(Y)))

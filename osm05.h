@@ -66,13 +66,15 @@ struct _osmRelation {
 
 typedef struct _osmFile osmFile;
 struct _osmFile {
-        osmNode     *nodes;
-        GHashTable  *nodeidx;
-        osmWay      *ways;
-        float       minlat;
-        float       minlon;
-        float       maxlat;
-        float       maxlon;
+        osmNode         *nodes;     // Node List
+        GHashTable      *nodeidx;   // Node Hash
+        unsigned int    nodecnt;    // Node Count
+        osmWay          *ways;
+        unsigned int    waycnt;
+        float           minlat;
+        float           minlon;
+        float           maxlat;
+        float           maxlon;
     };
 
 /*
