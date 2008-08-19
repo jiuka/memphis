@@ -17,36 +17,25 @@
  * Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 #include <stdio.h>
+#include <stdlib.h>
 
-#include "../strlist.h"
+#include "../osm05.h"
+#include "../ruleset.h"
 
-int main(int argc, char **argv) {
+int main () {
     
-    strList *list;
-    strListNode *node;
+    fprintf(stdout,"osmTag: %i\n",(int) sizeof(osmTag));
+    fprintf(stdout,"osmNode: %i\n",(int) sizeof(osmNode));
+    fprintf(stdout,"osmWay: %i\n",(int) sizeof(osmWay));
     
-    list = strlist_init();
-    
-    strlist_get(list, "bString");
-    strlist_get(list, "dString");
-    
-    for(node = list->next;node;node=node->next) {
-        fprintf(stdout,"%s\n",node->str);
-    }
-    fprintf(stdout,"-------\n");
-    
-    strlist_get(list, "aString");
-    strlist_get(list, "cString");
-    strlist_get(list, "eString");
-    
-    for(node = list->next;node;node=node->next) {
-        fprintf(stdout,"%s\n",node->str);
-    }
-    	
-	return(0);
+    fprintf(stdout,"cfgRules: %i\n",(int) sizeof(cfgRules));
+    fprintf(stdout,"cfgRule: %i\n",(int) sizeof(cfgRule));
+    fprintf(stdout,"cfgDraw: %i\n",(int) sizeof(cfgDraw));
+	
+		
+	return (0);
 }
 
 /*
  * vim: expandtab shiftwidth=4 tabstop=4:
  */
- 

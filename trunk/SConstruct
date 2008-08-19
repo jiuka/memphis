@@ -34,9 +34,7 @@ SOURCES = [
 Default(env.Program('memphis', source = SOURCES))
 
 env.Program('testTextPath', source=['test/testTextPath.c','textpath.c'])
-env.Program('testStrlist', source=['test/testStrlist.c','strlist.c'])
 env.Program('testSize', source=['test/testSize.c'])
 env.Program('testOSM', source=['test/testOSM.c','osm05.c'])
 
 #env.Program('testRuleset', source=['ruleset.c','testRuleset.c'])
-#env.Program('testOSM', source=['osm05.c','testOSM.c'])

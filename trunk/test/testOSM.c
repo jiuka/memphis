@@ -16,34 +16,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+#include <glib.h>
+#include <time.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-#ifndef RENDER_H
-#define RENDER_H
 
-#include <cairo.h>
+#include "../osm05.h"
+#include "../main.h"
 
-#include "libmercator.h"
-#include "ruleset.h"
-#include "osm05.h"
 
-typedef struct _renderInfo renderInfo;
-struct _renderInfo {
-        coordinates     offset;
-        cairo_surface_t *surface;
-        cairo_t         *cr;
-        short int       zoom;
-        cfgRules        *ruleset;
-        osmFile         *osm;
-   };
+memphisOpt  *opts;
+GTree       *keyStrings;
+GTree       *valStrings;
 
-/*
- * Function Prototype
- */
-int renderCairo(cfgRules *ruleset, osmFile *osm);
+gint g_strcmp(gconstpointer  a, gconstpointer  b) {
+    return strcmp((char *)a,(char *)b);
+}
 
-#endif /* RENDER_H */
+int main () {
+    
+    opts = malloc(sizeof(memphisOpt));
+    opts->debug=1;
+    
+    
+    keyStrings = g_tree_new(g_strcmp);
+    valStrings = g_tree_new(g_strcmp);
+    
+    osmRead("map7.osm");
+		
+	return (0);
+}
 
 /*
  * vim: expandtab shiftwidth=4 tabstop=4:
  */
-

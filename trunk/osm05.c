@@ -17,6 +17,8 @@
  * Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 #include <glib.h>
+#include <glib/gstdio.h>
+
 #include <time.h>
 #include <expat.h>
 #include <stdio.h>
@@ -40,8 +42,6 @@ osmWay      *cWay = NULL;
 
 // Counts
 int     cntTag = 0;
-int     cntNode = 0;
-int     cntWay = 0;
 int     cntNd = 0;
 
 /**
@@ -78,7 +78,7 @@ osmStartElement(void *userData, const char *name, const char **atts) {
     else if (strncmp((char *) name, "node", 4) == 0) {
         if (opts->debug > 1)
             fprintf(stdout,"Parsing Node\n");
-        cntNode++;
+        osm->nodecnt++;
         cNode = malloc(sizeof(osmNode));
         while (*atts != NULL) {
             if(strcmp((char *) *(atts), "id") == 0) {
@@ -162,7 +162,7 @@ osmStartElement(void *userData, const char *name, const char **atts) {
     else if (strncmp((char *) name, "way", 3) == 0) {
         if (opts->debug > 1)
             fprintf(stdout,"Parsing Way\n");
-        cntWay++;
+        osm->waycnt++;
         cWay = malloc(sizeof(osmWay));
         while (*atts != NULL) {
             if(strncmp((char *) *(atts), "id", 2) == 0) {
@@ -243,17 +243,25 @@ osmFile* osmRead(char *filename) {
 
     // Init vars
     cntTag = 0;
-    cntNode = 0;
-    cntWay = 0;
     cntNd = 0;
 
     // Local Vars
-    short int i = 0;
-    char spin[] = "/-\\|";
+    unsigned int size;
+    unsigned int read = 0;
+    struct stat filestat;
     int len;
     int done;
     char *buf;
     osmFile *osm = NULL;
+    
+    // Test file
+    if (!g_file_test (filename, G_FILE_TEST_IS_REGULAR)) {
+        fprintf(stderr,"Error: \"%s\" is not a file.\n",filename);
+        return NULL;
+    }
+    
+    g_stat(filename, &filestat);
+    size = (int) filestat.st_size;
 
     // Open file
     FILE *fd = fopen(filename,"r");
@@ -265,14 +273,16 @@ osmFile* osmRead(char *filename) {
     osm = malloc(sizeof(osmFile));
     osm->nodes = NULL;
     osm->nodeidx = g_hash_table_new(g_int_hash, g_int_equal);
+    osm->nodecnt = 0;
     osm->ways = NULL;
+    osm->waycnt = 0;
     osm->minlon = -190;
     osm->minlat = -190;
     osm->maxlon = -190;
     osm->maxlat = -190;
 
     if (opts->debug > 0) {
-        fprintf(stdout," OSM parsing  ");
+        fprintf(stdout," OSM parsing   0%%");
         fflush(stdout);
     }
 
@@ -288,13 +298,15 @@ osmFile* osmRead(char *filename) {
 
     // Looping over XML
     while(!feof(fd)) {
-        fprintf(stdout,"\b%c",spin[i++]);
-        fflush(stdout);
-        i = i%4;
         len = (int)fread(buf, 1, BUFFSIZE, fd);
         if (ferror(fd)) {
             fprintf(stderr, "Read error\n");
             return NULL;;
+        }
+        read += len;
+        if (opts->debug > 0) {
+            fprintf(stdout,"\r OSM parsing % 3i%%", (int)((read*100)/size));
+            fflush(stdout);
         }
         done = len < sizeof(buf);
         if (XML_Parse(parser, buf, len, done) == XML_STATUS_ERROR) {
@@ -313,11 +325,11 @@ osmFile* osmRead(char *filename) {
     // No bounds set
     if(osm->minlon == -190 || osm->minlat == -190 ||
        osm->maxlon == -190 || osm->maxlat == -190) {
-
-        osm->minlon = osm->nodes->lon;
-        osm->minlat = osm->nodes->lat;
-        osm->maxlon = osm->nodes->lon;
-        osm->maxlat = osm->nodes->lat;
+        
+        osm->minlon = 360.0;
+        osm->minlat = 180.0;
+        osm->maxlon = -360.0;
+        osm->maxlat = -180.0;
 
         osmNode *node;
         LIST_FOREACH(node, osm->nodes) {
@@ -334,7 +346,7 @@ osmFile* osmRead(char *filename) {
 
     if (opts->debug > 0)
         fprintf(stdout,"\r OSM parsing done. (%i/%i/%i/%i) [%fs]\n",
-                cntNode, cntWay, cntTag, cntNd,
+                osm->nodecnt, osm->waycnt, cntTag, cntNd,
                 ((long)clock()-start)/(double)CLOCKS_PER_SEC);                
     
     g_hash_table_remove_all(osm->nodeidx);
