@@ -20,6 +20,9 @@
 #ifndef MAIN_H
 #define MAIN_H
 
+#define MEMPHIS_MIN_LAYER 12
+#define MEMPHIS_MAX_LAYER 17
+
 /*
  * Enums
  */
