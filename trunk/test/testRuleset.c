@@ -1,71 +1,55 @@
-#define DEBUG
-
-
-#include "ruleset.h"
-#include "list.h"
-#include "strlist.h"
-
+/*
+ * Memphis - Cairo Rederer for OSM in C
+ * Copyright (C) 2008  <marius.rieder@durchmesser.ch>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+#include <glib.h>
+#include <time.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-// Global Vars
-int         debug;
-strList     *keyStrings;
-strList     *valStrings;
 
-int main(int argc, char **argv) {
-	cfgRules   *rules;
-	cfgRule    *rule;
-	cfgDraw    *draw;
-	int        i=0;
-	char       **ref;
-	
-	debug = 2;
-	
-	rules = (cfgRules *) rulesetRead("rule.xml");
-	
-	fprintf(stdout,"------------------------\n");
-	rule = rules->rule;
-	while(rule) {
-	   i++;
-       int h;
-       for(h=0;h<rule->d;h++){
-            fprintf(stdout,"-");
-       }
-       
-	   fprintf(stdout,"rule %i %i\n",(rule->type&WAY),(rule->type&NODE));
-	   
-	   ref = rule->key;
-	   while (*ref != NULL) {
-            fprintf(stdout," K: %s\n", *(ref));
-            ref++;
-       }
-	   ref = rule->value;
-	   while (*ref != NULL) {
-            fprintf(stdout," V: %s\n", *(ref));
-            ref++;
-       }
-       
-	   draw = rule->draw;
-	   while (draw) {
-            fprintf(stdout," D: %i\n", draw->type);
-            draw = draw->next;
-       }
-	   
-	   
-	   if(rule->nsub) {
-        for(h=0;h<rule->d;h++){
-            fprintf(stdout,"-");
-        }
-	           fprintf(stdout,"else\n");
-       }
-       	   
-	   if(rule->sub != NULL) {
-	       rule = rule->sub;
-	   } else {
-	       rule = rule->next;
-	   }
-	}
-	fprintf(stdout,"Rules %i:%i\n", rules->cntRule, i);
-	fprintf(stdout,"Else  %i\n", rules->cntElse);
-	fprintf(stdout,"------------------------\n");
+#include "../ruleset.h"
+#include "../main.h"
+
+memphisOpt  *opts;
+GTree       *keyStrings;
+GTree       *valStrings;
+GTree       *patternStrings;
+
+gint g_strcmp(gconstpointer  a, gconstpointer  b) {
+    return strcmp((char *)a,(char *)b);
 }
+
+int main () {
+    
+    opts = malloc(sizeof(memphisOpt));
+    opts->debug=1;
+    
+    
+    keyStrings = g_tree_new(g_strcmp);
+    valStrings = g_tree_new(g_strcmp);
+    patternStrings = g_tree_new(g_strcmp);
+    
+    rulesetRead("test/ruleset.xml");
+		
+	return (0);
+}
+
+/*
+ * vim: expandtab shiftwidth=4 tabstop=4:
+ */

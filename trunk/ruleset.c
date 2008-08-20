@@ -17,6 +17,7 @@
  * Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 #include <glib.h>
+#include <glib/gstdio.h>
 #include <time.h>
 #include <expat.h>
 #include <stdio.h>
@@ -233,6 +234,10 @@ cfgRules* rulesetRead(char *filename) {
         fprintf(stdout,"rulesetRead\n");
 
     // Local Vars
+    GTimer *tOsmRead = g_timer_new();
+    unsigned int size;
+    unsigned int read = 0;
+    struct stat filestat;
     int         len;
     int         done;
     char        *buf;
@@ -242,6 +247,15 @@ cfgRules* rulesetRead(char *filename) {
     for (len=0;len<MAXDEPTH;len++) {
         ruleStack[len] = NULL;
     }
+    
+    // Test file
+    if (!g_file_test (filename, G_FILE_TEST_IS_REGULAR)) {
+        fprintf(stderr,"Error: \"%s\" is not a file.\n",filename);
+        return NULL;
+    }
+    
+    g_stat(filename, &filestat);
+    size = (int) filestat.st_size;
 
     // Open file
     FILE *fd = fopen(filename,"r");
@@ -256,11 +270,9 @@ cfgRules* rulesetRead(char *filename) {
     ruleset->cntElse = 0;
 
     if (opts->debug > 0) {
-        fprintf(stdout," Ruleset parsing");
+        fprintf(stdout," Ruleset parsing   0%%");
         fflush(stdout);
     }
-
-    long start = (long)clock();
 
     // Create XML Parser
     XML_Parser parser = XML_ParserCreate(NULL);
@@ -278,6 +290,11 @@ cfgRules* rulesetRead(char *filename) {
             fprintf(stderr, "Read error\n");
             return NULL;;
         }
+        read += len;
+        if (opts->debug > 0) {
+            fprintf(stdout,"\r Ruleset parsing % 3i%%", (int)((read*100)/size));
+            fflush(stdout);
+        }
         done = len < sizeof(buf);
         if (XML_Parse(parser, buf, len, done) == XML_STATUS_ERROR) {
             fprintf(stderr, "Parse error at line %iu:\n%s\n",
@@ -293,9 +310,9 @@ cfgRules* rulesetRead(char *filename) {
     fclose(fd);
 
     if (opts->debug > 0)
-        fprintf(stdout," done. (%i/%i) [%fs]\n",
-                ruleset->cntRule, ruleset->cntElse,
-                ((long)clock()-start)/(double)CLOCKS_PER_SEC);
+        fprintf(stdout,"\r Ruleset parsing done. (%i/%i) [%fs]\n",
+                ruleset->cntRule,  ruleset->cntElse,
+                g_timer_elapsed(tOsmRead,NULL));
 
     return(ruleset);
 }
