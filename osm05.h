@@ -81,6 +81,7 @@ struct _osmFile {
  * Prototypes
  */
 osmFile* osmRead(char *filename);
+void osmFree(osmFile *osm);
 
 #endif /* OSM05_H */
 

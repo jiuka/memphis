@@ -35,6 +35,11 @@ gint g_strcmp(gconstpointer  a, gconstpointer  b) {
     return strcmp((char *)a,(char *)b);
 }
 
+gboolean g_freeTree (gpointer key, gpointer value, gpointer data) {
+    g_free(key);
+    return FALSE;
+}
+
 int main () {
     
     opts = malloc(sizeof(memphisOpt));
@@ -44,7 +49,22 @@ int main () {
     keyStrings = g_tree_new(g_strcmp);
     valStrings = g_tree_new(g_strcmp);
     
-    osmRead("test/map.osm");
+    osmFile *osm = (osmFile *) osmRead("test/map.osm");
+        
+    g_tree_destroy(keyStrings);
+    g_tree_destroy(valStrings);
+    
+    // Free
+    keyStrings = g_tree_new(g_strcmp);
+    valStrings = g_tree_new(g_strcmp);
+    
+    osmFree(osm);
+    
+    g_tree_foreach(keyStrings, g_freeTree,NULL);
+    g_tree_foreach(valStrings, g_freeTree,NULL);
+    
+    g_tree_destroy(keyStrings);
+    g_tree_destroy(valStrings);
 		
 	return (0);
 }

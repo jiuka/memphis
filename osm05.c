@@ -96,6 +96,7 @@ osmStartElement(void *userData, const char *name, const char **atts) {
         // Insert Node
         osm->nodecnt++;
         g_hash_table_insert(osm->nodeidx, &cNode->id, cNode);
+        LL_PREPEND(cNode,osm->nodes);
 
         if (opts->debug > 1)
             fprintf(stdout,"NODE: %i %f %f\n", cNode->id, cNode->lat, cNode->lon);
@@ -182,7 +183,7 @@ osmStartElement(void *userData, const char *name, const char **atts) {
 
         // Insert Way
         osm->waycnt++;
-        LL_INSERT_ID(cWay,osm->ways);
+        LL_PREPEND(cWay,osm->ways);
 
         if (opts->debug > 1)
             fprintf(stdout,"WAY(%i)\n", cWay->id);
@@ -358,6 +359,43 @@ osmFile* osmRead(char *filename) {
 
     return(osm);
 }
+
+void osmFree(osmFile *osm) {
+    osmWay *way, *lway;
+    osmNode *node, *lnode;
+    osmTag *tag, *ltag;
+    for(way=osm->ways,lway=NULL;way;lway=way,way=way->next) {
+        g_slist_free(way->nd);
+        if(way->name)
+            g_tree_replace(valStrings, way->name, way->name);
+        for(tag=way->tag,ltag=NULL;tag;ltag=tag,tag=tag->next) {
+            g_tree_replace(keyStrings, tag->key, tag->key);
+            g_tree_replace(valStrings, tag->value, tag->value);
+            if(ltag)
+                free(ltag);
+        }
+        if(ltag)
+            free(ltag);
+        if(lway)
+            free(lway);
+    }
+    free(lway);
+    
+    for(node=osm->nodes,lnode=NULL;node;lnode=node,node=node->next) {
+        for(tag=node->tag,ltag=NULL;tag;ltag=tag,tag=tag->next) {
+            g_tree_replace(keyStrings, tag->key, tag->key);
+            g_tree_replace(valStrings, tag->value, tag->value);
+            if(ltag)
+                free(ltag);
+        }
+        if(ltag)
+            free(ltag);
+        if(lnode)
+            free(lnode);
+    }
+    free(lnode);
+    free(osm);
+};
 
 /*
  * vim: expandtab shiftwidth=4 tabstop=4:

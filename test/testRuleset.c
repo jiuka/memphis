@@ -35,6 +35,11 @@ gint g_strcmp(gconstpointer  a, gconstpointer  b) {
     return strcmp((char *)a,(char *)b);
 }
 
+gboolean g_freeTree (gpointer key, gpointer value, gpointer data) {
+    g_free(key);
+    return FALSE;
+}
+
 int main () {
     
     opts = malloc(sizeof(memphisOpt));
@@ -45,7 +50,26 @@ int main () {
     valStrings = g_tree_new(g_strcmp);
     patternStrings = g_tree_new(g_strcmp);
     
-    rulesetRead("test/ruleset.xml");
+    cfgRules *ruleset = (cfgRules *) rulesetRead("test/ruleset.xml");
+        
+    g_tree_destroy(keyStrings);
+    g_tree_destroy(valStrings);
+    g_tree_destroy(patternStrings);
+    
+    // Free
+    keyStrings = g_tree_new(g_strcmp);
+    valStrings = g_tree_new(g_strcmp);
+    patternStrings = g_tree_new(g_strcmp);
+    
+    rulesetFree(ruleset);
+    
+    g_tree_foreach(keyStrings, g_freeTree,NULL);
+    g_tree_foreach(valStrings, g_freeTree,NULL);
+    g_tree_foreach(patternStrings, g_freeTree,NULL);
+    
+    g_tree_destroy(keyStrings);
+    g_tree_destroy(valStrings);
+    g_tree_destroy(patternStrings);
 		
 	return (0);
 }
