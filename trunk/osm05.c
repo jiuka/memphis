@@ -158,8 +158,11 @@ osmStartElement(void *userData, const char *name, const char **atts) {
        cntTag++;
         if (cNode)
             LL_INSERT_KEY(cTag,cNode->tag);
-        if (cWay)
+        else if (cWay)
             LL_INSERT_KEY(cTag,cWay->tag);
+        else {
+            free(cTag);
+        }
 
         cTag = NULL;
     }
@@ -348,7 +351,7 @@ osmFile* osmRead(char *filename) {
         }
     }
 
-    g_hash_table_remove_all(osm->nodeidx);
+    g_hash_table_destroy(osm->nodeidx);
     
     if (opts->debug > 0)
         fprintf(stdout,"\r OSM parsing done. (%i/%i/%i/%i) [%fs]\n",
