@@ -20,22 +20,26 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#define MODE_MAP    0
-#define MODE_TILE   1
+/*
+ * Enums
+ */
+typedef enum memphis_modes_e {
+    MODE_MAP,                   /* Render howl bound. */
+    MODE_TILE,                  /* Render given tile */
+} memphis_modes_e;
 
 typedef struct _memphisOpt memphisOpt; 
 struct _memphisOpt {
-        short int   mode;       // 0/MODE_MAP: Render howl bound.
-                                // 1/MODE_TILE: Render given tile.
-        short int   debug;      // 0: Be quiet
-                                // 1: Normal Output (Default)
-                                // 2: Be verbose
-        short int   tile_x;
-        short int   tile_y;
-        short int   minlayer;
-        short int   maxlayer;
-        char        *cfgfn;
-        char        *osmfn;
+        memphis_modes_e mode;   /* render mode */
+        short int       debug;  /* 0: Be quiet
+                                 * 1: Normal Output (Default)
+                                 * 2: Be verbose */
+        short int       tile_x;
+        short int       tile_y;
+        short int       minlayer;
+        short int       maxlayer;
+        char            *cfgfn;
+        char            *osmfn;
     };
 
 #endif /* MAIN_H */
