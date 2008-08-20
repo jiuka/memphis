@@ -44,7 +44,7 @@ int main () {
     keyStrings = g_tree_new(g_strcmp);
     valStrings = g_tree_new(g_strcmp);
     
-    osmRead("map7.osm");
+    osmRead("test/map.osm");
 		
 	return (0);
 }
