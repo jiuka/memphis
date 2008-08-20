@@ -60,8 +60,8 @@ int main(int argc, char **argv) {
     opts->cfgfn = NULL;
     opts->osmfn = NULL;
     opts->mode = MODE_MAP;
-    opts->minlayer = 12;
-    opts->maxlayer = 17;
+    opts->minlayer = MEMPHIS_MIN_LAYER;
+    opts->maxlayer = MEMPHIS_MAX_LAYER;
 
     int i;
     for (i = 1; i < argc ; i++) {
@@ -73,6 +73,18 @@ int main(int argc, char **argv) {
             opts->mode = MODE_MAP;
         } else if ((!strcmp(argv[i], "-t")) || (!strcmp(argv[i], "--tile"))) {
             opts->mode = MODE_TILE;
+        } else if (!strcmp(argv[i], "--minlayer") && ((i + 1) < argc)) {
+            opts->minlayer = atoi(argv[i + 1]);
+            opts->minlayer = CLAMP(opts->minlayer,
+                                   MEMPHIS_MIN_LAYER,
+                                   MEMPHIS_MAX_LAYER);
+            ++i;
+        } else if (!strcmp(argv[i], "--maxlayer") && ((i + 1) < argc)) {
+            opts->maxlayer = atoi(argv[i + 1]);
+            opts->maxlayer = CLAMP(opts->maxlayer,
+                                   MEMPHIS_MIN_LAYER,
+                                   MEMPHIS_MAX_LAYER);
+            ++i;
         } else if (opts->cfgfn == NULL) {
             opts->cfgfn = argv[i];
         } else if (opts->osmfn == NULL) {
