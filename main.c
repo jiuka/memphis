@@ -47,7 +47,7 @@ void banner() {
 
 void usage(char *prog) {
     banner();
-    fprintf(stdout,"%s [-v|-q] [-m|-t <X> <Y>] <configfile> <datafile>\n", prog);
+    fprintf(stdout,"%s [-v|-q] [-m|-t] <configfile> <datafile>\n", prog);
 }
 
 int main(int argc, char **argv) {
@@ -72,12 +72,7 @@ int main(int argc, char **argv) {
         } else if ((!strcmp(argv[i], "-m")) || (!strcmp(argv[i], "--map"))) {
             opts->mode = MODE_MAP;
         } else if ((!strcmp(argv[i], "-t")) || (!strcmp(argv[i], "--tile"))) {
-            if(sscanf(argv[i+1],"%hi",&opts->tile_x)!=1 ||
-               sscanf(argv[i+2],"%hi",&opts->tile_y)!=1 ) {
-                usage((char *) *argv);
-                exit(-1);
-            }
-            i+=2;
+            opts->mode = MODE_TILE;
         } else if (opts->cfgfn == NULL) {
             opts->cfgfn = argv[i];
         } else if (opts->osmfn == NULL) {
