@@ -439,10 +439,13 @@ int renderCairo(cfgRules *ruleset, osmFile *osm) {
         }
         sprintf(filename,"tiles/%02i.png",info->zoom);
         cairo_surface_write_to_png(info->surface, filename);
+        free(filename);
         cairo_destroy(info->cr);
         cairo_surface_destroy(info->surface);
         if (opts->debug > 0)
             fprintf(stdout," done.\n");
+            
+        free(info);
     }
     
     return (0);

@@ -234,7 +234,7 @@ cfgRules* rulesetRead(char *filename) {
         fprintf(stdout,"rulesetRead\n");
 
     // Local Vars
-    GTimer *tOsmRead = g_timer_new();
+    GTimer *tRulesetRead = g_timer_new();
     unsigned int size;
     unsigned int read = 0;
     struct stat filestat;
@@ -312,7 +312,9 @@ cfgRules* rulesetRead(char *filename) {
     if (opts->debug > 0)
         fprintf(stdout,"\r Ruleset parsing done. (%i/%i) [%fs]\n",
                 ruleset->cntRule,  ruleset->cntElse,
-                g_timer_elapsed(tOsmRead,NULL));
+                g_timer_elapsed(tRulesetRead,NULL));
+    
+    g_timer_destroy(tRulesetRead);
 
     return(ruleset);
 }
