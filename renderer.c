@@ -263,6 +263,39 @@ int checkRule(cfgRule *rule, osmTag *tag, short int type) {
 
 }
 
+void renderPaths(renderInfo *info, int layer, cfgRule *rule, cfgDraw *draw) {
+    int paths = 0;
+    osmWay *way;
+
+    // Loop through ways for
+    LIST_FOREACH(way, info->osm->ways) {
+        //Only objects on current layer
+        if(way->layer != layer)
+            continue;
+
+        if( checkRule(rule, way->tag, WAY) == 1) {
+            drawPath(info, way->nd);
+            paths++;
+        }
+    }
+    if(paths) {
+        while(draw) {
+            switch(draw->type) {
+                case POLYGONE:
+                    drawPolygone(info, draw);
+                    break;
+                case LINE:
+                    drawLine(info, draw);
+                    break;
+                case TEXT: break;   /* ignore */
+            }
+            draw = draw->next;
+        }
+    }
+    strokePath(info);
+} 
+
+
 /*
  * function: renderCairoRun
  */
@@ -289,37 +322,8 @@ int renderCairoRun(renderInfo *info) {
         LIST_FOREACH(rule, info->ruleset->rule) {
 
             if(rule->draw != NULL) { // Draw Match first
+                renderPaths(info, l, rule, rule->draw);
 
-                paths = 0;
-                // Loop through ways for
-                LIST_FOREACH(way, info->osm->ways) {
-                    //Only objects on current layer
-                    if(way->layer != l)
-                        continue;
-
-                    if( checkRule(rule, way->tag, WAY) == 1) {
-                        drawPath(info, way->nd);
-                        paths++;
-                    }
-                }
-                if(paths) {
-                    draw = rule->draw;
-                    while(draw) {
-                        switch(draw->type) {
-                            case POLYGONE:
-                                drawPolygone(info,draw);
-                                break;
-                            case LINE:
-                                drawLine(info,draw);
-                                break;
-                            case TEXT:
-                                break;
-                        }
-                        draw = draw->next;
-                    }
-                }
-                strokePath(info);
-                
                 paths = 0;
                 // Text Rendering
                 draw = rule->draw;
@@ -352,36 +356,7 @@ int renderCairoRun(renderInfo *info) {
                 strokePath(info);
             }
             if (rule->ndraw != NULL) { // Draw Else after
-
-                paths = 0;
-                // Loop through ways for
-                LIST_FOREACH(way, info->osm->ways) {
-                    //Only objects on current layer
-                    if(way->layer != l)
-                        continue;
-
-                    if( checkRule(rule, way->tag, WAY) == -1) {
-                        drawPath(info, way->nd);
-                        paths++;
-                    }
-                }
-                if(paths) {
-                    draw = rule->ndraw;
-                    while(draw) {
-                        switch(draw->type) {
-                            case POLYGONE:
-                                drawPolygone(info,draw);
-                                break;
-                            case LINE:
-                                drawLine(info,draw);
-                                break;
-                            case TEXT:
-                                break;
-                        }
-                        draw = draw->next;
-                    }
-                }
-                strokePath(info);
+                renderPaths(info, l, rule, rule->ndraw);
             }
         }
     }
