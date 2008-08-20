@@ -20,14 +20,10 @@
 #ifndef LIBMERCATOR_H
 #define LIBMERCATOR_H
 
-#ifndef M_PI
-# define M_PI           3.14159265358979323846  /* pi */
-#endif
-
 #define numTiles(z) exp2(z)
 #define sec(x)  (1/cos(x))
-#define degrees(a) (a*180.0/M_PI)
-#define radians(a) (a*M_PI/180.0)
+#define degrees(a) (a*180.0/G_PI)
+#define radians(a) (a*G_PI/180.0)
 
 #define TILESIZE        256
 #define LINESIZE(z)     (int)(exp2(z-12)/(z-12+1))
