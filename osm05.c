@@ -161,7 +161,7 @@ osmStartElement(void *userData, const char *name, const char **atts) {
         else if (cWay)
             LL_INSERT_KEY(cTag,cWay->tag);
         else
-            free(cTag);
+            g_free(cTag);
 
         cTag = NULL;
     }
@@ -374,29 +374,29 @@ void osmFree(osmFile *osm) {
             g_tree_replace(keyStrings, tag->key, tag->key);
             g_tree_replace(valStrings, tag->value, tag->value);
             if(ltag)
-                free(ltag);
+                g_free(ltag);
         }
         if(ltag)
-            free(ltag);
+            g_free(ltag);
         if(lway)
-            free(lway);
+            g_free(lway);
     }
-    free(lway);
+    g_free(lway);
     
     for(node=osm->nodes,lnode=NULL;node;lnode=node,node=node->next) {
         for(tag=node->tag,ltag=NULL;tag;ltag=tag,tag=tag->next) {
             g_tree_replace(keyStrings, tag->key, tag->key);
             g_tree_replace(valStrings, tag->value, tag->value);
             if(ltag)
-                free(ltag);
+                g_free(ltag);
         }
         if(ltag)
-            free(ltag);
+            g_free(ltag);
         if(lnode)
-            free(lnode);
+            g_free(lnode);
     }
-    free(lnode);
-    free(osm);
+    g_free(lnode);
+    g_free(osm);
 };
 
 /*
