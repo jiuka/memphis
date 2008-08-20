@@ -326,18 +326,18 @@ void rulesetFree(cfgRules * ruleset) {
             if(draw->pattern)
                 g_tree_replace(patternStrings, draw->pattern, draw->pattern);
             if(ldraw)
-                free(ldraw);
+                g_free(ldraw);
         }
         if(ldraw)
-            free(ldraw);
+            g_free(ldraw);
         for(draw=rule->ndraw,ldraw=NULL;draw;ldraw=draw,draw=draw->next) {
             if(draw->pattern)
                 g_tree_replace(patternStrings, draw->pattern, draw->pattern);
             if(ldraw)
-                free(ldraw);
+                g_free(ldraw);
         }
         if(ldraw)
-            free(ldraw);
+            g_free(ldraw);
         
         while (*rule->key != NULL) {
             g_tree_replace(keyStrings, *rule->key, *rule->key);
@@ -349,10 +349,10 @@ void rulesetFree(cfgRules * ruleset) {
         }
         
         if(lrule)
-            free(lrule);
+            g_free(lrule);
     }
-    free(lrule);
-    free(ruleset);
+    g_free(lrule);
+    g_free(ruleset);
 };
 
 /*
