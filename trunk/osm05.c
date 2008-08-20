@@ -78,7 +78,7 @@ osmStartElement(void *userData, const char *name, const char **atts) {
     else if (strncmp((char *) name, "node", 4) == 0) {
         if (opts->debug > 1)
             fprintf(stdout,"Parsing Node\n");
-        cNode = malloc(sizeof(osmNode));
+        cNode = g_new(osmNode, 1);
         while (*atts != NULL) {
             if(strcmp((char *) *(atts), "id") == 0) {
                 sscanf((char *) *(atts+1),"%i",&cNode->id);
@@ -105,15 +105,15 @@ osmStartElement(void *userData, const char *name, const char **atts) {
     else if (strncmp((char *) name, "tag", 4) == 0) {
         if (opts->debug > 1)
             fprintf(stdout,"Parsing Tag\n");
-        cTag = malloc(sizeof(osmTag));
+        cTag = g_new(osmTag, 1);
         while (*atts != NULL) {
             if(strncmp((char *) *(atts), "k", 1) == 0) {
                 if(strcmp((char *) *(atts+1), "created_by") == 0) {
-                    free(cTag);
+                    g_free(cTag);
                     cTag = NULL;
                     return;
                 } else if(strncmp((char *) *(atts+1), "source", 6) == 0) {
-                    free(cTag);
+                    g_free(cTag);
                     cTag = NULL;
                     return;
                 }
@@ -124,7 +124,7 @@ osmStartElement(void *userData, const char *name, const char **atts) {
                 }
             } else if(strncmp((char *) *(atts), "v", 1) == 0) {
                 if(strcmp(cTag->key, "layer") == 0) {
-                    free(cTag);
+                    g_free(cTag);
                     cTag = NULL;
                     if (cNode)
                         sscanf((char *) *(atts+1),"%hi",& cNode->layer);
@@ -132,7 +132,7 @@ osmStartElement(void *userData, const char *name, const char **atts) {
                         sscanf((char *) *(atts+1),"%hi",& cWay->layer);
                     return;
                 } else if(strcmp(cTag->key, "name") == 0) {
-                    free(cTag);
+                    g_free(cTag);
                     cTag = NULL;
                     if (cWay) {
                         cWay->name = g_tree_lookup(valStrings, (char *) *(atts+1));
@@ -155,14 +155,13 @@ osmStartElement(void *userData, const char *name, const char **atts) {
         if (opts->debug > 1)
             fprintf(stdout,"Tag: %s => %s\n", cTag->key, cTag->value);
 
-       cntTag++;
+        cntTag++;
         if (cNode)
             LL_INSERT_KEY(cTag,cNode->tag);
         else if (cWay)
             LL_INSERT_KEY(cTag,cWay->tag);
-        else {
+        else
             free(cTag);
-        }
 
         cTag = NULL;
     }
@@ -170,7 +169,7 @@ osmStartElement(void *userData, const char *name, const char **atts) {
     else if (strncmp((char *) name, "way", 3) == 0) {
         if (opts->debug > 1)
             fprintf(stdout,"Parsing Way\n");
-        cWay = malloc(sizeof(osmWay));
+        cWay = g_new(osmWay, 1);
         while (*atts != NULL) {
             if(strncmp((char *) *(atts), "id", 2) == 0) {
                 sscanf((char *) *(atts+1),"%i",&cWay->id);
@@ -279,7 +278,7 @@ osmFile* osmRead(char *filename) {
         return NULL;
     }
 
-    osm = malloc(sizeof(osmFile));
+    osm = g_new(osmFile, 1);
     osm->nodes = NULL;
     osm->nodeidx = g_hash_table_new(g_int_hash, g_int_equal);
     osm->nodecnt = 0;
@@ -301,7 +300,7 @@ osmFile* osmRead(char *filename) {
     XML_SetUserData(parser, osm);
 
     // Create Buffer
-    buf = malloc(BUFFSIZE*sizeof(char));
+    buf = g_malloc(BUFFSIZE*sizeof(char));
 
     // Looping over XML
     while(!feof(fd)) {
@@ -326,7 +325,7 @@ osmFile* osmRead(char *filename) {
 
     // Cleaning Memory
     XML_ParserFree(parser);
-    free(buf);
+    g_free(buf);
     fclose(fd);
 
     // No bounds set
