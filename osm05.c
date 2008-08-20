@@ -246,11 +246,11 @@ osmFile* osmRead(char *filename) {
         fprintf(stdout,"osmRead\n");
 
     // Init vars
-    GTimer *tOsmRead = g_timer_new();
     cntTag = 0;
     cntNd = 0;
 
     // Local Vars
+    GTimer *tOsmRead = g_timer_new();
     unsigned int size;
     unsigned int read = 0;
     struct stat filestat;
