@@ -104,11 +104,11 @@ double* pathLength(cairo_path_t *path) {
     cairo_path_data_t *data, current_point;
     double *lengths;
 
-    lengths = malloc((path->num_data+1) * sizeof (double));
+    lengths = g_malloc0((path->num_data+1) * sizeof (double));
 
     for (i=0; i < path->num_data; i += path->data[i].header.length) {
         data = &path->data[i];
-        lengths[i] = 0.0;
+                
         switch (data->header.type) {
             case CAIRO_PATH_MOVE_TO:
                 current_point = data[1];
@@ -120,13 +120,13 @@ double* pathLength(cairo_path_t *path) {
                     dy = data[1].point.y - current_point.point.y;
                     lengths[i] = sqrt (dx * dx + dy * dy);
                     current_point = data[1];
+                    lengths[path->num_data] += lengths[i];
                 }
                 break;
             case CAIRO_PATH_CURVE_TO:
             case CAIRO_PATH_CLOSE_PATH:
                 break;
         }
-        lengths[path->num_data] += lengths[i];
     }
 
     return lengths;
@@ -170,6 +170,11 @@ void textPath(cairo_t *cr, char *text) {
     cairo_append_path (cr, current_path);
 
     cairo_fill(cr);
+    
+    // Free memory
+    cairo_path_destroy(path);
+    cairo_path_destroy(current_path);
+    g_free(lengths);
 
 }
 
