@@ -82,11 +82,7 @@ struct _cfgRules {
         int         cntRule;
         int         cntElse;
         int         depth;
-
         short int   background[3];
-
-        char        *data;
-        float       scale;
         cfgRule     *rule;
     };
 
@@ -94,6 +90,7 @@ struct _cfgRules {
  * Prototypes
  */
 cfgRules* rulesetRead(char *filename);
+void rulesetFree(cfgRules * ruleset);
 
 #endif /* RULESET_H */
 

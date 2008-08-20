@@ -59,8 +59,6 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
     // Parsing Rules
     if (strcmp((char *) name, "rules") == 0) {
         // Init Ruleset
-        ruleset->data = NULL;
-        ruleset->scale=1;
         ruleset->rule = NULL;
 
         while (*atts != NULL) {
@@ -318,6 +316,36 @@ cfgRules* rulesetRead(char *filename) {
 
     return(ruleset);
 }
+
+void rulesetFree(cfgRules * ruleset) {
+    cfgRule *rule, *lrule;
+    cfgDraw *draw, *ldraw;
+    
+    for(rule=ruleset->rule,lrule=NULL;rule;lrule=rule,rule=rule->next) {
+        for(draw=rule->draw,ldraw=NULL;draw;ldraw=draw,draw=draw->next) {
+            if(draw->pattern)
+                g_tree_replace(patternStrings, draw->pattern, draw->pattern);
+            if(ldraw)
+                free(ldraw);
+        }
+        if(ldraw)
+            free(ldraw);
+        
+        while (*rule->key != NULL) {
+            g_tree_replace(keyStrings, *rule->key, *rule->key);
+            rule->key++;
+        }
+        while (*rule->value != NULL) {
+            g_tree_replace(keyStrings, *rule->value, *rule->value);
+            rule->value++;
+        }
+        
+        if(lrule)
+            free(lrule);
+    }
+    free(lrule);
+    free(ruleset);
+};
 
 /*
  * vim: expandtab shiftwidth=4 tabstop=4:

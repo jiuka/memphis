@@ -68,6 +68,12 @@
         *_nextptr = _node;                              \
         _node->next = NULL;                             \
     } while (0)
+   
+#define LL_PREPEND(node_,list)                          \
+    do {                                                \
+        node_->next = list;                             \
+        list=node_;                                     \
+    } while (0)
 
 // Search
 #define LL_SEARCH_ID(list,target,result)                \
