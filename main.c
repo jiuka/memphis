@@ -60,7 +60,7 @@ int main(int argc, char **argv) {
     cfgRules *ruleset;
     osmFile *osm;
 
-    opts = malloc(sizeof(memphisOpt));
+    opts = g_new(memphisOpt, 1);
     opts->debug = 1;
     opts->cfgfn = NULL;
     opts->osmfn = NULL;

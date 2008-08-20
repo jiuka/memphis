@@ -104,12 +104,12 @@ void drawPolygone(renderInfo *info, cfgDraw *draw) {
     cairo_pattern_t *pattern;
 
     if(draw->pattern) {
-        char * filename = malloc(50*sizeof(char));
+        char *filename;
         int w, h;
 
-        sprintf(filename,"pattern/%s.png",draw->pattern);
+        filename = g_strdup_printf("pattern/%s.png", draw->pattern);
         image = cairo_image_surface_create_from_png(filename);
-        free(filename);
+        g_free(filename);
 
         w = cairo_image_surface_get_width (image);
         h = cairo_image_surface_get_height (image);
@@ -405,7 +405,7 @@ int renderCairo(cfgRules *ruleset, osmFile *osm) {
     for (z=0;z<=opts->maxlayer-opts->minlayer;z++) {
         coordinates min, max;
         
-        info = malloc(sizeof(renderInfo));
+        info = g_new(renderInfo, 1);
         info->zoom = z+opts->minlayer;
         info->ruleset = ruleset;
         info->osm = osm;
@@ -431,21 +431,20 @@ int renderCairo(cfgRules *ruleset, osmFile *osm) {
         
         // Saving Images
         char *filename;
-        filename = malloc(sizeof(char)*50);
 
         if (opts->debug > 0) {
             fprintf(stdout," Cairo rendering Z%i", info->zoom);
             fflush(stdout);
         }
-        sprintf(filename,"tiles/%02i.png",info->zoom);
+        filename = g_strdup_printf("tiles/%02i.png", info->zoom);
         cairo_surface_write_to_png(info->surface, filename);
-        free(filename);
+        g_free(filename);
         cairo_destroy(info->cr);
         cairo_surface_destroy(info->surface);
         if (opts->debug > 0)
             fprintf(stdout," done.\n");
             
-        free(info);
+        g_free(info);
     }
     
     return (0);

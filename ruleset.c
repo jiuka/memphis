@@ -78,7 +78,7 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
 
         // Create Rule
         cfgRule *new;
-        new = malloc(sizeof(cfgRule));
+        new = g_new(cfgRule, 1);
         new->next = NULL;
         new->type = 0;
         new->parent = NULL;
@@ -105,7 +105,7 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
                         g_tree_insert(keyStrings, tmp, tmp);
                         *(new->key+c) = tmp;
                     } else  {
-		              free(tmp);
+		              g_free(tmp);
                     }
                 }
             } else if(strcmp((char *) *(atts), "v") == 0) {
@@ -118,7 +118,7 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
                         g_tree_insert(valStrings, tmp, tmp);
                         *(new->value+c) = tmp;
                     } else  {
-		              free(tmp);
+		              g_free(tmp);
                     }
                 }
             }
@@ -149,7 +149,7 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
     ) {
         // Create Draw
         cfgDraw *new;
-        new = malloc(sizeof(cfgDraw));
+        new = g_new(cfgDraw, 1);
         new->pattern = NULL;
         new->minlayer = 0;
         new->maxlayer = 99;
@@ -262,7 +262,7 @@ cfgRules* rulesetRead(char *filename) {
         return NULL;
     }
 
-    ruleset = malloc(sizeof(cfgRules));
+    ruleset = g_new(cfgRules, 1);
     ruleset->depth = -1;
     ruleset->cntRule = 0;
     ruleset->cntElse = 0;
@@ -279,7 +279,7 @@ cfgRules* rulesetRead(char *filename) {
     XML_SetUserData(parser, ruleset);
 
     // Create Buffer
-    buf = malloc(BUFFSIZE*sizeof(char));
+    buf = g_malloc(BUFFSIZE*sizeof(char));
 
     // Looping over XML
     while(!feof(fd)) {
@@ -304,7 +304,7 @@ cfgRules* rulesetRead(char *filename) {
 
     // Cleaning Memory
     XML_ParserFree(parser);
-    free(buf);
+    g_free(buf);
     fclose(fd);
 
     if (opts->debug > 0)
@@ -323,6 +323,14 @@ void rulesetFree(cfgRules * ruleset) {
     
     for(rule=ruleset->rule,lrule=NULL;rule;lrule=rule,rule=rule->next) {
         for(draw=rule->draw,ldraw=NULL;draw;ldraw=draw,draw=draw->next) {
+            if(draw->pattern)
+                g_tree_replace(patternStrings, draw->pattern, draw->pattern);
+            if(ldraw)
+                free(ldraw);
+        }
+        if(ldraw)
+            free(ldraw);
+        for(draw=rule->ndraw,ldraw=NULL;draw;ldraw=draw,draw=draw->next) {
             if(draw->pattern)
                 g_tree_replace(patternStrings, draw->pattern, draw->pattern);
             if(ldraw)
