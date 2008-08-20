@@ -312,6 +312,8 @@ int renderCairoRun(renderInfo *info) {
                             case LINE:
                                 drawLine(info,draw);
                                 break;
+                            case TEXT:
+                                break;
                         }
                         draw = draw->next;
                     }
@@ -325,6 +327,9 @@ int renderCairoRun(renderInfo *info) {
                     switch(draw->type) {
                         case TEXT:
                             paths++;
+                            break;
+                        case POLYGONE:
+                        case LINE:
                             break;
                     }
                     if(paths)
@@ -370,6 +375,8 @@ int renderCairoRun(renderInfo *info) {
                             case LINE:
                                 drawLine(info,draw);
                                 break;
+                            case TEXT:
+                                break;
                         }
                         draw = draw->next;
                     }
@@ -393,7 +400,6 @@ int renderCairo(cfgRules *ruleset, osmFile *osm) {
         fprintf(stdout,"renderCairo\n");
     int z;
     renderInfo *info;
-    GSList *infos;
     
     // Initialize all layers
     for (z=0;z<=opts->maxlayer-opts->minlayer;z++) {
