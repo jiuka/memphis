@@ -370,11 +370,17 @@ void osmFree(osmFile *osm) {
     osmWay *way, *lway;
     osmNode *node, *lnode;
     osmTag *tag, *ltag;
-    for(way=osm->ways,lway=NULL;way;lway=way,way=way->next) {
+    for(way = osm->ways, lway = NULL;
+        way != NULL;
+        lway = way, way = way->next)
+    {
         g_slist_free(way->nd);
         if(way->name)
             g_tree_replace(valStrings, way->name, way->name);
-        for(tag=way->tag,ltag=NULL;tag;ltag=tag,tag=tag->next) {
+        for(tag = way->tag, ltag = NULL;
+            tag != NULL;
+            ltag = tag, tag = tag->next)
+        {
             g_tree_replace(keyStrings, tag->key, tag->key);
             g_tree_replace(valStrings, tag->value, tag->value);
             if(ltag)
@@ -387,8 +393,14 @@ void osmFree(osmFile *osm) {
     }
     g_free(lway);
     
-    for(node=osm->nodes,lnode=NULL;node;lnode=node,node=node->next) {
-        for(tag=node->tag,ltag=NULL;tag;ltag=tag,tag=tag->next) {
+    for(node = osm->nodes, lnode = NULL;
+        node != NULL;
+        lnode = node, node = node->next)
+    {
+        for(tag = node->tag, ltag = NULL;
+            tag != NULL;
+            ltag = tag, tag = tag->next)
+        {
             g_tree_replace(keyStrings, tag->key, tag->key);
             g_tree_replace(valStrings, tag->value, tag->value);
             if(ltag)

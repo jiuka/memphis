@@ -96,33 +96,33 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
                 if(strstr((char *) *(atts +1),"node") != NULL)
                     new->type |= NODE;
             } else if(strcmp((char *) *(atts), "k") == 0) {
-                new->key = g_strsplit((char *) *(atts +1), "|", 0);
-                for(c=0;c<g_strv_length(new->key);c++) {
+                new->key = g_strsplit((char *) *(atts + 1), "|", 0);
+                for(c = 0; c < g_strv_length(new->key); c++) {
                     char *tmp;
-                    tmp = *(new->key+c);
-                    *(new->key+c) = g_tree_lookup(keyStrings, tmp);
-                    if(*(new->key+c) == NULL) {
+                    tmp = *(new->key + c);
+                    *(new->key + c) = g_tree_lookup(keyStrings, tmp);
+                    if(*(new->key + c) == NULL) {
                         g_tree_insert(keyStrings, tmp, tmp);
-                        *(new->key+c) = tmp;
+                        *(new->key + c) = tmp;
                     } else  {
 		              g_free(tmp);
                     }
                 }
             } else if(strcmp((char *) *(atts), "v") == 0) {
-                new->value = g_strsplit((char *) *(atts +1), "|", 0);
-                for(c=0;c<g_strv_length(new->value);c++) {
+                new->value = g_strsplit((char *) *(atts + 1), "|", 0);
+                for(c = 0; c < g_strv_length(new->value); c++) {
                     char *tmp;
-                    tmp = *(new->value+c);
-                    *(new->value+c) = g_tree_lookup(valStrings, tmp);
-                    if(*(new->value+c) == NULL) {
+                    tmp = *(new->value + c);
+                    *(new->value + c) = g_tree_lookup(valStrings, tmp);
+                    if(*(new->value + c) == NULL) {
                         g_tree_insert(valStrings, tmp, tmp);
-                        *(new->value+c) = tmp;
+                        *(new->value + c) = tmp;
                     } else  {
 		              g_free(tmp);
                     }
                 }
             }
-            atts+=2;
+            atts += 2;
         }
 
         // Insert Rule to chain
@@ -321,8 +321,14 @@ void rulesetFree(cfgRules * ruleset) {
     cfgRule *rule, *lrule;
     cfgDraw *draw, *ldraw;
     
-    for(rule=ruleset->rule,lrule=NULL;rule;lrule=rule,rule=rule->next) {
-        for(draw=rule->draw,ldraw=NULL;draw;ldraw=draw,draw=draw->next) {
+    for(rule = ruleset->rule, lrule = NULL;
+        rule != NULL;
+        lrule = rule, rule = rule->next)
+    {
+        for(draw = rule->draw, ldraw = NULL;
+            draw != NULL;
+            ldraw = draw, draw = draw->next)
+        {
             if(draw->pattern)
                 g_tree_replace(patternStrings, draw->pattern, draw->pattern);
             if(ldraw)
@@ -330,7 +336,10 @@ void rulesetFree(cfgRules * ruleset) {
         }
         if(ldraw)
             g_free(ldraw);
-        for(draw=rule->ndraw,ldraw=NULL;draw;ldraw=draw,draw=draw->next) {
+        for(draw = rule->ndraw, ldraw = NULL;
+            draw != NULL;
+            ldraw = draw, draw = draw->next)
+        {
             if(draw->pattern)
                 g_tree_replace(patternStrings, draw->pattern, draw->pattern);
             if(ldraw)
