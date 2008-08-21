@@ -34,7 +34,7 @@
 // Global Vars
 GStringChunk *keyStrings;
 GStringChunk *valStrings;
-GTree       *patternStrings;
+GStringChunk *patternStrings;
 
 /* Renderer Options */
 static memphisOpt opts_storage = {
@@ -163,7 +163,7 @@ int main(int argc, char **argv) {
 
     keyStrings = g_string_chunk_new(16);    /* TODO ast: optimize to match 90% of all tags */
     valStrings = g_string_chunk_new(16);    /* TODO ast: optimize to match 90% of all tags */
-    patternStrings = g_tree_new(g_strcmp);
+    patternStrings = g_string_chunk_new(16);
 
     banner();
 
@@ -175,21 +175,14 @@ int main(int argc, char **argv) {
     if(ruleset == NULL)
         return(-1);
         
-    g_tree_destroy(patternStrings);
-
     renderCairo(ruleset, osm);
-    
-    // Free
-    patternStrings = g_tree_new(g_strcmp);
     
     osmFree(osm);
     rulesetFree(ruleset);
     
-    g_tree_foreach(patternStrings, g_freeTree,NULL);
-    
     g_string_chunk_free(keyStrings);
     g_string_chunk_free(valStrings);
-    g_tree_destroy(patternStrings);
+    g_string_chunk_free(patternStrings);
 
     return(0);
 }
