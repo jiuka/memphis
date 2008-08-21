@@ -144,6 +144,7 @@ void drawLine(renderInfo *info, cfgDraw *draw) {
         fprintf(stdout,"drawLine\n");
 
     cairo_set_line_cap  (info->cr, CAIRO_LINE_CAP_ROUND);
+    cairo_set_line_join (info->cr, CAIRO_LINE_JOIN_ROUND);
     cairo_set_line_width (info->cr, draw->width*LINESIZE(info->zoom));
 
     cairo_set_source_rgb (info->cr, (double)draw->color[0]/(double)255,
