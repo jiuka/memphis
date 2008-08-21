@@ -20,6 +20,8 @@
 #ifndef MAIN_H
 #define MAIN_H
 
+#define MEMPHIS_VERSION "0.1"
+
 #define MEMPHIS_MIN_LAYER 12
 #define MEMPHIS_MAX_LAYER 17
 
