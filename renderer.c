@@ -307,7 +307,7 @@ void renderPaths(renderInfo *info, int layer, cfgRule *rule, cfgDraw *draw) {
 int renderCairoRun(renderInfo *info) {
     if (opts->debug > 1)
         fprintf(stdout,"renderCairoRun\n");
-    int l;
+    int layer;
 
     // Vars uder while looping throug data
     osmWay      *way;
@@ -316,10 +316,10 @@ int renderCairoRun(renderInfo *info) {
     int         paths;
 
     // Start checking osm from bottom layer.
-    for(l=-5;l<=5;l++) {
+    for(layer = -5; layer <= 5; layer++) {
 
         if (opts->debug > 0) {
-            fprintf(stdout,"\r Cairo drawing z%i Layer % 2i", info->zoom, l);
+            fprintf(stdout,"\r Cairo drawing z%i Layer % 2i", info->zoom, layer);
             fflush(stdout);
         }
 
@@ -327,7 +327,7 @@ int renderCairoRun(renderInfo *info) {
         LIST_FOREACH(rule, info->ruleset->rule) {
 
             if(rule->draw != NULL) { // Draw Match first
-                renderPaths(info, l, rule, rule->draw);
+                renderPaths(info, layer, rule, rule->draw);
 
                 paths = 0;
                 // Text Rendering
@@ -349,7 +349,7 @@ int renderCairoRun(renderInfo *info) {
                 if(paths && draw->minzoom<=info->zoom && draw->maxzoom>=info->zoom) {
                     LIST_FOREACH(way, info->osm->ways) {
                         //Only objects on current layer
-                        if(way->layer != l || way->name == NULL)
+                        if(way->layer != layer || way->name == NULL)
                             continue;
 
                         if( checkRule(rule, way->tag, WAY) == 1) {
@@ -362,7 +362,7 @@ int renderCairoRun(renderInfo *info) {
                 strokePath(info);
             }
             if (rule->ndraw != NULL) { // Draw Else after
-                renderPaths(info, l, rule, rule->ndraw);
+                renderPaths(info, layer, rule, rule->ndraw);
             }
         }
     }
@@ -383,11 +383,11 @@ int renderCairo(cfgRules *ruleset, osmFile *osm) {
     renderInfo *info;
     
     // Initialize all layers
-    for (z=0;z<=opts->maxlayer-opts->minlayer;z++) {
+    for (z = 0; z <= (opts->maxlayer - opts->minlayer); z++) {
         coordinates min, max;
         
         info = g_new(renderInfo, 1);
-        info->zoom = z+opts->minlayer;
+        info->zoom = z + opts->minlayer;
         info->ruleset = ruleset;
         info->osm = osm;
                 
