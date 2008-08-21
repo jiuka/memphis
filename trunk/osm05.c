@@ -32,7 +32,7 @@
 
 // External Vars
 extern memphisOpt   *opts;
-GTree               *keyStrings;
+extern GStringChunk *keyStrings;
 GTree               *valStrings;
 
 // Pointers to work with
@@ -120,11 +120,8 @@ osmStartElement(void *userData, const char *name, const char **atts) {
                           strcmp((char *) *(atts+1), "name") == 0) {
                     cTag->key = (char *) *(atts+1);
                 } else {
-                    cTag->key = g_tree_lookup(keyStrings, (char *) *(atts+1));
-                    if(cTag->key == NULL) {
-                        cTag->key = g_strdup((char *) *(atts+1));
-                        g_tree_insert(keyStrings, cTag->key, cTag->key);
-                    }
+                    cTag->key = g_string_chunk_insert_const(keyStrings,
+                                                            (char *) *(atts+1));
                 }
             } else if(strncmp((char *) *(atts), "v", 1) == 0) {
                 if(strcmp(cTag->key, "layer") == 0) {
@@ -381,7 +378,6 @@ void osmFree(osmFile *osm) {
             tag != NULL;
             ltag = tag, tag = tag->next)
         {
-            g_tree_replace(keyStrings, tag->key, tag->key);
             g_tree_replace(valStrings, tag->value, tag->value);
             if(ltag)
                 g_free(ltag);
@@ -401,7 +397,6 @@ void osmFree(osmFile *osm) {
             tag != NULL;
             ltag = tag, tag = tag->next)
         {
-            g_tree_replace(keyStrings, tag->key, tag->key);
             g_tree_replace(valStrings, tag->value, tag->value);
             if(ltag)
                 g_free(ltag);
