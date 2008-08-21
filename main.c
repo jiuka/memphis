@@ -35,7 +35,84 @@
 GTree       *keyStrings;
 GTree       *valStrings;
 GTree       *patternStrings;
-memphisOpt  *opts;
+
+/* Renderer Options */
+static memphisOpt opts_storage = {
+    .debug = 1,
+    .cfgfn = NULL,
+    .osmfn = NULL,
+    .mode = MODE_MAP,
+    .minlayer = MEMPHIS_MIN_LAYER,
+    .maxlayer = MEMPHIS_MAX_LAYER,
+};
+memphisOpt  *opts = &opts_storage;
+
+static gboolean set_verbosity_level(const gchar *option_name,
+                                    const gchar *value,
+                                    gpointer data,
+                                    GError **error)
+{
+    memphisOpt *o = data;
+    if ((strcmp(option_name, "-q") == 0) ||
+        (strcmp(option_name, "--quiet") == 0))
+    {
+        --o->debug;
+    }
+    else if ((strcmp(option_name, "-v") == 0) ||
+             (strcmp(option_name, "--verbose") == 0))
+    {
+        ++o->debug;
+    }
+    return TRUE;
+}
+
+static gboolean set_layer_option_cb(const gchar *option_name,
+                                    const gchar *value,
+                                    gpointer data,
+                                    GError **error)
+{
+    memphisOpt *o = data;
+    int v = atoi(value);
+    v = CLAMP(v, MEMPHIS_MIN_LAYER, MEMPHIS_MAX_LAYER);
+    if (strcmp(option_name, "--minlayer") == 0)
+        o->minlayer = v;
+    else if (strcmp(option_name, "--maxlayer") == 0)
+        o->maxlayer = v;
+    else
+        g_error("Unhandled option name: %s", option_name);
+    return TRUE;
+}
+
+static gboolean set_map_mode(const gchar *option_name,
+                             const gchar *value,
+                             gpointer data,
+                             GError **error)
+{
+    memphisOpt *o = data;
+    o->mode = MODE_MAP;
+    return TRUE;
+}
+
+/* Option parser */
+static GOptionEntry memphis_option_entries[] = {
+    { "quiet", 'q',     G_OPTION_FLAG_NO_ARG,
+                        G_OPTION_ARG_CALLBACK, set_verbosity_level,
+                        "Be quiet", NULL },
+    { "verbose", 'v',   G_OPTION_FLAG_NO_ARG,
+                        G_OPTION_ARG_CALLBACK, set_verbosity_level,
+                        "Be verbose", NULL },
+    { "map", 'm',       G_OPTION_FLAG_NO_ARG, 
+                        G_OPTION_ARG_CALLBACK, set_map_mode,
+                        "Set map mode", NULL },
+    { "minlayer", 0,    0,
+                        G_OPTION_ARG_CALLBACK, set_layer_option_cb,
+                        "minimum layer to render", "LAYER" },
+    { "maxlayer", 0,    0,
+                        G_OPTION_ARG_CALLBACK, set_layer_option_cb,
+                        "maximum layer to render", "LAYER" },
+};
+
+
 
 gint g_strcmp(gconstpointer  a, gconstpointer  b) {
     return strcmp((char *)a,(char *)b);
@@ -47,7 +124,7 @@ gboolean g_freeTree (gpointer key, gpointer value, gpointer data) {
 }
 
 void banner() {
-    fprintf(stdout,"Memphis OSM Renderer\n");
+    fprintf(stdout,"Memphis OSM Renderer " MEMPHIS_VERSION "\n");
 }
 
 void usage(char *prog) {
@@ -60,48 +137,32 @@ int main(int argc, char **argv) {
     cfgRules *ruleset;
     osmFile *osm;
 
-    opts = g_new(memphisOpt, 1);
-    opts->debug = 1;
-    opts->cfgfn = NULL;
-    opts->osmfn = NULL;
-    opts->mode = MODE_MAP;
-    opts->minlayer = MEMPHIS_MIN_LAYER;
-    opts->maxlayer = MEMPHIS_MAX_LAYER;
+    GError *error = NULL;
+    GOptionContext *optctx;
+    GOptionGroup *grp;
 
-    int i;
-    for (i = 1; i < argc ; i++) {
-        if ((!strcmp(argv[i], "-q")) || (!strcmp(argv[i], "--quiet"))) {
-            opts->debug--;
-        } else if ((!strcmp(argv[i], "-v")) || (!strcmp(argv[i], "--verbose"))) {
-            opts->debug++;
-        } else if ((!strcmp(argv[i], "-m")) || (!strcmp(argv[i], "--map"))) {
-            opts->mode = MODE_MAP;
-        } else if ((!strcmp(argv[i], "-t")) || (!strcmp(argv[i], "--tile"))) {
-            opts->mode = MODE_TILE;
-        } else if (!strcmp(argv[i], "--minlayer") && ((i + 1) < argc)) {
-            opts->minlayer = atoi(argv[i + 1]);
-            opts->minlayer = CLAMP(opts->minlayer,
-                                   MEMPHIS_MIN_LAYER,
-                                   MEMPHIS_MAX_LAYER);
-            ++i;
-        } else if (!strcmp(argv[i], "--maxlayer") && ((i + 1) < argc)) {
-            opts->maxlayer = atoi(argv[i + 1]);
-            opts->maxlayer = CLAMP(opts->maxlayer,
-                                   MEMPHIS_MIN_LAYER,
-                                   MEMPHIS_MAX_LAYER);
-            ++i;
-        } else if (opts->cfgfn == NULL) {
-            opts->cfgfn = argv[i];
-        } else if (opts->osmfn == NULL) {
-            opts->osmfn = argv[i];
-        } else {
-            usage((char *) *argv);
-            exit(-1);
-        }
+    grp = g_option_group_new("memphis",
+                             "memphis renderer options",
+                             "memphis renderer options",
+                             opts, NULL);
+    g_option_group_add_entries(grp, memphis_option_entries);
+    optctx = g_option_context_new("Memphis OSM Renderer " MEMPHIS_VERSION);
+    g_option_context_set_summary(optctx,
+            "memphis [-qvmt] [--minlayer] [--maxlayer] <RULESFILE> <OSMFILE>");
+    g_option_context_add_group(optctx, grp);
+    if (!g_option_context_parse(optctx, &argc, &argv, &error)) {
+        g_print("option parsing failed: %s\n", error->message);
+        return 1;
     }
 
-    if (argc < 2 || opts->cfgfn == NULL || opts->osmfn == NULL) {
-        usage((char *) *argv);
+    if (argc > 1)
+        opts->cfgfn = argv[1];
+    if (argc > 2)
+        opts->osmfn = argv[2];
+    
+    if (opts->cfgfn == NULL || opts->osmfn == NULL) {
+        g_print("error: rules file or osm map file missing:\n\n%s\n",
+                g_option_context_get_summary(optctx));
         exit(-1);
     }
 
