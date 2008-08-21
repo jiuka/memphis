@@ -34,7 +34,7 @@
 // External Vars
 extern memphisOpt   *opts;
 extern GStringChunk *keyStrings;
-extern GTree        *valStrings;
+extern GStringChunk *valStrings;
 extern GTree        *patternStrings;
 
 // Pointers to work with
@@ -106,15 +106,10 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
             } else if(strcmp((char *) *(atts), "v") == 0) {
                 new->value = g_strsplit((char *) *(atts + 1), "|", 0);
                 for(c = 0; c < g_strv_length(new->value); c++) {
-                    char *tmp;
-                    tmp = *(new->value + c);
-                    *(new->value + c) = g_tree_lookup(valStrings, tmp);
-                    if(*(new->value + c) == NULL) {
-                        g_tree_insert(valStrings, tmp, tmp);
-                        *(new->value + c) = tmp;
-                    } else  {
-		              g_free(tmp);
-                    }
+                    char *tmp = *(new->value + c);
+                    *(new->value + c) = g_string_chunk_insert_const(valStrings,
+                                                                    tmp);
+		            g_free(tmp);
                 }
             }
             atts += 2;
@@ -343,14 +338,7 @@ void rulesetFree(cfgRules * ruleset) {
         if(ldraw)
             g_free(ldraw);
 
-        char **tmp;
         g_free(rule->key);
-
-        tmp = rule->value;
-        while (*tmp != NULL) {
-            g_tree_replace(valStrings, *tmp, *tmp);
-            tmp++;
-        }
         g_free(rule->value);
 
         if(lrule)
