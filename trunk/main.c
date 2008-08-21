@@ -161,6 +161,8 @@ int main(int argc, char **argv) {
         exit(-1);
     }
 
+    g_option_context_free(optctx);
+
     keyStrings = g_string_chunk_new(16);    /* TODO ast: optimize to match 90% of all tags */
     valStrings = g_string_chunk_new(16);    /* TODO ast: optimize to match 90% of all tags */
     patternStrings = g_string_chunk_new(16);
