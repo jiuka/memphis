@@ -127,11 +127,6 @@ void banner() {
     fprintf(stdout,"Memphis OSM Renderer " MEMPHIS_VERSION "\n");
 }
 
-void usage(char *prog) {
-    banner();
-    fprintf(stdout,"%s [-v|-q] [-m|-t] <configfile> <datafile>\n", prog);
-}
-
 int main(int argc, char **argv) {
     
     cfgRules *ruleset;
