@@ -149,7 +149,7 @@ int main(int argc, char **argv) {
     optctx = g_option_context_new("Memphis OSM Renderer " MEMPHIS_VERSION);
     g_option_context_set_summary(optctx,
             "memphis [-qvmt] [--minlayer] [--maxlayer] <RULESFILE> <OSMFILE>");
-    g_option_context_add_group(optctx, grp);
+    g_option_context_set_main_group(optctx, grp);
     if (!g_option_context_parse(optctx, &argc, &argv, &error)) {
         g_print("option parsing failed: %s\n", error->message);
         return 1;
