@@ -33,7 +33,7 @@
 
 // External Vars
 extern memphisOpt   *opts;
-extern GTree        *keyStrings;
+extern GStringChunk *keyStrings;
 extern GTree        *valStrings;
 extern GTree        *patternStrings;
 
@@ -98,15 +98,10 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
             } else if(strcmp((char *) *(atts), "k") == 0) {
                 new->key = g_strsplit((char *) *(atts + 1), "|", 0);
                 for(c = 0; c < g_strv_length(new->key); c++) {
-                    char *tmp;
-                    tmp = *(new->key + c);
-                    *(new->key + c) = g_tree_lookup(keyStrings, tmp);
-                    if(*(new->key + c) == NULL) {
-                        g_tree_insert(keyStrings, tmp, tmp);
-                        *(new->key + c) = tmp;
-                    } else  {
-		              g_free(tmp);
-                    }
+                    char *tmp = *(new->key + c);
+                    *(new->key + c) = g_string_chunk_insert_const(keyStrings,
+                                                                  tmp);
+		            g_free(tmp);
                 }
             } else if(strcmp((char *) *(atts), "v") == 0) {
                 new->value = g_strsplit((char *) *(atts + 1), "|", 0);
@@ -349,16 +344,11 @@ void rulesetFree(cfgRules * ruleset) {
             g_free(ldraw);
 
         char **tmp;
-        tmp = rule->key;
-        while (*tmp != NULL) {
-            g_tree_replace(keyStrings, *tmp, *tmp);
-            tmp++;
-        }
         g_free(rule->key);
 
         tmp = rule->value;
         while (*tmp != NULL) {
-            g_tree_replace(keyStrings, *tmp, *tmp);
+            g_tree_replace(valStrings, *tmp, *tmp);
             tmp++;
         }
         g_free(rule->value);

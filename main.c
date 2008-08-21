@@ -32,7 +32,7 @@
 #include "list.h"
 
 // Global Vars
-GTree       *keyStrings;
+GStringChunk *keyStrings;
 GTree       *valStrings;
 GTree       *patternStrings;
 
@@ -161,7 +161,7 @@ int main(int argc, char **argv) {
         exit(-1);
     }
 
-    keyStrings = g_tree_new(g_strcmp);
+    keyStrings = g_string_chunk_new(16);
     valStrings = g_tree_new(g_strcmp);
     patternStrings = g_tree_new(g_strcmp);
 
@@ -175,25 +175,22 @@ int main(int argc, char **argv) {
     if(ruleset == NULL)
         return(-1);
         
-    g_tree_destroy(keyStrings);
     g_tree_destroy(valStrings);
     g_tree_destroy(patternStrings);
 
     renderCairo(ruleset, osm);
     
     // Free
-    keyStrings = g_tree_new(g_strcmp);
     valStrings = g_tree_new(g_strcmp);
     patternStrings = g_tree_new(g_strcmp);
     
     osmFree(osm);
     rulesetFree(ruleset);
     
-    g_tree_foreach(keyStrings, g_freeTree,NULL);
     g_tree_foreach(valStrings, g_freeTree,NULL);
     g_tree_foreach(patternStrings, g_freeTree,NULL);
     
-    g_tree_destroy(keyStrings);
+    g_string_chunk_free(keyStrings);
     g_tree_destroy(valStrings);
     g_tree_destroy(patternStrings);
 
