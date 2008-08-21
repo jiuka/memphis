@@ -338,16 +338,22 @@ void rulesetFree(cfgRules * ruleset) {
         }
         if(ldraw)
             g_free(ldraw);
-        
-        while (*rule->key != NULL) {
-            g_tree_replace(keyStrings, *rule->key, *rule->key);
-            rule->key++;
+
+        char **tmp;
+        tmp = rule->key;
+        while (*tmp != NULL) {
+            g_tree_replace(keyStrings, *tmp, *tmp);
+            tmp++;
         }
-        while (*rule->value != NULL) {
-            g_tree_replace(keyStrings, *rule->value, *rule->value);
-            rule->value++;
+        g_free(rule->key);
+
+        tmp = rule->value;
+        while (*tmp != NULL) {
+            g_tree_replace(keyStrings, *tmp, *tmp);
+            tmp++;
         }
-        
+        g_free(rule->value);
+
         if(lrule)
             g_free(lrule);
     }
