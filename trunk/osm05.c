@@ -116,11 +116,15 @@ osmStartElement(void *userData, const char *name, const char **atts) {
                     g_free(cTag);
                     cTag = NULL;
                     return;
-                }
-                cTag->key = g_tree_lookup(keyStrings, (char *) *(atts+1));
-                if(cTag->key == NULL) {
-                    cTag->key = g_strdup((char *) *(atts+1));
-                    g_tree_insert(keyStrings, cTag->key, cTag->key);
+                } else if(strcmp((char *) *(atts+1), "layer") == 0 ||
+                          strcmp((char *) *(atts+1), "name") == 0) {
+                    cTag->key = (char *) *(atts+1);
+                } else {
+                    cTag->key = g_tree_lookup(keyStrings, (char *) *(atts+1));
+                    if(cTag->key == NULL) {
+                        cTag->key = g_strdup((char *) *(atts+1));
+                        g_tree_insert(keyStrings, cTag->key, cTag->key);
+                    }
                 }
             } else if(strncmp((char *) *(atts), "v", 1) == 0) {
                 if(strcmp(cTag->key, "layer") == 0) {
@@ -176,7 +180,7 @@ osmStartElement(void *userData, const char *name, const char **atts) {
                 break;
             }
             atts+=2;
-     }
+        }
 
         cWay->tag = NULL;
         cWay->nd = NULL;
