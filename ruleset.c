@@ -151,8 +151,8 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
         cfgDraw *new;
         new = g_new(cfgDraw, 1);
         new->pattern = NULL;
-        new->minlayer = 0;
-        new->maxlayer = 99;
+        new->minzoom = 0;
+        new->maxzoom = 99;
 
         // Populate Draw
         if (strcmp(name, "polygone") == 0)
@@ -176,10 +176,10 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
                     new->pattern = g_strdup((char *) *(atts+1));
                     g_tree_insert(patternStrings, (char *) *(atts+1), new->pattern);
                 }
-            } else if(strcmp((char *) *(atts), "layer") == 0) {
+            } else if(strcmp((char *) *(atts), "zoom") == 0) {
                 sscanf((char *) *(atts+1),"%hi:%hi",
-                                            &new->minlayer,
-                                            &new->maxlayer);
+                                            &new->minzoom,
+                                            &new->maxzoom);
             }
             atts+=2;
         }
