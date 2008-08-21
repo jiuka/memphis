@@ -35,7 +35,7 @@
 extern memphisOpt   *opts;
 extern GStringChunk *keyStrings;
 extern GStringChunk *valStrings;
-extern GTree        *patternStrings;
+extern GStringChunk *patternStrings;
 
 // Pointers to work with
 cfgRule     *currentRule;
@@ -161,11 +161,8 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
             } else if(strcmp((char *) *(atts), "width") == 0) {
                 sscanf((char *) *(atts+1),"%f",&new->width);
             } else if(strcmp((char *) *(atts), "pattern") == 0) {
-                new->pattern = g_tree_lookup(patternStrings, (char *) *(atts+1));
-                if(new->pattern == NULL) {
-                    new->pattern = g_strdup((char *) *(atts+1));
-                    g_tree_insert(patternStrings, (char *) *(atts+1), new->pattern);
-                }
+                new->pattern = g_string_chunk_insert_const(patternStrings,
+                                                           (char *) *(atts+1));
             } else if(strcmp((char *) *(atts), "zoom") == 0) {
                 sscanf((char *) *(atts+1),"%hi:%hi",
                                             &new->minzoom,
@@ -319,8 +316,6 @@ void rulesetFree(cfgRules * ruleset) {
             draw != NULL;
             ldraw = draw, draw = draw->next)
         {
-            if(draw->pattern)
-                g_tree_replace(patternStrings, draw->pattern, draw->pattern);
             if(ldraw)
                 g_free(ldraw);
         }
@@ -330,8 +325,6 @@ void rulesetFree(cfgRules * ruleset) {
             draw != NULL;
             ldraw = draw, draw = draw->next)
         {
-            if(draw->pattern)
-                g_tree_replace(patternStrings, draw->pattern, draw->pattern);
             if(ldraw)
                 g_free(ldraw);
         }
