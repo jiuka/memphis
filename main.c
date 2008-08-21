@@ -33,7 +33,7 @@
 
 // Global Vars
 GStringChunk *keyStrings;
-GTree       *valStrings;
+GStringChunk *valStrings;
 GTree       *patternStrings;
 
 /* Renderer Options */
@@ -161,8 +161,8 @@ int main(int argc, char **argv) {
         exit(-1);
     }
 
-    keyStrings = g_string_chunk_new(16);
-    valStrings = g_tree_new(g_strcmp);
+    keyStrings = g_string_chunk_new(16);    /* TODO ast: optimize to match 90% of all tags */
+    valStrings = g_string_chunk_new(16);    /* TODO ast: optimize to match 90% of all tags */
     patternStrings = g_tree_new(g_strcmp);
 
     banner();
@@ -175,23 +175,20 @@ int main(int argc, char **argv) {
     if(ruleset == NULL)
         return(-1);
         
-    g_tree_destroy(valStrings);
     g_tree_destroy(patternStrings);
 
     renderCairo(ruleset, osm);
     
     // Free
-    valStrings = g_tree_new(g_strcmp);
     patternStrings = g_tree_new(g_strcmp);
     
     osmFree(osm);
     rulesetFree(ruleset);
     
-    g_tree_foreach(valStrings, g_freeTree,NULL);
     g_tree_foreach(patternStrings, g_freeTree,NULL);
     
     g_string_chunk_free(keyStrings);
-    g_tree_destroy(valStrings);
+    g_string_chunk_free(valStrings);
     g_tree_destroy(patternStrings);
 
     return(0);

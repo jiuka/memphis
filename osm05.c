@@ -33,7 +33,7 @@
 // External Vars
 extern memphisOpt   *opts;
 extern GStringChunk *keyStrings;
-GTree               *valStrings;
+extern GStringChunk *valStrings;
 
 // Pointers to work with
 osmTag      *cTag = NULL;
@@ -136,21 +136,15 @@ osmStartElement(void *userData, const char *name, const char **atts) {
                     g_free(cTag);
                     cTag = NULL;
                     if (cWay) {
-                        cWay->name = g_tree_lookup(valStrings, (char *) *(atts+1));
-                        if(cWay->name == NULL) {
-                            cWay->name = g_strdup((char *) *(atts+1));
-                            g_tree_insert(valStrings, cWay->name, cWay->name);
-                        }
+                        cWay->name = g_string_chunk_insert_const(valStrings,
+                                                                 (char *) *(atts+1));
                     }
                     return;
                 }
-                cTag->value = g_tree_lookup(valStrings, (char *) *(atts+1));
-                if(cTag->value == NULL) {
-                    cTag->value = g_strdup((char *) *(atts+1));
-                    g_tree_insert(valStrings, cTag->value, cTag->value);
-                }
+                cTag->value = g_string_chunk_insert_const(valStrings,
+                                                          (char *) *(atts+1));
             }
-            atts+=2;
+            atts += 2;
         }
         
         if (opts->debug > 1)
@@ -372,13 +366,10 @@ void osmFree(osmFile *osm) {
         lway = way, way = way->next)
     {
         g_slist_free(way->nd);
-        if(way->name)
-            g_tree_replace(valStrings, way->name, way->name);
         for(tag = way->tag, ltag = NULL;
             tag != NULL;
             ltag = tag, tag = tag->next)
         {
-            g_tree_replace(valStrings, tag->value, tag->value);
             if(ltag)
                 g_free(ltag);
         }
@@ -397,7 +388,6 @@ void osmFree(osmFile *osm) {
             tag != NULL;
             ltag = tag, tag = tag->next)
         {
-            g_tree_replace(valStrings, tag->value, tag->value);
             if(ltag)
                 g_free(ltag);
         }
