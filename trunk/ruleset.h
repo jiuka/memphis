@@ -38,8 +38,8 @@ typedef enum mapPrimitives {
 typedef struct _cfgDraw cfgDraw;
 struct _cfgDraw {
         mapPrimitives type;
-        short int   minlayer;
-        short int   maxlayer;
+        short int   minzoom;
+        short int   maxzoom;
         short int   color[3];
         char*       pattern;
         float       width;

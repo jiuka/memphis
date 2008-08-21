@@ -280,6 +280,10 @@ void renderPaths(renderInfo *info, int layer, cfgRule *rule, cfgDraw *draw) {
     }
     if(paths) {
         while(draw) {
+            if(draw->minzoom>info->zoom || draw->maxzoom<info->zoom) {
+                draw = draw->next;
+                continue;
+            }
             switch(draw->type) {
                 case POLYGONE:
                     drawPolygone(info, draw);
@@ -340,7 +344,8 @@ int renderCairoRun(renderInfo *info) {
                         break;
                     draw = draw->next;
                 }
-                if(paths) {
+
+                if(paths && draw->minzoom<=info->zoom && draw->maxzoom>=info->zoom) {
                     LIST_FOREACH(way, info->osm->ways) {
                         //Only objects on current layer
                         if(way->layer != l || way->name == NULL)

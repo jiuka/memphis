@@ -82,8 +82,8 @@
 
     </rule>
     <rule e="way" k="building" v="*">
-        <polygone color="#dddddd" layer="15:17"/>
-        <line color="#cccccc" width="0.1" layer="15:17"/>
+        <polygone color="#dddddd" zoom="15:17"/>
+        <line color="#cccccc" width="0.1" zoom="15:17"/>
     </rule>
     
     
@@ -109,44 +109,46 @@
     <!-- Draw highways -->
     <rule e="way" k="highway" v="*">
         <rule e="way" k="highway" v="footway|track">
-            <line color="#777777" width="1" layer="14:17"/>
-            <line color="#efeaa0" width="0.5" layer="14:17"/>
+            <line color="#777777" width="1" zoom="14:17"/>
+            <line color="#efeaa0" width="0.5" zoom="14:17"/>
         </rule>
         <rule e="way" k="highway" v="cycleway|bridleway">
-            <line color="#777777" width="1" layer="14:17"/>
-            <line color="#efa0a0" width="0.5" layer="14:17"/>
+            <line color="#777777" width="1" zoom="14:17"/>
+            <line color="#efa0a0" width="0.5" zoom="14:17"/>
         </rule>
         <rule e="way" k="highway" v="track">
-            <line color="#777777" width="1.5" layer="13:17"/>
-            <line color="#efeaa0" width="1" layer="13:17"/>
+            <line color="#777777" width="1.5" zoom="13:17"/>
+            <line color="#efeaa0" width="1" zoom="13:17"/>
         </rule>
         <rule e="way" k="highway" v="residential|unclassified|pedestrian">
-            <line color="#777777" width="3" layer="12:17"/>
-            <line color="#ffffff" width="2" layer="12:17"/>
-            <text color="#000000" width="2"/>
+            <line color="#777777" width="3" zoom="12:17"/>
+            <line color="#ffffff" width="2" zoom="12:17"/>
+            <text color="#000000" width="2" zoom="17:17"/>
         </rule>
         <rule e="way" k="highway" v="tertiary">
             <line color="#777777" width="3"/>
             <line color="#f7f496" width="2"/>
-            <text color="#000000" width="2"/>
+            <text color="#000000" width="2" zoom="17:17"/>
         </rule>
         <rule e="way" k="highway" v="secondary">
             <line color="#777777" width="4"/>
             <line color="#FDBF6F" width="3"/>
-            <text color="#000000" width="3"/>
+            <text color="#000000" width="3" zoom="17:17"/>
         </rule>
         <rule e="way" k="highway" v="primary">
             <line color="#777777" width="4"/>
             <line color="#e46d71" width="3"/>
-            <text color="#000000" width="3"/>
+            <text color="#000000" width="3" zoom="16:17"/>
         </rule>
         <rule e="way" k="highway" v="trunk">
             <line color="#777777" width="5"/>
             <line color="#7FC97F" width="4"/>
+            <text color="#000000" width="4" zoom="16:17"/>
         </rule>
         <rule e="way" k="highway" v="motorway">
             <line color="#777777" width="6"/>
             <line color="#809BC0" width="5"/>
+            <text color="#000000" width="5" zoom="16:17"/>
         </rule>
     </rule>
     
