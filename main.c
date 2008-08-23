@@ -30,11 +30,11 @@
 #include "renderer.h"
 #include "ruleset.h"
 #include "list.h"
+#include "mlib.h"
 
 // Global Vars
-GStringChunk *keyStrings;
-GStringChunk *valStrings;
-GStringChunk *patternStrings;
+GStringChunk *stringChunk;
+GTree        *stringTree;
 
 /* Renderer Options */
 static memphisOpt opts_storage = {
@@ -112,23 +112,12 @@ static GOptionEntry memphis_option_entries[] = {
                         "maximum layer to render", "LAYER" },
 };
 
-
-
-gint g_strcmp(gconstpointer  a, gconstpointer  b) {
-    return strcmp((char *)a,(char *)b);
-}
-
-gboolean g_freeTree (gpointer key, gpointer value, gpointer data) {
-    g_free(key);
-    return FALSE;
-}
-
 void banner() {
     fprintf(stdout,"Memphis OSM Renderer " MEMPHIS_VERSION "\n");
 }
 
 int main(int argc, char **argv) {
-    
+
     cfgRules *ruleset;
     osmFile *osm;
 
@@ -154,7 +143,7 @@ int main(int argc, char **argv) {
         opts->cfgfn = argv[1];
     if (argc > 2)
         opts->osmfn = argv[2];
-    
+
     if (opts->cfgfn == NULL || opts->osmfn == NULL) {
         g_print("error: rules file or osm map file missing:\n\n%s\n",
                 g_option_context_get_summary(optctx));
@@ -163,9 +152,8 @@ int main(int argc, char **argv) {
 
     g_option_context_free(optctx);
 
-    keyStrings = g_string_chunk_new(16);    /* TODO ast: optimize to match 90% of all tags */
-    valStrings = g_string_chunk_new(16);    /* TODO ast: optimize to match 90% of all tags */
-    patternStrings = g_string_chunk_new(16);
+    stringChunk = g_string_chunk_new(265);
+    stringTree = g_tree_new(m_tree_strcmp);
 
     banner();
 
@@ -176,15 +164,15 @@ int main(int argc, char **argv) {
     osm = (osmFile *) osmRead(opts->osmfn);
     if(ruleset == NULL)
         return(-1);
-        
+
+    g_tree_destroy(stringTree);
+
     renderCairo(ruleset, osm);
-    
+
     osmFree(osm);
     rulesetFree(ruleset);
-    
-    g_string_chunk_free(keyStrings);
-    g_string_chunk_free(valStrings);
-    g_string_chunk_free(patternStrings);
+
+    g_string_chunk_free(stringChunk);
 
     return(0);
 }

@@ -25,6 +25,7 @@
 #include <string.h>
 
 #include "list.h"
+#include "mlib.h"
 #include "main.h"
 #include "osm05.h"
 
@@ -32,8 +33,8 @@
 
 // External Vars
 extern memphisOpt   *opts;
-extern GStringChunk *keyStrings;
-extern GStringChunk *valStrings;
+extern GStringChunk *stringChunk;
+extern GTree        *stringTree;
 
 // Pointers to work with
 osmTag      *cTag = NULL;
@@ -105,47 +106,42 @@ osmStartElement(void *userData, const char *name, const char **atts) {
     else if (strncmp((char *) name, "tag", 4) == 0) {
         if (opts->debug > 1)
             fprintf(stdout,"Parsing Tag\n");
-        cTag = g_new(osmTag, 1);
+
+        if (!cNode && !cWay) // End if ther is nothing to add the tag to
+            return;
+            
+        char *k=NULL, *v=NULL;
+
         while (*atts != NULL) {
             if(strncmp((char *) *(atts), "k", 1) == 0) {
                 if(strcmp((char *) *(atts+1), "created_by") == 0) {
-                    g_free(cTag);
-                    cTag = NULL;
                     return;
                 } else if(strncmp((char *) *(atts+1), "source", 6) == 0) {
-                    g_free(cTag);
-                    cTag = NULL;
                     return;
-                } else if(strcmp((char *) *(atts+1), "layer") == 0 ||
-                          strcmp((char *) *(atts+1), "name") == 0) {
-                    cTag->key = (char *) *(atts+1);
-                } else {
-                    cTag->key = g_string_chunk_insert_const(keyStrings,
-                                                            (char *) *(atts+1));
                 }
+                k = (char *) *(atts+1);
             } else if(strncmp((char *) *(atts), "v", 1) == 0) {
-                if(strcmp(cTag->key, "layer") == 0) {
-                    g_free(cTag);
-                    cTag = NULL;
+                if(strcmp(k, "layer") == 0) {
                     if (cNode)
                         sscanf((char *) *(atts+1),"%hi",& cNode->layer);
-                    if (cWay)
+                    else if (cWay)
                         sscanf((char *) *(atts+1),"%hi",& cWay->layer);
                     return;
-                } else if(strcmp(cTag->key, "name") == 0) {
-                    g_free(cTag);
-                    cTag = NULL;
+                } else if(strcmp(k, "name") == 0) {
                     if (cWay) {
-                        cWay->name = g_string_chunk_insert_const(valStrings,
-                                                                 (char *) *(atts+1));
+                        cWay->name = m_string_chunk_get(stringChunk, stringTree, 
+                                                        (char *) *(atts+1));
                     }
                     return;
                 }
-                cTag->value = g_string_chunk_insert_const(valStrings,
-                                                          (char *) *(atts+1));
+                v = (char *) *(atts+1);
             }
             atts += 2;
         }
+        
+        cTag = g_new(osmTag, 1);
+        cTag->key = m_string_chunk_get(stringChunk, stringTree, k);
+        cTag->value = m_string_chunk_get(stringChunk, stringTree, v);
         
         if (opts->debug > 1)
             fprintf(stdout,"Tag: %s => %s\n", cTag->key, cTag->value);
@@ -155,8 +151,6 @@ osmStartElement(void *userData, const char *name, const char **atts) {
             LL_INSERT_KEY(cTag,cNode->tag);
         else if (cWay)
             LL_INSERT_KEY(cTag,cWay->tag);
-        else
-            g_free(cTag);
 
         cTag = NULL;
     }
@@ -346,6 +340,7 @@ osmFile* osmRead(char *filename) {
     }
 
     g_hash_table_destroy(osm->nodeidx);
+    osm->nodeidx=NULL;
     
     if (opts->debug > 0)
         fprintf(stdout,"\r OSM parsing done. (%i/%i/%i/%i) [%fs]\n",

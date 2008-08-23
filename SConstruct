@@ -28,14 +28,15 @@ SOURCES = [
     'osm05.c',
     'renderer.c',
     'ruleset.c',
-    'textpath.c'
+    'textpath.c',
+    'mlib.c'
 ]
 
 Default(env.Program('memphis', source = SOURCES))
 
 env.Program('testTextPath', source=['test/testTextPath.c','textpath.c'])
 env.Program('testSize', source=['test/testSize.c'])
-env.Program('testOSM', source=['test/testOSM.c','osm05.c'])
-env.Program('testRuleset', source=['test/testRuleset.c','ruleset.c'])
+env.Program('testOSM', source=['test/testOSM.c','osm05.c','mlib.c'])
+env.Program('testRuleset', source=['test/testRuleset.c','ruleset.c','mlib.c'])
 
 #env.Program('testRuleset', source=['ruleset.c','testRuleset.c'])

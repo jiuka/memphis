@@ -26,6 +26,7 @@
 #include "main.h"
 #include "list.h"
 #include "ruleset.h"
+#include "mlib.h"
 
 #define BUFFSIZE 1024
 #define MAXDEPTH 20
@@ -33,9 +34,8 @@
 
 // External Vars
 extern memphisOpt   *opts;
-extern GStringChunk *keyStrings;
-extern GStringChunk *valStrings;
-extern GStringChunk *patternStrings;
+extern GStringChunk *stringChunk;
+extern GTree        *stringTree;
 
 // Pointers to work with
 cfgRule     *currentRule;
@@ -99,16 +99,16 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
                 new->key = g_strsplit((char *) *(atts + 1), "|", 0);
                 for(c = 0; c < g_strv_length(new->key); c++) {
                     char *tmp = *(new->key + c);
-                    *(new->key + c) = g_string_chunk_insert_const(keyStrings,
-                                                                  tmp);
+                    *(new->key + c) = m_string_chunk_get(stringChunk,
+                                                          stringTree, (char *) tmp);
 		            g_free(tmp);
                 }
             } else if(strcmp((char *) *(atts), "v") == 0) {
                 new->value = g_strsplit((char *) *(atts + 1), "|", 0);
                 for(c = 0; c < g_strv_length(new->value); c++) {
                     char *tmp = *(new->value + c);
-                    *(new->value + c) = g_string_chunk_insert_const(valStrings,
-                                                                    tmp);
+                    *(new->value + c) = m_string_chunk_get(stringChunk,
+                                                           stringTree, tmp);
 		            g_free(tmp);
                 }
             }
@@ -161,8 +161,8 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
             } else if(strcmp((char *) *(atts), "width") == 0) {
                 sscanf((char *) *(atts+1),"%f",&new->width);
             } else if(strcmp((char *) *(atts), "pattern") == 0) {
-                new->pattern = g_string_chunk_insert_const(patternStrings,
-                                                           (char *) *(atts+1));
+                new->pattern = m_string_chunk_get(stringChunk, stringTree,
+                                                  (char *) *(atts+1));
             } else if(strcmp((char *) *(atts), "zoom") == 0) {
                 sscanf((char *) *(atts+1),"%hi:%hi",
                                             &new->minzoom,

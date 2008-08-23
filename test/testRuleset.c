@@ -25,52 +25,28 @@
 
 #include "../ruleset.h"
 #include "../main.h"
+#include "../mlib.h"
 
-memphisOpt  *opts;
-GTree       *keyStrings;
-GTree       *valStrings;
-GTree       *patternStrings;
-
-gint g_strcmp(gconstpointer  a, gconstpointer  b) {
-    return strcmp((char *)a,(char *)b);
-}
-
-gboolean g_freeTree (gpointer key, gpointer value, gpointer data) {
-    g_free(key);
-    return FALSE;
-}
+memphisOpt   *opts;
+GStringChunk *stringChunk;
+GTree        *stringTree;
 
 int main () {
-    
+
     opts = malloc(sizeof(memphisOpt));
     opts->debug=1;
-    
-    
-    keyStrings = g_tree_new(g_strcmp);
-    valStrings = g_tree_new(g_strcmp);
-    patternStrings = g_tree_new(g_strcmp);
-    
+
+    stringChunk = g_string_chunk_new(265);
+    stringTree = g_tree_new(m_tree_strcmp);
+
     cfgRules *ruleset = (cfgRules *) rulesetRead("test/ruleset.xml");
-        
-    g_tree_destroy(keyStrings);
-    g_tree_destroy(valStrings);
-    g_tree_destroy(patternStrings);
-    
-    // Free
-    keyStrings = g_tree_new(g_strcmp);
-    valStrings = g_tree_new(g_strcmp);
-    patternStrings = g_tree_new(g_strcmp);
-    
+
+    g_tree_destroy(stringTree);
+
     rulesetFree(ruleset);
-    
-    g_tree_foreach(keyStrings, g_freeTree,NULL);
-    g_tree_foreach(valStrings, g_freeTree,NULL);
-    g_tree_foreach(patternStrings, g_freeTree,NULL);
-    
-    g_tree_destroy(keyStrings);
-    g_tree_destroy(valStrings);
-    g_tree_destroy(patternStrings);
-		
+
+    g_string_chunk_free(stringChunk);
+
 	return (0);
 }
 
