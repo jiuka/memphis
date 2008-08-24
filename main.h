@@ -25,6 +25,7 @@
 #define MEMPHIS_MIN_LAYER 12
 #define MEMPHIS_MAX_LAYER 17
 
+#define MEMPHIS_DEFAULT_OUTPUT_DIRECTORY "tiles"
 /*
  * Enums
  */
@@ -45,6 +46,7 @@ struct _memphisOpt {
         short int       maxlayer;
         char            *cfgfn;
         char            *osmfn;
+        char            *outdir;    /* tiles output directory */
     };
 
 #endif /* MAIN_H */
