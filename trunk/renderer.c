@@ -54,7 +54,7 @@ typedef enum compare_result_e {
  *
  * This function is used to prepare a Path.
  */
-void drawPath(renderInfo *info, GSList *nodes) {
+static void drawPath(renderInfo *info, GSList *nodes) {
     GSList *iter;
     osmNode *nd;
     coordinates xy;
@@ -83,7 +83,7 @@ void drawPath(renderInfo *info, GSList *nodes) {
  *
  * This function is stroke all current path without drawing anithing.
  */
-void strokePath(renderInfo *info) {
+static void strokePath(renderInfo *info) {
     if (opts->debug > 1)
         fprintf(stdout,"strokePath\n");
         
@@ -96,7 +96,7 @@ void strokePath(renderInfo *info) {
  *
  * This function fill the prepared paths with the configured color.
  */
-void drawPolygone(renderInfo *info, cfgDraw *draw) {
+static void drawPolygone(renderInfo *info, cfgDraw *draw) {
     if (opts->debug > 1)
         fprintf(stdout,"drawPolygone\n");
 
@@ -139,7 +139,7 @@ void drawPolygone(renderInfo *info, cfgDraw *draw) {
  *
  * This function draw the prepared paths with the configured color.
  */
-void drawLine(renderInfo *info, cfgDraw *draw) {
+static void drawLine(renderInfo *info, cfgDraw *draw) {
     if (opts->debug > 1)
         fprintf(stdout,"drawLine\n");
 
@@ -158,7 +158,7 @@ void drawLine(renderInfo *info, cfgDraw *draw) {
  *
  * This function draw the given text along the current path.
  */
-void drawText(renderInfo *info, char *text, cfgDraw *draw) {
+static void drawText(renderInfo *info, char *text, cfgDraw *draw) {
     if (opts->debug > 1)
         fprintf(stdout,"drawText\n");
 
@@ -176,7 +176,7 @@ void drawText(renderInfo *info, char *text, cfgDraw *draw) {
  *
  * Check if string is an strings.
  */
-compare_result_e stringInStrings(char *string, char **strings) {
+static compare_result_e stringInStrings(char *string, char **strings) {
     if (opts->debug > 1)
         fprintf(stdout,"stringInStrings\n");
     compare_result_e r = TAG_CMP_NOT_EQUAL;
@@ -199,7 +199,7 @@ compare_result_e stringInStrings(char *string, char **strings) {
  *
  * Check if a element matchs a rule.
  */
-int matchRule(cfgRule *rule, osmTag *tag) {
+static int matchRule(cfgRule *rule, osmTag *tag) {
     int k, v;
     
     if (opts->debug > 1)
@@ -226,7 +226,7 @@ int matchRule(cfgRule *rule, osmTag *tag) {
  *
  * Check if a element match to a rule and all it's parent.
  */
-int checkRule(cfgRule *rule, osmTag *tag, short int type) {
+static int checkRule(cfgRule *rule, osmTag *tag, short int type) {
     if (opts->debug > 1)
         fprintf(stdout,"checkRule\n");
 
@@ -281,7 +281,7 @@ static void renderPaths(renderInfo *info, int layer, cfgRule *rule, cfgDraw *dra
     }
     if(paths) {
         while(draw) {
-            if(draw->minzoom>info->zoom || draw->maxzoom<info->zoom) {
+            if(draw->minzoom > info->zoom || draw->maxzoom < info->zoom) {
                 draw = draw->next;
                 continue;
             }
@@ -328,7 +328,7 @@ static void renderText(renderInfo *info, int layer, cfgRule *rule, cfgDraw *draw
 /*
  * function: renderCairoRun
  */
-int renderCairoRun(renderInfo *info) {
+static int renderCairoRun(renderInfo *info) {
     if (opts->debug > 1)
         fprintf(stdout,"renderCairoRun\n");
     int layer;

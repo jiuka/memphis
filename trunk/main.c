@@ -116,7 +116,7 @@ static GOptionEntry memphis_option_entries[] = {
                         "tiles output directory (default: tiles)", "DIR" },
 };
 
-void banner() {
+static void banner() {
     fprintf(stdout,"Memphis OSM Renderer " MEMPHIS_VERSION "\n");
 }
 
