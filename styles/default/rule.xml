@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rules version="0.1" autor="MariusRieder" background="#f0f0f0">
+    <style zoom="*" src="main.css"/>
+    <style zoom="12" src="12.css"/>
+    <style zoom="13" src="13.css"/>
+    <style zoom="14" src="14.css"/>
 
     <!-- Draw landuse/natural first -->
     <rule e="way" k="landuse|natural" v="*">

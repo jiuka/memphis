@@ -33,6 +33,15 @@ typedef enum mapPrimitives {
 } mapPrimitives;
 
 /*
+ * Struct for Style
+ */
+typedef struct _cfgStyle cfgStyle;
+struct _cfgStyle {
+        short int   zoom;     /* -1 = All */
+        char        *src;
+    };
+
+/*
  * LinkedList Struct for Draws
  */
 typedef struct _cfgDraw cfgDraw;
@@ -84,6 +93,7 @@ struct _cfgRules {
         int         depth;
         short int   background[3];
         cfgRule     *rule;
+        GSList      *style;
     };
 
 /*

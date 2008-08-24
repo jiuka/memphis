@@ -60,6 +60,7 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
     if (strcmp((char *) name, "rules") == 0) {
         // Init Ruleset
         ruleset->rule = NULL;
+        ruleset->style = NULL;
 
         while (*atts != NULL) {
             if(strcmp((char *) *(atts), "background") == 0) {
@@ -70,6 +71,32 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
             }
             atts+=2;
         }
+    }
+    // Parsing Style
+    else if (strcmp(name, "style") == 0) {
+
+        // Create Style
+        cfgStyle *new;
+        new = g_new(cfgStyle, 1);
+        new->zoom = -1;
+        new->src = NULL;
+
+        // Populate Style
+        while (*atts != NULL) {
+            if(strcmp((char *) *(atts), "zoom") == 0) {
+                if(strstr((char *) *(atts +1),"*") != NULL)
+                    new->zoom = -1;
+                else
+                    sscanf((char *) *(atts+1),"%li",(unsigned int *)&new->zoom);
+            } else if(strcmp((char *) *(atts), "src") == 0) {
+                new->src = g_strdup((char *) *(atts+1));
+            }
+            atts += 2;
+        }
+
+fprintf(stdout,"4\n");
+        // Insert Style
+        ruleset->style = g_slist_append(ruleset->style, new);
     }
     // Parsing Rule
     else if (strcmp(name, "rule") == 0) {
