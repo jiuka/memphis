@@ -264,7 +264,7 @@ int checkRule(cfgRule *rule, osmTag *tag, short int type) {
 
 }
 
-void renderPaths(renderInfo *info, int layer, cfgRule *rule, cfgDraw *draw) {
+static void renderPaths(renderInfo *info, int layer, cfgRule *rule, cfgDraw *draw) {
     int paths = 0;
     osmWay *way;
 
@@ -300,6 +300,30 @@ void renderPaths(renderInfo *info, int layer, cfgRule *rule, cfgDraw *draw) {
     strokePath(info);
 } 
 
+static void renderText(renderInfo *info, int layer, cfgRule *rule, cfgDraw *draw) {
+    osmWay      *way;
+    while(draw) {
+        if (draw->type == TEXT) {
+            if(draw->minzoom <= info->zoom && info->zoom <= draw->maxzoom) {
+                LIST_FOREACH(way, info->osm->ways) {
+                    //Only objects on current layer
+                    if(way->layer != layer || way->name == NULL)
+                        continue;
+
+                    if( checkRule(rule, way->tag, WAY) == 1) {
+                        drawPath(info, way->nd);
+                        drawText(info, way->name, draw);
+                    }
+                }
+
+            }
+
+            break;
+        }
+        draw = draw->next;
+    }
+    strokePath(info);
+}
 
 /*
  * function: renderCairoRun
@@ -310,10 +334,7 @@ int renderCairoRun(renderInfo *info) {
     int layer;
 
     // Vars uder while looping throug data
-    osmWay      *way;
     cfgRule     *rule;
-    cfgDraw     *draw;
-    int         paths;
 
     // Start checking osm from bottom layer.
     for(layer = -5; layer <= 5; layer++) {
@@ -329,37 +350,8 @@ int renderCairoRun(renderInfo *info) {
             if(rule->draw != NULL) { // Draw Match first
                 renderPaths(info, layer, rule, rule->draw);
 
-                paths = 0;
                 // Text Rendering
-                draw = rule->draw;
-                while(draw) {
-                    switch(draw->type) {
-                        case TEXT:
-                            paths++;
-                            break;
-                        case POLYGONE:
-                        case LINE:
-                            break;
-                    }
-                    if(paths)
-                        break;
-                    draw = draw->next;
-                }
-
-                if(paths && draw->minzoom<=info->zoom && draw->maxzoom>=info->zoom) {
-                    LIST_FOREACH(way, info->osm->ways) {
-                        //Only objects on current layer
-                        if(way->layer != layer || way->name == NULL)
-                            continue;
-
-                        if( checkRule(rule, way->tag, WAY) == 1) {
-                            drawPath(info, way->nd);
-                            drawText(info, way->name, draw);
-                        }
-                    }
-
-                }
-                strokePath(info);
+                renderText(info, layer, rule, rule->draw);
             }
             if (rule->ndraw != NULL) { // Draw Else after
                 renderPaths(info, layer, rule, rule->ndraw);
