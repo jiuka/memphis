@@ -54,7 +54,7 @@ typedef enum compare_result_e {
  *
  * This function is used to prepare a Path.
  */
-void drawPath(renderInfo *info, GSList *nodes) {
+static void drawPath(renderInfo *info, GSList *nodes) {
     GSList *iter;
     osmNode *nd;
     coordinates xy;
@@ -83,7 +83,7 @@ void drawPath(renderInfo *info, GSList *nodes) {
  *
  * This function is stroke all current path without drawing anithing.
  */
-void strokePath(renderInfo *info) {
+static void strokePath(renderInfo *info) {
     if (opts->debug > 1)
         fprintf(stdout,"strokePath\n");
         
@@ -96,7 +96,7 @@ void strokePath(renderInfo *info) {
  *
  * This function fill the prepared paths with the configured color.
  */
-void drawPolygone(renderInfo *info, cfgDraw *draw) {
+static void drawPolygone(renderInfo *info, cfgDraw *draw) {
     if (opts->debug > 1)
         fprintf(stdout,"drawPolygone\n");
 
@@ -139,7 +139,7 @@ void drawPolygone(renderInfo *info, cfgDraw *draw) {
  *
  * This function draw the prepared paths with the configured color.
  */
-void drawLine(renderInfo *info, cfgDraw *draw) {
+static void drawLine(renderInfo *info, cfgDraw *draw) {
     if (opts->debug > 1)
         fprintf(stdout,"drawLine\n");
 
@@ -158,7 +158,7 @@ void drawLine(renderInfo *info, cfgDraw *draw) {
  *
  * This function draw the given text along the current path.
  */
-void drawText(renderInfo *info, char *text, cfgDraw *draw) {
+static void drawText(renderInfo *info, char *text, cfgDraw *draw) {
     if (opts->debug > 1)
         fprintf(stdout,"drawText\n");
 
@@ -176,7 +176,7 @@ void drawText(renderInfo *info, char *text, cfgDraw *draw) {
  *
  * Check if string is an strings.
  */
-compare_result_e stringInStrings(char *string, char **strings) {
+static compare_result_e stringInStrings(char *string, char **strings) {
     if (opts->debug > 1)
         fprintf(stdout,"stringInStrings\n");
     compare_result_e r = TAG_CMP_NOT_EQUAL;
@@ -199,7 +199,7 @@ compare_result_e stringInStrings(char *string, char **strings) {
  *
  * Check if a element matchs a rule.
  */
-int matchRule(cfgRule *rule, osmTag *tag) {
+static int matchRule(cfgRule *rule, osmTag *tag) {
     int k, v;
     
     if (opts->debug > 1)
@@ -226,7 +226,7 @@ int matchRule(cfgRule *rule, osmTag *tag) {
  *
  * Check if a element match to a rule and all it's parent.
  */
-int checkRule(cfgRule *rule, osmTag *tag, short int type) {
+static int checkRule(cfgRule *rule, osmTag *tag, short int type) {
     if (opts->debug > 1)
         fprintf(stdout,"checkRule\n");
 
@@ -264,7 +264,7 @@ int checkRule(cfgRule *rule, osmTag *tag, short int type) {
 
 }
 
-void renderPaths(renderInfo *info, int layer, cfgRule *rule, cfgDraw *draw) {
+static void renderPaths(renderInfo *info, int layer, cfgRule *rule, cfgDraw *draw) {
     int paths = 0;
     osmWay *way;
 
@@ -281,7 +281,7 @@ void renderPaths(renderInfo *info, int layer, cfgRule *rule, cfgDraw *draw) {
     }
     if(paths) {
         while(draw) {
-            if(draw->minzoom>info->zoom || draw->maxzoom<info->zoom) {
+            if(draw->minzoom > info->zoom || draw->maxzoom < info->zoom) {
                 draw = draw->next;
                 continue;
             }
@@ -300,20 +300,41 @@ void renderPaths(renderInfo *info, int layer, cfgRule *rule, cfgDraw *draw) {
     strokePath(info);
 } 
 
+static void renderText(renderInfo *info, int layer, cfgRule *rule, cfgDraw *draw) {
+    osmWay      *way;
+    while(draw) {
+        if (draw->type == TEXT) {
+            if(draw->minzoom <= info->zoom && info->zoom <= draw->maxzoom) {
+                LIST_FOREACH(way, info->osm->ways) {
+                    //Only objects on current layer
+                    if(way->layer != layer || way->name == NULL)
+                        continue;
+
+                    if( checkRule(rule, way->tag, WAY) == 1) {
+                        drawPath(info, way->nd);
+                        drawText(info, way->name, draw);
+                    }
+                }
+
+            }
+
+            break;
+        }
+        draw = draw->next;
+    }
+    strokePath(info);
+}
 
 /*
  * function: renderCairoRun
  */
-int renderCairoRun(renderInfo *info) {
+static int renderCairoRun(renderInfo *info) {
     if (opts->debug > 1)
         fprintf(stdout,"renderCairoRun\n");
     int layer;
 
     // Vars uder while looping throug data
-    osmWay      *way;
     cfgRule     *rule;
-    cfgDraw     *draw;
-    int         paths;
 
     // Start checking osm from bottom layer.
     for(layer = -5; layer <= 5; layer++) {
@@ -329,37 +350,8 @@ int renderCairoRun(renderInfo *info) {
             if(rule->draw != NULL) { // Draw Match first
                 renderPaths(info, layer, rule, rule->draw);
 
-                paths = 0;
                 // Text Rendering
-                draw = rule->draw;
-                while(draw) {
-                    switch(draw->type) {
-                        case TEXT:
-                            paths++;
-                            break;
-                        case POLYGONE:
-                        case LINE:
-                            break;
-                    }
-                    if(paths)
-                        break;
-                    draw = draw->next;
-                }
-
-                if(paths && draw->minzoom<=info->zoom && draw->maxzoom>=info->zoom) {
-                    LIST_FOREACH(way, info->osm->ways) {
-                        //Only objects on current layer
-                        if(way->layer != layer || way->name == NULL)
-                            continue;
-
-                        if( checkRule(rule, way->tag, WAY) == 1) {
-                            drawPath(info, way->nd);
-                            drawText(info, way->name, draw);
-                        }
-                    }
-
-                }
-                strokePath(info);
+                renderText(info, layer, rule, rule->draw);
             }
             if (rule->ndraw != NULL) { // Draw Else after
                 renderPaths(info, layer, rule, rule->ndraw);
@@ -413,11 +405,11 @@ int renderCairo(cfgRules *ruleset, osmFile *osm) {
         // Saving Images
         char *filename;
 
+        filename = g_strdup_printf("%s/%02i.png", opts->outdir, info->zoom);
         if (opts->debug > 0) {
-            fprintf(stdout," Cairo rendering Z%i", info->zoom);
+            fprintf(stdout," Cairo rendering Z%i to '%s'", info->zoom, filename);
             fflush(stdout);
         }
-        filename = g_strdup_printf("tiles/%02i.png", info->zoom);
         cairo_surface_write_to_png(info->surface, filename);
         g_free(filename);
         cairo_destroy(info->cr);

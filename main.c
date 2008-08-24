@@ -39,11 +39,12 @@ GTree        *stringTree;
 /* Renderer Options */
 static memphisOpt opts_storage = {
     .debug = 1,
-    .cfgfn = NULL,
-    .osmfn = NULL,
     .mode = MODE_MAP,
     .minlayer = MEMPHIS_MIN_LAYER,
     .maxlayer = MEMPHIS_MAX_LAYER,
+    .cfgfn = NULL,
+    .osmfn = NULL,
+    .outdir = MEMPHIS_DEFAULT_OUTPUT_DIRECTORY,
 };
 memphisOpt  *opts = &opts_storage;
 
@@ -110,9 +111,12 @@ static GOptionEntry memphis_option_entries[] = {
     { "maxlayer", 0,    0,
                         G_OPTION_ARG_CALLBACK, set_layer_option_cb,
                         "maximum layer to render", "LAYER" },
+    { "out", 'o',       0,
+                        G_OPTION_ARG_FILENAME, &opts_storage.outdir,
+                        "tiles output directory (default: tiles)", "DIR" },
 };
 
-void banner() {
+static void banner() {
     fprintf(stdout,"Memphis OSM Renderer " MEMPHIS_VERSION "\n");
 }
 
@@ -132,7 +136,7 @@ int main(int argc, char **argv) {
     g_option_group_add_entries(grp, memphis_option_entries);
     optctx = g_option_context_new("Memphis OSM Renderer " MEMPHIS_VERSION);
     g_option_context_set_summary(optctx,
-            "memphis [-qvmt] [--minlayer] [--maxlayer] <RULESFILE> <OSMFILE>");
+            "memphis [-qvmt] [--minlayer] [--maxlayer] [-o DIR] <RULESFILE> <OSMFILE>");
     g_option_context_set_main_group(optctx, grp);
     if (!g_option_context_parse(optctx, &argc, &argv, &error)) {
         g_print("option parsing failed: %s\n", error->message);
