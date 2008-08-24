@@ -64,6 +64,8 @@ def compare_tiles(expecteddir, testdir, minzoom, maxzoom):
         currentfn = os.path.join(testdir, "%02d.png" % z)
         current_signature = get_image_signature(currentfn)
         if current_signature != expected_signature:
+            if not '--nointeractive' in sys.argv and os.getenv('DISPLAY'):
+                os.system('compare %s %s x:' % (expectedfn, currentfn))
             raise TestFailed("Image differs (expected: %s, got: %s)" % (
                                     expected_signature, current_signature))
         sys.stdout.write(" ok.\n")
