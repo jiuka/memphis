@@ -25,7 +25,7 @@
 #include "ruleset.h"
 #include "textpath.h"
 
-void point_on_path(cairo_path_t *path, double *lengths, double *x, double *y) {
+static void point_on_path(cairo_path_t *path, double *lengths, double *x, double *y) {
     int i;
     double ratio, the_y = *y, the_x = *x, dx, dy;
     cairo_path_data_t *data, current_point;
@@ -79,8 +79,11 @@ void point_on_path(cairo_path_t *path, double *lengths, double *x, double *y) {
 }
 
 
-void transform_path(cairo_path_t *path, trans_point_func_t f,
-                    cairo_path_t *dpath, double *lengths) {
+static void transform_path(cairo_path_t *path,
+                           trans_point_func_t f,
+                           cairo_path_t *dpath,
+                           double *lengths)
+{
     int i;
     cairo_path_data_t *data;
 
@@ -100,7 +103,7 @@ void transform_path(cairo_path_t *path, trans_point_func_t f,
     }
 }
 
-double* pathLength(cairo_path_t *path) {
+static double* pathLength(cairo_path_t *path) {
     int i;
     cairo_path_data_t *data, current_point;
     double *lengths;

@@ -196,7 +196,11 @@ osmStartElement(void *userData, const char *name, const char **atts) {
             cntNd++;
             osmNode *n;
             
-            n = g_hash_table_lookup(osm->nodeidx, &ref); /* TODO check return value */
+            n = g_hash_table_lookup(osm->nodeidx, &ref);
+            if (!n) {
+                g_warning("No node with reference %d found!\n", ref);
+                return;
+            }
 
             // Insert WayNode
             cWay->nd = g_slist_prepend(cWay->nd, n);
