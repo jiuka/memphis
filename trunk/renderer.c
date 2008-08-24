@@ -413,11 +413,11 @@ int renderCairo(cfgRules *ruleset, osmFile *osm) {
         // Saving Images
         char *filename;
 
+        filename = g_strdup_printf("%s/%02i.png", opts->outdir, info->zoom);
         if (opts->debug > 0) {
-            fprintf(stdout," Cairo rendering Z%i", info->zoom);
+            fprintf(stdout," Cairo rendering Z%i to '%s'", info->zoom, filename);
             fflush(stdout);
         }
-        filename = g_strdup_printf("tiles/%02i.png", info->zoom);
         cairo_surface_write_to_png(info->surface, filename);
         g_free(filename);
         cairo_destroy(info->cr);
