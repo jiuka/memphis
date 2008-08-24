@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rules version="0.1" autor="MariusRieder" background="#f0f0f0">
+
+    <!-- Draw landuse/natural first -->
+    <rule e="way" k="landuse|natural" v="*">
+       <rule e="way" k="natural" v="water">
+            <polygone class="waterway"/>
+        </rule>
+       <rule e="way" k="landuse|natural" v="wood|forest">
+            <polygone class="landuse-forest"/>
+       </rule>
+        <rule e="way" k="landuse" v="landfill|quarry">
+            <polygone class="landuse-landfill"/>
+        </rule>
+        <rule e="way" k="landuse" v="cemetery">
+            <rule e="way" k="religion" v="christian">
+                <polygone class="landuse-cemetery-christian"/>
+            </rule>
+            <else>
+                <polygone class="landuse-cemetery"/>
+            </else>
+        </rule>
+        <rule e="way" k="landuse" v="vineyard">
+            <polygone class="landuse-vineyard"/>
+        </rule>
+    </rule>
+    
+    <!-- Waterways -->
+    <rule e="way" k="waterway" v="*">
+        <rule e="way" k="waterway" v="riverbank">
+            <polygone class="waterway"/>
+        </rule>
+        <rule e="way" k="waterway" v="river">
+            <line class="waterway waterway-river"/>
+        </rule>
+        <rule e="way" k="waterway" v="stream">
+            <line class="waterway waterway-stream"/>
+        </rule>
+        <rule e="way" k="waterway" v="canal">
+            <line class="waterway waterway-canal"/>
+        </rule>
+        <rule e="way" k="waterway" v="drain">
+            <line class="waterway waterway-drain"/>
+        </rule>
+        <rule e="way" k="waterway" v="dock">
+            <polygone class="waterway"/>
+        </rule>
+        <rule e="way" k="natural|landuse" v="water|pond|lake">
+            <polygone class="waterway"/>
+        </rule>
+        <rule e="way" k="landuse" v="reservoir">
+            <polygone class="waterway"/>
+        </rule>
+        <rule e="way" k="landuse" v="basin">
+            <polygone class="waterway"/>
+        </rule>
+
+    </rule>
+    <rule e="way" k="building" v="*">
+        <polygone class="building"/>
+    </rule>
+   
+    <!-- Railway -->
+    <rule e="way" k="railway" v="rail">
+        <road class="railway"/>
+    </rule>
+
+    <!-- Draw highways -->
+    <rule e="way" k="highway" v="*">
+        <rule e="way" k="highway" v="footway">
+            <road class=".highway-footway"/>
+        </rule>
+        <rule e="way" k="highway" v="cycleway|bridleway">
+            <road class=".highway-cycleway"/>
+        </rule>
+        <rule e="way" k="highway" v="track">
+            <road class=".highway-track"/>
+        </rule>
+        <rule e="way" k="highway" v="residential|unclassified|pedestrian">
+            <road class=".highway-unclassified"/>
+            <text class=".highway-unclassified-text"/>
+        </rule>
+        <rule e="way" k="highway" v="tertiary">
+            <road class=".highway-tertiary"/>
+            <text class=".highway-tertiary-text"/>
+        </rule>
+        <rule e="way" k="highway" v="secondary">
+            <road class=".highway-secondary"/>
+            <text class=".highway-secondary-text"/>
+        </rule>
+        <rule e="way" k="highway" v="primary">
+            <road class=".highway-primary"/>
+            <text class=".highway-primary-text"/>
+        </rule>
+        <rule e="way" k="highway" v="trunk">
+            <road class=".highway-trunk"/>
+            <text class=".highway-trunk-text"/>
+        </rule>
+        <rule e="way" k="highway" v="motorway">
+            <road class=".highway-motorway"/>
+            <text class=".highway-motorway-text"/>
+        </rule>
+    </rule>
+</rules>

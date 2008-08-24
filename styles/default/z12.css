@@ -1,0 +1,30 @@
+.highway-unclassified {
+    border-width: 1px;
+    width: 2px;
+}
+
+.highay-tertiary {
+    border-width: 1px;
+    width: 2px;
+}
+
+.highway-primary {
+    border-width: 1px;
+    width: 2px;
+}
+
+.highway-trunk {
+    border-width: 1px;
+    width: 3px;
+}
+
+.highway-motorway {
+    border-width: 1px;
+    width: 4px;
+}
+
+.railway {
+    border-width: 1px;
+    width: 2px;
+    dash: 4px;
+}
