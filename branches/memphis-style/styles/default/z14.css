@@ -1,0 +1,49 @@
+.highway-footway {
+    border-width: 1px;
+    width: 2px;
+}
+
+.highway-cycleway {
+    border-width: 1px;
+    width: 2px;
+}
+
+.highway-track {
+    border-width: 1px;
+    width: 3px;
+}
+
+.highway-unclassified {
+    border-width: 1px;
+    width: 3px;
+}
+
+.highay-tertiary {
+    border-width: 1px;
+    width: 3px;
+}
+
+.highway-secondary {
+    border-width: 1px;
+    width: 4px;
+}
+
+.highway-primary {
+    border-width: 1px;
+    width: 6px;
+}
+
+.highway-trunk {
+    border-width: 1px;
+    width: 7px;
+}
+
+.highway-motorway {
+    border-width: 1px;
+    width: 8px;
+}
+
+.railway {
+    border-width: 1px;
+    width: 3px;
+}

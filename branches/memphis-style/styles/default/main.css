@@ -1,0 +1,88 @@
+.waterway {
+    background: #b5d6f1;
+}
+
+.landuse-forest {
+    background: #72bf81;
+    border-color: #6fc18e;
+    border-width: 1px;
+}
+
+.landuse-landfill {
+    border-color: #e2cf80;
+    background: #5A6332;
+}
+
+.landuse-cemetery {
+    border-color: #eeeeee;
+    background: url(landuse-cemetery);
+}
+
+.landuse-cemetery-christian {
+    border-color: #eeeeee;
+    background: url(landuse-cemetery-christian);
+}
+
+.landuse-vineyard {
+    border-color: #eeeeee;
+    background: url(landuse-vineyard);
+}
+
+.highway-footway {
+    boder-color: #777777;
+    background: #efeaa0;
+}
+
+.highway-cycleway {
+    border-color: #777777;
+    background: #efa0a0;
+}
+
+.highway-track {
+    boder-color: #777777;
+    background: #efeaa0;
+}
+
+.highway-unclassified {
+    border-color: #777777;
+    background: #ffffff;
+}
+
+.highway-unclassified-text {
+    background: #000000;
+}
+
+.highay-tertiary {
+    border-color: #777777;
+    background: #f7f496;
+}
+
+.highway-secondary {
+    boder-color: #777777;
+    background: #FDBF6F;
+}
+
+.highway-primary {
+    border-color: #777777;
+    background: #e46d71;
+}
+
+.highway-trunk {
+    border-color: #777777;
+    background: #7FC97F;
+}
+
+.highway-motorway {
+    border-color: #777777;
+    background: #809BC0;
+}
+
+.railway {
+    border-color: #000000;
+    background: #ffffff;
+}
+
+.building {
+    border: #dddddd;
+    background-color: #cccccc;
+}
