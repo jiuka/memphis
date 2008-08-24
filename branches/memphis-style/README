@@ -1,0 +1,10 @@
+README
+
+
+Buliding:
+
+$ scons
+    
+Using:
+
+$ ./memphis rule.xml map.osm
