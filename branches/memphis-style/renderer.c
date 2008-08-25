@@ -26,6 +26,7 @@
 
 #include "main.h"
 #include "osm05.h"
+#include "style.h"
 #include "libmercator.h"
 #include "list.h"
 #include "renderer.h"
@@ -102,7 +103,9 @@ static void drawPolygone(renderInfo *info, cfgDraw *draw) {
 
     cairo_surface_t *image;
     cairo_pattern_t *pattern;
-
+    
+    cssStyle *style = getStyle(info->styles, draw->styleclass);
+/*
     if(draw->pattern) {
         char *filename;
         int w, h;
@@ -117,21 +120,34 @@ static void drawPolygone(renderInfo *info, cfgDraw *draw) {
         pattern = cairo_pattern_create_for_surface (image);
         cairo_pattern_set_extend (pattern, CAIRO_EXTEND_REPEAT);
     }
-
+*/
     cairo_set_fill_rule (info->cr, CAIRO_FILL_RULE_EVEN_ODD);
-    if(draw->pattern)
-        cairo_set_source (info->cr, pattern);
-    else
-        cairo_set_source_rgb (info->cr, (double)draw->color[0]/(double)255,
-                                        (double)draw->color[1]/(double)255,
-                                        (double)draw->color[2]/(double)255);
+//    if(draw->pattern)
+//        cairo_set_source (info->cr, pattern);
+//    else
+
+    cairo_set_source_rgb (info->cr,
+                          (double)style->backgroundcolor[0]/(double)255,
+                          (double)style->backgroundcolor[1]/(double)255,
+                          (double)style->backgroundcolor[2]/(double)255);
 
     cairo_fill_preserve(info->cr);
+    
+    if (style->borderwidth > 0) {
+        cairo_set_line_width (info->cr, style->borderwidth);
+        cairo_set_source_rgb (info->cr,
+                              (double)style->bordercolor[0]/(double)255,
+                              (double)style-> bordercolor[1]/(double)255,
+                              (double)style-> bordercolor[2]/(double)255);
 
+        cairo_stroke_preserve(info->cr);
+    }
+/*
     if(draw->pattern) {
         cairo_pattern_destroy (pattern);
         cairo_surface_destroy (image);
     }
+*/
 }
 
 /*
@@ -142,14 +158,17 @@ static void drawPolygone(renderInfo *info, cfgDraw *draw) {
 static void drawLine(renderInfo *info, cfgDraw *draw) {
     if (opts->debug > 1)
         fprintf(stdout,"drawLine\n");
+    
+    cssStyle *style = getStyle(info->styles, draw->styleclass);
 
     cairo_set_line_cap  (info->cr, CAIRO_LINE_CAP_ROUND);
     cairo_set_line_join (info->cr, CAIRO_LINE_JOIN_ROUND);
-    cairo_set_line_width (info->cr, draw->width*LINESIZE(info->zoom));
+    cairo_set_line_width (info->cr, style->width);
 
-    cairo_set_source_rgb (info->cr, (double)draw->color[0]/(double)255,
-                                    (double)draw->color[1]/(double)255,
-                                    (double)draw->color[2]/(double)255);
+    cairo_set_source_rgb (info->cr,
+                          (double)style->backgroundcolor[0]/(double)255,
+                          (double)style->backgroundcolor[1]/(double)255,
+                          (double)style->backgroundcolor[2]/(double)255);
     cairo_stroke_preserve(info->cr);
 }
 
@@ -161,13 +180,18 @@ static void drawLine(renderInfo *info, cfgDraw *draw) {
 static void drawText(renderInfo *info, char *text, cfgDraw *draw) {
     if (opts->debug > 1)
         fprintf(stdout,"drawText\n");
+    
+    cssStyle *style = getStyle(info->styles, draw->styleclass);
 
     cairo_select_font_face (info->cr, "Sans", CAIRO_FONT_SLANT_NORMAL,
                                               CAIRO_FONT_WEIGHT_NORMAL);
-    cairo_set_source_rgb (info->cr, (double)draw->color[0]/(double)255,
-                                    (double)draw->color[1]/(double)255,
-                                    (double)draw->color[2]/(double)255);
-    cairo_set_font_size (info->cr, draw->width*LINESIZE(info->zoom));
+                                              
+    cairo_set_source_rgb (info->cr,
+                          (double)style->backgroundcolor[0]/(double)255,
+                          (double)style->backgroundcolor[1]/(double)255,
+                          (double)style->backgroundcolor[2]/(double)255);
+                          
+    cairo_set_font_size (info->cr, style->width);
     textPath(info->cr, text);
 }
 
@@ -293,6 +317,7 @@ static void renderPaths(renderInfo *info, int layer, cfgRule *rule, cfgDraw *dra
                     drawLine(info, draw);
                     break;
                 case TEXT: break;   /* ignore */
+                case ROAD: break;   /* ignore */
             }
             draw = draw->next;
         }
@@ -382,6 +407,7 @@ int renderCairo(cfgRules *ruleset, osmFile *osm) {
         info->zoom = z + opts->minlayer;
         info->ruleset = ruleset;
         info->osm = osm;
+        info->styles = styleRead(ruleset->style,info->zoom); //TODO: free @end
                 
         min = coord2xy(osm->minlat, osm->minlon, info->zoom);
         max = coord2xy(osm->maxlat, osm->maxlon, info->zoom);

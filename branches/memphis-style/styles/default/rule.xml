@@ -72,37 +72,37 @@
     <!-- Draw highways -->
     <rule e="way" k="highway" v="*">
         <rule e="way" k="highway" v="footway">
-            <road class=".highway-footway"/>
+            <road class="highway-footway"/>
         </rule>
         <rule e="way" k="highway" v="cycleway|bridleway">
-            <road class=".highway-cycleway"/>
+            <road class="highway-cycleway"/>
         </rule>
         <rule e="way" k="highway" v="track">
-            <road class=".highway-track"/>
+            <road class="highway-track"/>
         </rule>
         <rule e="way" k="highway" v="residential|unclassified|pedestrian">
-            <road class=".highway-unclassified"/>
-            <text class=".highway-unclassified-text"/>
+            <road class="highway-unclassified"/>
+            <text class="highway-unclassified-text"/>
         </rule>
         <rule e="way" k="highway" v="tertiary">
-            <road class=".highway-tertiary"/>
-            <text class=".highway-tertiary-text"/>
+            <road class="highway-tertiary"/>
+            <text class="highway-tertiary-text"/>
         </rule>
         <rule e="way" k="highway" v="secondary">
-            <road class=".highway-secondary"/>
-            <text class=".highway-secondary-text"/>
+            <road class="highway-secondary"/>
+            <text class="highway-secondary-text"/>
         </rule>
         <rule e="way" k="highway" v="primary">
-            <road class=".highway-primary"/>
-            <text class=".highway-primary-text"/>
+            <road class="highway-primary"/>
+            <text class="highway-primary-text"/>
         </rule>
         <rule e="way" k="highway" v="trunk">
-            <road class=".highway-trunk"/>
-            <text class=".highway-trunk-text"/>
+            <road class="highway-trunk"/>
+            <text class="highway-trunk-text"/>
         </rule>
         <rule e="way" k="highway" v="motorway">
-            <road class=".highway-motorway"/>
-            <text class=".highway-motorway-text"/>
+            <road class="highway-motorway"/>
+            <text class="highway-motorway-text"/>
         </rule>
     </rule>
 </rules>

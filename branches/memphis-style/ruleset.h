@@ -30,6 +30,7 @@ typedef enum mapPrimitives {
     LINE        = 1,
     POLYGONE    = 2,
     TEXT        = 3,
+    ROAD        = 4,
 } mapPrimitives;
 
 /*
@@ -49,9 +50,7 @@ struct _cfgDraw {
         mapPrimitives type;
         short int   minzoom;
         short int   maxzoom;
-        short int   color[3];
-        char*       pattern;
-        float       width;
+        char        **styleclass;
         cfgDraw     *next;
     };
 

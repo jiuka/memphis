@@ -87,14 +87,13 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
                 if(strstr((char *) *(atts +1),"*") != NULL)
                     new->zoom = -1;
                 else
-                    sscanf((char *) *(atts+1),"%li",(unsigned int *)&new->zoom);
+                    sscanf((char *) *(atts+1),"%hi",(short int *)&new->zoom);
             } else if(strcmp((char *) *(atts), "src") == 0) {
                 new->src = g_strdup((char *) *(atts+1));
             }
             atts += 2;
         }
 
-fprintf(stdout,"4\n");
         // Insert Style
         ruleset->style = g_slist_append(ruleset->style, new);
     }
@@ -161,39 +160,30 @@ fprintf(stdout,"4\n");
     // Parsing Polygone, etc.
     else if (
         strcmp(name, "polygone") == 0 ||
+        strcmp(name, "road") == 0 ||
         strcmp(name, "line") == 0 ||
         strcmp(name, "text") == 0
     ) {
         // Create Draw
         cfgDraw *new;
         new = g_new(cfgDraw, 1);
-        new->pattern = NULL;
         new->minzoom = 0;
         new->maxzoom = 99;
+        new->styleclass = NULL;
 
         // Populate Draw
         if (strcmp(name, "polygone") == 0)
             new->type = POLYGONE;
+        else if (strcmp(name, "road") == 0)
+            new->type = ROAD;
         else if (strcmp(name, "line") == 0)
             new->type = LINE;
         else if (strcmp(name, "text") == 0)
             new->type = TEXT;
 
         while (*atts != NULL) {
-            if(strcmp((char *) *(atts), "color") == 0) {
-                sscanf((char *) *(atts+1),"#%2x%2x%2x",
-                                            (unsigned int *)&new->color[0],
-                                            (unsigned int *)&new->color[1],
-                                            (unsigned int *)&new->color[2]);
-            } else if(strcmp((char *) *(atts), "width") == 0) {
-                sscanf((char *) *(atts+1),"%f",&new->width);
-            } else if(strcmp((char *) *(atts), "pattern") == 0) {
-                new->pattern = m_string_chunk_get(stringChunk, stringTree,
-                                                  (char *) *(atts+1));
-            } else if(strcmp((char *) *(atts), "zoom") == 0) {
-                sscanf((char *) *(atts+1),"%hi:%hi",
-                                            &new->minzoom,
-                                            &new->maxzoom);
+            if(strcmp((char *) *(atts), "class") == 0) {
+                new->styleclass = g_strsplit((char *) *(atts + 1), " ", 0);
             }
             atts+=2;
         }
