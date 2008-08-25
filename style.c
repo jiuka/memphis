@@ -16,34 +16,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+#include <glib.h>
+#include <glib/gstdio.h>
 
-#ifndef RENDER_H
-#define RENDER_H
-
-#include <cairo.h>
-
-#include "libmercator.h"
-#include "ruleset.h"
+#include "main.h"
 #include "style.h"
-#include "osm05.h"
 
-typedef struct _renderInfo renderInfo;
-struct _renderInfo {
-        coordinates     offset;
-        cairo_surface_t *surface;
-        cairo_t         *cr;
-        short int       zoom;
-        cfgRules        *ruleset;
-        osmFile         *osm;
-        cssStyle        *styles;
-    };
+cssStyle* getStyle(cssStyle *styles, char **class) {
+    return styles;
+}
 
-/*
- * Function Prototype
- */
-int renderCairo(cfgRules *ruleset, osmFile *osm);
+cssStyle* styleRead(GSList *styles, int zoom) {
+    cssStyle *style = g_new(cssStyle, 1);
+    
+    style->width=3;
+    style->backgroundcolor[0] = 255;
+    style->backgroundcolor[1] = 0;
+    style->backgroundcolor[2] = 0;
+    
+    return style;
+}
 
-#endif /* RENDER_H */
+void styleFree(cssStyle *style) {
+}
 
 /*
  * vim: expandtab shiftwidth=4 tabstop=4:

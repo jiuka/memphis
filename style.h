@@ -17,35 +17,34 @@
  * Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef RENDER_H
-#define RENDER_H
+#ifndef STYLE_H
+#define STYLE_H
 
+#include <glib.h>
 #include <cairo.h>
 
-#include "libmercator.h"
-#include "ruleset.h"
-#include "style.h"
-#include "osm05.h"
-
-typedef struct _renderInfo renderInfo;
-struct _renderInfo {
-        coordinates     offset;
-        cairo_surface_t *surface;
-        cairo_t         *cr;
-        short int       zoom;
-        cfgRules        *ruleset;
-        osmFile         *osm;
-        cssStyle        *styles;
-    };
+typedef struct _cssStyle cssStyle;
+struct _cssStyle {
+    cssStyle            *next;
+    guint8              backgroundcolor[3];
+    guint8              width;
+    guint8              bordercolor[3];
+    guint8              borderwidth;
+    cairo_line_cap_t    linecap:4;
+    cairo_line_join_t   linejoin:4;
+    char                *dash;
+};
 
 /*
- * Function Prototype
+ * Prototypes
  */
-int renderCairo(cfgRules *ruleset, osmFile *osm);
 
-#endif /* RENDER_H */
+cssStyle* getStyle(cssStyle *styles, char **class);
+cssStyle* styleRead(GSList *styles, int zoom);
+void styleFree(cssStyle *style);
+
+#endif /* STYLE_H */
 
 /*
  * vim: expandtab shiftwidth=4 tabstop=4:
  */
-
