@@ -1,0 +1,14 @@
+
+env = Environment()
+
+env.ParseConfig('pkg-config --cflags --libs glib-2.0')
+
+env.Append(CFLAGS = ['-Wall', '-g'])
+env['LEX'] = "flex"
+env['LEXCOM'] = "$LEX $LEXFLAGS -o $TARGET $SOURCES"
+
+cparser = env.CFile(target = 'cssparser.tab.c', source = 'cssparser.y')
+env.SideEffect('cssparser.tab.h', cparser)
+clexer  = env.CFile(target = 'csslexer.c', source = 'csslexer.l')
+
+env.Program('parser', source = [cparser, clexer])
