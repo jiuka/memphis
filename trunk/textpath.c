@@ -122,7 +122,7 @@ static double* pathLength(cairo_path_t *path) {
                     double dx, dy;
                     dx = data[1].point.x - current_point.point.x;
                     dy = data[1].point.y - current_point.point.y;
-                    lengths[i] = sqrt (dx * dx + dy * dy);
+                    lengths[i] = hypot(dx, dy);
                     current_point = data[1];
                     lengths[path->num_data] += lengths[i];
                 }
