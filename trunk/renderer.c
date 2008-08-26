@@ -59,7 +59,7 @@ static void drawPath(renderInfo *info, GSList *nodes) {
     osmNode *nd;
     coordinates xy;
     
-    if (opts->debug > 1)
+    if (G_UNLIKELY(opts->debug > 1))
         fprintf(stdout,"drawPath\n");
 
     iter = nodes;
@@ -84,7 +84,7 @@ static void drawPath(renderInfo *info, GSList *nodes) {
  * This function is stroke all current path without drawing anithing.
  */
 static void strokePath(renderInfo *info) {
-    if (opts->debug > 1)
+    if (G_UNLIKELY(opts->debug > 1))
         fprintf(stdout,"strokePath\n");
         
     cairo_set_line_width (info->cr, 0);
@@ -97,7 +97,7 @@ static void strokePath(renderInfo *info) {
  * This function fill the prepared paths with the configured color.
  */
 static void drawPolygone(renderInfo *info, cfgDraw *draw) {
-    if (opts->debug > 1)
+    if (G_UNLIKELY(opts->debug > 1))
         fprintf(stdout,"drawPolygone\n");
 
     cairo_surface_t *image;
@@ -140,7 +140,7 @@ static void drawPolygone(renderInfo *info, cfgDraw *draw) {
  * This function draw the prepared paths with the configured color.
  */
 static void drawLine(renderInfo *info, cfgDraw *draw) {
-    if (opts->debug > 1)
+    if (G_UNLIKELY(opts->debug > 1))
         fprintf(stdout,"drawLine\n");
 
     cairo_set_line_cap  (info->cr, CAIRO_LINE_CAP_ROUND);
@@ -159,7 +159,7 @@ static void drawLine(renderInfo *info, cfgDraw *draw) {
  * This function draw the given text along the current path.
  */
 static void drawText(renderInfo *info, char *text, cfgDraw *draw) {
-    if (opts->debug > 1)
+    if (G_UNLIKELY(opts->debug > 1))
         fprintf(stdout,"drawText\n");
 
     cairo_select_font_face (info->cr, "Sans", CAIRO_FONT_SLANT_NORMAL,
@@ -177,7 +177,7 @@ static void drawText(renderInfo *info, char *text, cfgDraw *draw) {
  * Check if string is an strings.
  */
 static compare_result_e stringInStrings(char *string, char **strings) {
-    if (opts->debug > 1)
+    if (G_UNLIKELY(opts->debug > 1))
         fprintf(stdout,"stringInStrings\n");
     compare_result_e r = TAG_CMP_NOT_EQUAL;
     while (*strings != NULL) {
@@ -202,7 +202,7 @@ static compare_result_e stringInStrings(char *string, char **strings) {
 static int matchRule(cfgRule *rule, osmTag *tag) {
     int k, v;
     
-    if (opts->debug > 1)
+    if (G_UNLIKELY(opts->debug > 1))
         fprintf(stdout,"matchRule\n");
         
     while(tag) {
@@ -227,7 +227,7 @@ static int matchRule(cfgRule *rule, osmTag *tag) {
  * Check if a element match to a rule and all it's parent.
  */
 static int checkRule(cfgRule *rule, osmTag *tag, short int type) {
-    if (opts->debug > 1)
+    if (G_UNLIKELY(opts->debug > 1))
         fprintf(stdout,"checkRule\n");
 
     int not;
