@@ -100,26 +100,31 @@ static void drawPolygone(renderInfo *info, cfgDraw *draw) {
     if (G_UNLIKELY(opts->debug > 1))
         fprintf(stdout,"drawPolygone\n");
 
-    cairo_surface_t *image;
-    cairo_pattern_t *pattern;
+    cairo_surface_t *image = NULL;
+    cairo_pattern_t *pattern = NULL;
 
     if(draw->pattern) {
         char *filename;
-        int w, h;
+
+        /* TODO ast: the pattern may be cached, e.g. using a GCache structure */
 
         filename = g_strdup_printf("pattern/%s.png", draw->pattern);
         image = cairo_image_surface_create_from_png(filename);
+        if (cairo_surface_status(image) != CAIRO_STATUS_SUCCESS) {
+            g_warning("pattern '%s' not found\n", filename);
+            g_free(filename);
+            return;
+        }
         g_free(filename);
-
-        w = cairo_image_surface_get_width (image);
-        h = cairo_image_surface_get_height (image);
 
         pattern = cairo_pattern_create_for_surface (image);
         cairo_pattern_set_extend (pattern, CAIRO_EXTEND_REPEAT);
+        cairo_surface_destroy (image);
     }
 
     cairo_set_fill_rule (info->cr, CAIRO_FILL_RULE_EVEN_ODD);
-    if(draw->pattern)
+
+    if(pattern)
         cairo_set_source (info->cr, pattern);
     else
         cairo_set_source_rgb (info->cr, (double)draw->color[0]/(double)255,
@@ -128,10 +133,8 @@ static void drawPolygone(renderInfo *info, cfgDraw *draw) {
 
     cairo_fill_preserve(info->cr);
 
-    if(draw->pattern) {
+    if(pattern)
         cairo_pattern_destroy (pattern);
-        cairo_surface_destroy (image);
-    }
 }
 
 /*
