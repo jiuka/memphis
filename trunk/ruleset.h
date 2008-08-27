@@ -35,8 +35,8 @@ typedef enum mapPrimitives {
 /*
  * LinkedList Struct for Draws
  */
-typedef struct _cfgDraw cfgDraw;
-struct _cfgDraw {
+typedef struct cfgDraw_ cfgDraw;
+struct cfgDraw_ {
         mapPrimitives type;
         short int   minzoom;
         short int   maxzoom;
@@ -49,10 +49,10 @@ struct _cfgDraw {
 /*
  * LinkedList Struct for Rule/Else
  */
-typedef struct _cfgRule cfgRule;
-typedef struct _cfgElse cfgElse;
+typedef struct cfgRule_ cfgRule;
+typedef struct cfgElse_ cfgElse;
 
-struct _cfgElse {
+struct cfgElse_ {
         cfgRule     *sub;
         cfgRule     *next;
         cfgDraw     *draw;
@@ -60,7 +60,7 @@ struct _cfgElse {
         int         d;
 #endif
     };
-struct _cfgRule {
+struct cfgRule_ {
         short int   type;
         char        **key;
         char        **value;
@@ -77,8 +77,8 @@ struct _cfgRule {
 /*
  * LinkedList Struct for Rules
  */
-typedef struct _cfgRules cfgRules;
-struct _cfgRules {
+typedef struct cfgRules_ cfgRules;
+struct cfgRules_ {
         int         cntRule;
         int         cntElse;
         int         depth;

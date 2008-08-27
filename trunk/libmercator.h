@@ -34,14 +34,14 @@
 /*
  * Types
  */
-typedef struct _coordinates coordinates;
-struct _coordinates {
+typedef struct coordinates_ coordinates;
+struct coordinates_ {
         double x;
         double y;
     };
 
-typedef struct _edges edges;
-struct _edges {
+typedef struct edges_ edges;
+struct edges_ {
         double N;
         double E;
         double S;
