@@ -27,10 +27,15 @@
 
 static void point_on_path(cairo_path_t *path, double *lengths, double *x, double *y) {
     int i;
-    double ratio, the_y = *y, the_x = *x, dx, dy;
-    cairo_path_data_t *data, current_point;
+    double ratio;
+    double the_y = *y;
+    double the_x = *x;
+    double dx, dy;
+    cairo_path_data_t *data;
+    cairo_path_data_t current_point;
 
-    for (i=0; i + path->data[i].header.length < path->num_data &&
+    for(i = 0;
+        (i + path->data[i].header.length < path->num_data) &&
 	    (the_x > lengths[i] || path->data[i].header.type == CAIRO_PATH_MOVE_TO);
         i += path->data[i].header.length) {
 
@@ -66,7 +71,7 @@ static void point_on_path(cairo_path_t *path, double *lengths, double *x, double
                 dx = -(current_point.point.x - data[1].point.x);
                 dy = -(current_point.point.y - data[1].point.y);
 
-                /*optimization for: ratio = the_y / sqrt (dx * dx + dy * dy);*/
+                /* optimization for: ratio = the_y / sqrt (dx * dx + dy * dy); */
                 ratio = the_y / lengths[i];
                 *x += -dy * ratio;
                 *y +=  dx * ratio;
@@ -80,22 +85,22 @@ static void point_on_path(cairo_path_t *path, double *lengths, double *x, double
 
 
 static void transform_path(cairo_path_t *path,
-                           trans_point_func_t f,
+                           trans_point_func_t cbfunc,
                            cairo_path_t *dpath,
                            double *lengths)
 {
     int i;
     cairo_path_data_t *data;
 
-    for (i=0; i < path->num_data; i += path->data[i].header.length) {
+    for (i = 0; i < path->num_data; i += path->data[i].header.length) {
         data = &path->data[i];
         switch (data->header.type) {
             case CAIRO_PATH_CURVE_TO:
-                f (dpath, lengths, &data[3].point.x, &data[3].point.y);
-                f (dpath, lengths, &data[2].point.x, &data[2].point.y);
+                cbfunc(dpath, lengths, &data[3].point.x, &data[3].point.y);
+                cbfunc(dpath, lengths, &data[2].point.x, &data[2].point.y);
             case CAIRO_PATH_MOVE_TO:
             case CAIRO_PATH_LINE_TO:
-                f (dpath, lengths, &data[1].point.x, &data[1].point.y);
+                cbfunc(dpath, lengths, &data[1].point.x, &data[1].point.y);
                 break;
             case CAIRO_PATH_CLOSE_PATH:
                 break;
@@ -110,7 +115,7 @@ static double* pathLength(cairo_path_t *path) {
 
     lengths = g_malloc0((path->num_data+1) * sizeof (double));
 
-    for (i=0; i < path->num_data; i += path->data[i].header.length) {
+    for (i = 0; i < path->num_data; i += path->data[i].header.length) {
         data = &path->data[i];
                 
         switch (data->header.type) {
@@ -122,7 +127,7 @@ static double* pathLength(cairo_path_t *path) {
                     double dx, dy;
                     dx = data[1].point.x - current_point.point.x;
                     dy = data[1].point.y - current_point.point.y;
-                    lengths[i] = sqrt (dx * dx + dy * dy);
+                    lengths[i] = hypot(dx, dy);
                     current_point = data[1];
                     lengths[path->num_data] += lengths[i];
                 }
@@ -148,18 +153,19 @@ void textPath(cairo_t *cr, char *text) {
 
     cairo_text_extents (cr, text, &extents);
 
-    n = (int) (lengths[path->num_data]/extents.width/6);
+    n = (int) (lengths[path->num_data] / extents.width / 6);
     if (n == 0 && lengths[path->num_data] > extents.width)
         n = 1;
     
     cairo_new_path (cr);
 
-    y = 0-(extents.height/2 + extents.y_bearing);
-    for(i=0;i<n;i++) {
+    y = 0 - (extents.height / 2 + extents.y_bearing);
+    for(i = 0; i < n; i++) {
 
-        x = (lengths[path->num_data]/n/2)*((2*i)+1)-(extents.width/2 + extents.x_bearing);
+        x = (lengths[path->num_data]/ n / 2) * ((2 * i) + 1) \
+            - (extents.width / 2 + extents.x_bearing);
 
-        cairo_move_to (cr, x,y);
+        cairo_move_to (cr, x, y);
         cairo_text_path (cr, text);
     }
 
@@ -179,7 +185,6 @@ void textPath(cairo_t *cr, char *text) {
     cairo_path_destroy(path);
     cairo_path_destroy(current_path);
     g_free(lengths);
-
 }
 
 /*

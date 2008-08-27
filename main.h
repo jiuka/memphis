@@ -34,8 +34,8 @@ typedef enum memphis_modes_e {
     MODE_TILE,                  /* Render given tile */
 } memphis_modes_e;
 
-typedef struct _memphisOpt memphisOpt; 
-struct _memphisOpt {
+typedef struct memphisOpt_ memphisOpt; 
+struct memphisOpt_ {
         memphis_modes_e mode;   /* render mode */
         short int       debug;  /* 0: Be quiet
                                  * 1: Normal Output (Default)

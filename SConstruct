@@ -1,7 +1,16 @@
 # scons build file
 
 env = Environment()
-env.MergeFlags(['-Wall -g -lm -std=c99 -lexpat'])
+env.MergeFlags(['-Wall -lm -std=c99 -lexpat'])
+
+if ARGUMENTS.get('optimize') in ('y', 'yes'):
+    env.Append(CCFLAGS = ['-O2', '-fomit-frame-pointer'])
+else:
+    env.Append(CCFLAGS = ['-g'])
+
+if ARGUMENTS.get('profile') in ('y', 'yes'):
+    env.Append(CCFLAGS = ['-pg'])
+    env.Append(LINKFLAGS = ['-pg'])
 
 env.ParseConfig('pkg-config --cflags --libs cairo')
 env.ParseConfig('pkg-config --cflags --libs glib-2.0')
