@@ -26,8 +26,8 @@
 #include "ruleset.h"
 #include "osm05.h"
 
-typedef struct _renderInfo renderInfo;
-struct _renderInfo {
+typedef struct renderInfo_ renderInfo;
+struct renderInfo_ {
         coordinates     offset;
         cairo_surface_t *surface;
         cairo_t         *cr;
