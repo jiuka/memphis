@@ -22,15 +22,15 @@
 
 #include <glib.h>
 
-typedef struct _osmTag osmTag;
-struct _osmTag {
+typedef struct osmTag_ osmTag;
+struct osmTag_ {
         char *key;
         char *value;
         osmTag *next;
     };
 
-typedef struct _osmNode osmNode;
-struct _osmNode {
+typedef struct osmNode_ osmNode;
+struct osmNode_ {
         int id;
         float lat;
         float lon;
@@ -39,8 +39,8 @@ struct _osmNode {
         osmNode *next;
     };
 
-typedef struct _osmWay osmWay;
-struct _osmWay {
+typedef struct osmWay_ osmWay;
+struct osmWay_ {
         int id;
         short int layer;
         char    *name;
@@ -49,23 +49,23 @@ struct _osmWay {
         osmWay  *next;
     };
 
-typedef struct _osmMember osmMember;
-struct _osmMember {
+typedef struct osmMember_ osmMember;
+struct osmMember_ {
         osmNode     *node;
         osmWay      *way;
         char        *role;
         osmMember   *next;
     };
 
-typedef struct _osmRelation omsRelation;
-struct _osmRelation {
+typedef struct osmRelation_ omsRelation;
+struct osmRelation_ {
         int         id;
         osmTag      *tag;
         osmMember   *member;
     };
 
-typedef struct _osmFile osmFile;
-struct _osmFile {
+typedef struct osmFile_ osmFile;
+struct osmFile_ {
         osmNode         *nodes;     // Node List
         GHashTable      *nodeidx;   // Node Hash
         unsigned int    nodecnt;    // Node Count

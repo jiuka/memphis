@@ -60,7 +60,7 @@ static void drawPath(renderInfo *info, GSList *nodes) {
     osmNode *nd;
     coordinates xy;
     
-    if (opts->debug > 1)
+    if (G_UNLIKELY(opts->debug > 1))
         fprintf(stdout,"drawPath\n");
 
     iter = nodes;
@@ -85,7 +85,7 @@ static void drawPath(renderInfo *info, GSList *nodes) {
  * This function is stroke all current path without drawing anithing.
  */
 static void strokePath(renderInfo *info) {
-    if (opts->debug > 1)
+    if (G_UNLIKELY(opts->debug > 1))
         fprintf(stdout,"strokePath\n");
         
     cairo_set_line_width (info->cr, 0);
@@ -98,56 +98,58 @@ static void strokePath(renderInfo *info) {
  * This function fill the prepared paths with the configured color.
  */
 static void drawPolygone(renderInfo *info, cfgDraw *draw) {
-    if (opts->debug > 1)
+    if (G_UNLIKELY(opts->debug > 1))
         fprintf(stdout,"drawPolygone\n");
 
-    cairo_surface_t *image;
-    cairo_pattern_t *pattern;
+    cairo_surface_t *image = NULL;
+    cairo_pattern_t *pattern = NULL;
     
     cssStyle *style = getStyle(info->styles, draw->styleclass);
-/*
+
+#if 0
+    /* TODO: add pattern support to style */
     if(draw->pattern) {
         char *filename;
-        int w, h;
+
+        /* TODO ast: the pattern may be cached, e.g. using a GCache structure */
 
         filename = g_strdup_printf("pattern/%s.png", draw->pattern);
         image = cairo_image_surface_create_from_png(filename);
+        if (cairo_surface_status(image) != CAIRO_STATUS_SUCCESS) {
+            g_warning("pattern '%s' not found\n", filename);
+            g_free(filename);
+            return;
+        }
         g_free(filename);
-
-        w = cairo_image_surface_get_width (image);
-        h = cairo_image_surface_get_height (image);
 
         pattern = cairo_pattern_create_for_surface (image);
         cairo_pattern_set_extend (pattern, CAIRO_EXTEND_REPEAT);
+        cairo_surface_destroy (image);
     }
-*/
+#endif
+
     cairo_set_fill_rule (info->cr, CAIRO_FILL_RULE_EVEN_ODD);
-//    if(draw->pattern)
-//        cairo_set_source (info->cr, pattern);
-//    else
 
-    cairo_set_source_rgb (info->cr,
-                          (double)style->backgroundcolor[0]/(double)255,
-                          (double)style->backgroundcolor[1]/(double)255,
-                          (double)style->backgroundcolor[2]/(double)255);
-
+    if(pattern)
+        cairo_set_source (info->cr, pattern);
+    else
+        cairo_set_source_rgb (info->cr, (double)style->backgroundcolor[0]/(double)255,
+                                        (double)style->backgroundcolor[1]/(double)255,
+                                        (double)style->backgroundcolor[2]/(double)255);
     cairo_fill_preserve(info->cr);
     
     if (style->borderwidth > 0) {
         cairo_set_line_width (info->cr, style->borderwidth);
         cairo_set_source_rgb (info->cr,
                               (double)style->bordercolor[0]/(double)255,
-                              (double)style-> bordercolor[1]/(double)255,
-                              (double)style-> bordercolor[2]/(double)255);
+                              (double)style->bordercolor[1]/(double)255,
+                              (double)style->bordercolor[2]/(double)255);
 
         cairo_stroke_preserve(info->cr);
     }
-/*
-    if(draw->pattern) {
+
+    if(pattern)
         cairo_pattern_destroy (pattern);
-        cairo_surface_destroy (image);
-    }
-*/
 }
 
 /*
@@ -156,7 +158,7 @@ static void drawPolygone(renderInfo *info, cfgDraw *draw) {
  * This function draw the prepared paths with the configured color.
  */
 static void drawLine(renderInfo *info, cfgDraw *draw) {
-    if (opts->debug > 1)
+    if (G_UNLIKELY(opts->debug > 1))
         fprintf(stdout,"drawLine\n");
     
     cssStyle *style = getStyle(info->styles, draw->styleclass);
@@ -178,7 +180,7 @@ static void drawLine(renderInfo *info, cfgDraw *draw) {
  * This function draw the given text along the current path.
  */
 static void drawText(renderInfo *info, char *text, cfgDraw *draw) {
-    if (opts->debug > 1)
+    if (G_UNLIKELY(opts->debug > 1))
         fprintf(stdout,"drawText\n");
     
     cssStyle *style = getStyle(info->styles, draw->styleclass);
@@ -201,7 +203,7 @@ static void drawText(renderInfo *info, char *text, cfgDraw *draw) {
  * Check if string is an strings.
  */
 static compare_result_e stringInStrings(char *string, char **strings) {
-    if (opts->debug > 1)
+    if (G_UNLIKELY(opts->debug > 1))
         fprintf(stdout,"stringInStrings\n");
     compare_result_e r = TAG_CMP_NOT_EQUAL;
     while (*strings != NULL) {
@@ -226,7 +228,7 @@ static compare_result_e stringInStrings(char *string, char **strings) {
 static int matchRule(cfgRule *rule, osmTag *tag) {
     int k, v;
     
-    if (opts->debug > 1)
+    if (G_UNLIKELY(opts->debug > 1))
         fprintf(stdout,"matchRule\n");
         
     while(tag) {
@@ -251,7 +253,7 @@ static int matchRule(cfgRule *rule, osmTag *tag) {
  * Check if a element match to a rule and all it's parent.
  */
 static int checkRule(cfgRule *rule, osmTag *tag, short int type) {
-    if (opts->debug > 1)
+    if (G_UNLIKELY(opts->debug > 1))
         fprintf(stdout,"checkRule\n");
 
     int not;
