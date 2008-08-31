@@ -25,6 +25,7 @@
 typedef void (*trans_point_func_t) (cairo_path_t *path, double *lengths, double *x, double *y);
 
 void textPath(cairo_t *cr, char *text);
+void charPath(cairo_t *cr, char *text);
 
 #endif /* TEXTPATH_H */
 

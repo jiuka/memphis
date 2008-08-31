@@ -18,11 +18,30 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <cairo.h>
 
 #include "../osm05.h"
 #include "../ruleset.h"
 
 int main () {
+    
+    fprintf(stdout,"gsize: %i\n",(int) sizeof(gsize));
+    
+    fprintf(stdout,"G_MINFLOAT: %f\n", G_MINFLOAT);
+    fprintf(stdout,"G_MAXFLOAT: %f\n", G_MAXFLOAT);
+    fprintf(stdout,"G_MINDOUBLE: %f\n", G_MINDOUBLE);
+    fprintf(stdout,"G_MAXDOUBLE: %f\n", G_MAXDOUBLE);
+    
+    fprintf(stdout,"cairo_line_cap_t: %i\n",(int) sizeof(cairo_line_cap_t));
+    
+    fprintf(stdout,"short int: %i\n",(int) sizeof(short int));
+    fprintf(stdout,"guint8: %i\n",(int) sizeof(guint8));
+    
+    
+    fprintf(stdout,"double: %i\n",(int) sizeof(double));
+    fprintf(stdout,"float: %i\n",(int) sizeof(float));
+    fprintf(stdout,"void*: %i\n",(int) sizeof(void*));
+    
     
     fprintf(stdout,"osmTag: %i\n",(int) sizeof(osmTag));
     fprintf(stdout,"osmNode: %i\n",(int) sizeof(osmNode));
