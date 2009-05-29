@@ -108,7 +108,7 @@ osmStartElement(void *userData, const char *name, const char **atts) {
         if (opts->debug > 1)
             fprintf(stdout,"Parsing Tag\n");
 
-        if (!cNode && !cWay) // End if ther is nothing to add the tag to
+        if (!cNode && !cWay) // End if there is nothing to add the tag to
             return;
             
         char *k=NULL, *v=NULL;
