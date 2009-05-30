@@ -52,6 +52,15 @@ memphis_map_set_property (GObject *object, guint property_id,
 }
 
 static void
+memphis_map_dispose (GObject *object)
+{
+  MemphisMap *self = MEMPHIS_MAP (object);
+
+  osmFree(self->map);
+  G_OBJECT_CLASS (memphis_map_parent_class)->dispose (object);
+}
+
+static void
 memphis_map_class_init (MemphisMapClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
@@ -60,16 +69,32 @@ memphis_map_class_init (MemphisMapClass *klass)
 
   object_class->get_property = memphis_map_get_property;
   object_class->set_property = memphis_map_set_property;
+  object_class->dispose = memphis_map_dispose;
 }
 
 static void
 memphis_map_init (MemphisMap *self)
 {
+  self->map = NULL;
 }
 
 MemphisMap*
-memphis_map_new (void)
+memphis_map_new_from_file (gchar* filename)
 {
+  MemphisMap* mmap = g_object_new (MEMPHIS_TYPE_MAP, NULL);
+  mmap->map = (osmFile *) osmRead(filename);
+  return mmap;
+}
+
+MemphisMap*
+memphis_map_new_from_data (gchar* data)
+{
+  // TODO
   return g_object_new (MEMPHIS_TYPE_MAP, NULL);
 }
 
+void
+memphis_map_free (MemphisMap* map)
+{
+  g_object_unref (G_OBJECT (map));
+}
