@@ -35,9 +35,6 @@ enum
 
 struct _MemphisRendererPrivate
 {
-  GStringChunk *stringChunk;
-  GTree *stringTree;
-
   MemphisMap *map;
   MemphisRuleSet *rules;
   guint resolution;
@@ -78,7 +75,7 @@ memphis_renderer_draw (MemphisRenderer *renderer,
   //osmFree(osm);
   //rulesetFree(ruleset);
 
-  //g_string_chunk_free(stringChunk);*/
+  //g_string_chunk_free(stringChunk);
 }
 
 void
@@ -131,10 +128,10 @@ memphis_renderer_get_zoom_level (MemphisRenderer *self)
 void
 memphis_renderer_set_map (MemphisRenderer *self, MemphisMap *map)
 {
-  g_return_if_fail (MEMPHIS_IS_RENDERER (self));
+  g_return_if_fail (MEMPHIS_IS_RENDERER (self) && MEMPHIS_IS_MAP (map));
 
   MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
-  priv->map = map;
+  priv->map = g_object_ref (map);
 }
 
 MemphisMap*
@@ -147,12 +144,14 @@ memphis_renderer_get_map (MemphisRenderer *self)
 }
 
 void
-memphis_renderer_set_rules_set (MemphisRenderer *self, MemphisRuleSet *rules)
+memphis_renderer_set_rules_set (MemphisRenderer *self,
+    MemphisRuleSet *rules)
 {
-  g_return_if_fail (MEMPHIS_IS_RENDERER (self));
+  g_return_if_fail (MEMPHIS_IS_RENDERER (self) &&
+      MEMPHIS_IS_RULESET (rules));
 
   MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
-  priv->rules = rules;
+  priv->rules = g_object_ref (rules);
 }
 
 MemphisRuleSet*
@@ -170,9 +169,6 @@ memphis_renderer_dispose (GObject *object)
 {
   MemphisRenderer *self = MEMPHIS_RENDERER (object);
   MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
-
-  g_tree_destroy(priv->stringTree);
-  g_string_chunk_free(priv->stringChunk);
 
   g_object_unref (G_OBJECT (priv->map));
   g_object_unref (G_OBJECT (priv->rules));
@@ -195,19 +191,20 @@ memphis_renderer_get_property (GObject *object,
     GParamSpec *pspec)
 {
   MemphisRenderer *self = MEMPHIS_RENDERER (object);
+  MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
   switch (property_id)
     {
       case PROP_RESOLUTION:
-        g_value_set_uint (value, memphis_renderer_get_resolution (self));
+        g_value_set_uint (value, priv->resolution);
         break;
       case PROP_ZOOM_LEVEL:
-        g_value_set_uint (value, memphis_renderer_get_zoom_level (self));
+        g_value_set_uint (value, priv->zoom_level);
         break;
       case PROP_MAP:
-        g_value_set_object (value, memphis_renderer_get_map (self));
+        g_value_set_object (value, priv->map);
         break;
       case PROP_RULE_SET:
-        g_value_set_object (value, memphis_renderer_get_rule_set (self));
+        g_value_set_object (value, priv->rules);
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -225,6 +222,15 @@ memphis_renderer_set_property (GObject *object,
     {
       case PROP_RESOLUTION:
         memphis_renderer_set_resolution (self, g_value_get_uint (value));
+        break;
+      case PROP_ZOOM_LEVEL:
+        memphis_renderer_set_zoom_level (self, g_value_get_uint (value));
+        break;
+      case PROP_MAP:
+        memphis_renderer_set_map (self, g_value_get_object (value));
+        break;
+      case PROP_RULE_SET:
+        memphis_renderer_set_rules_set (self, g_value_get_object (value));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -313,8 +319,6 @@ static void
 memphis_renderer_init (MemphisRenderer *self)
 {
   MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
-  priv->stringChunk = g_string_chunk_new (265);
-  priv->stringTree = g_tree_new (m_tree_strcmp);
   priv->resolution = 256;
   priv->zoom_level = 12;
 

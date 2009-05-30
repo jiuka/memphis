@@ -21,6 +21,7 @@
 #define _MEMPHIS_MAP
 
 #include <glib-object.h>
+#include "osm05.h"
 
 G_BEGIN_DECLS
 
@@ -43,6 +44,7 @@ G_BEGIN_DECLS
 
 typedef struct {
   GObject parent;
+  osmFile *map;
 } MemphisMap;
 
 typedef struct {
@@ -51,7 +53,9 @@ typedef struct {
 
 GType memphis_map_get_type (void);
 
-MemphisMap* memphis_map_new (void);
+MemphisMap* memphis_map_new_from_file (gchar* filename);
+MemphisMap* memphis_map_new_from_data (gchar* data);
+void memphis_map_free (MemphisMap* map);
 
 G_END_DECLS
 
