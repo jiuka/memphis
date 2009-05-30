@@ -18,6 +18,7 @@
  */
 
 #include "memphis-map.h"
+#include "osm05.h"
 
 G_DEFINE_TYPE (MemphisMap, memphis_map, G_TYPE_OBJECT)
 
