@@ -37,14 +37,18 @@ extern memphisOpt   *opts;
 extern GStringChunk *stringChunk;
 extern GTree        *stringTree;
 
-// Pointers to work with
-osmTag      *cTag = NULL;
-osmNode     *cNode = NULL;
-osmWay      *cWay = NULL;
-
-// Counts
-int     cntTag = 0;
-int     cntNd = 0;
+typedef struct mapUserData_ mapUserData;
+struct mapUserData_ {
+  // Pointers to work with
+  osmTag *cTag;
+  osmNode *cNode;
+  osmWay *cWay;
+  // Counts (used for debugging only!)
+  int cntTag;
+  int cntNd;
+  // Collected Data
+  osmFile *osm;
+};
 
 /**
  * osmStartElement:
@@ -56,8 +60,9 @@ int     cntNd = 0;
  */
 static void XMLCALL
 osmStartElement(void *userData, const char *name, const char **atts) {
-    osmFile *osm = (osmFile *) userData;
-     if (opts->debug > 1)
+    mapUserData *data = (mapUserData *) userData;
+    osmFile *osm = data->osm;
+    if (opts->debug > 1)
         fprintf(stdout,"osm05startElement\n");
     // Parsing Bounds
     if (strncmp((char *) name, "bounds", 6) == 0) {
@@ -80,35 +85,35 @@ osmStartElement(void *userData, const char *name, const char **atts) {
     else if (strncmp((char *) name, "node", 4) == 0) {
         if (opts->debug > 1)
             fprintf(stdout,"Parsing Node\n");
-        cNode = g_new(osmNode, 1);
+        data->cNode = g_new(osmNode, 1);
         while (*atts != NULL) {
             if(strcmp((char *) *(atts), "id") == 0) {
-                sscanf((char *) *(atts+1),"%i",&cNode->id);
+                sscanf((char *) *(atts+1),"%i",&data->cNode->id);
             } else if(strcmp((char *) *(atts), "lat") == 0) {
-                sscanf((char *) *(atts+1),"%f",&cNode->lat);
+                sscanf((char *) *(atts+1),"%f",&data->cNode->lat);
             } else if(strcmp((char *) *(atts), "lon") == 0) {
-                sscanf((char *) *(atts+1),"%f",&cNode->lon);
+                sscanf((char *) *(atts+1),"%f",&data->cNode->lon);
             }
             atts+=2;
         }
 
-        cNode->tag = NULL;
-        cNode->layer = 0;
+        data->cNode->tag = NULL;
+        data->cNode->layer = 0;
 
         // Insert Node
         osm->nodecnt++;
-        g_hash_table_insert(osm->nodeidx, &cNode->id, cNode);
-        LL_PREPEND(cNode,osm->nodes);
+        g_hash_table_insert(osm->nodeidx, &data->cNode->id, data->cNode);
+        LL_PREPEND(data->cNode, osm->nodes);
 
         if (opts->debug > 1)
-            fprintf(stdout,"NODE: %i %f %f\n", cNode->id, cNode->lat, cNode->lon);
+            fprintf(stdout,"NODE: %i %f %f\n", data->cNode->id, data->cNode->lat, data->cNode->lon);
     }
     // Parsing Tags
     else if (strncmp((char *) name, "tag", 4) == 0) {
         if (opts->debug > 1)
             fprintf(stdout,"Parsing Tag\n");
 
-        if (!cNode && !cWay) // End if there is nothing to add the tag to
+        if (!data->cNode && !data->cWay) // End if there is nothing to add the tag to
             return;
             
         char *k=NULL, *v=NULL;
@@ -123,14 +128,14 @@ osmStartElement(void *userData, const char *name, const char **atts) {
                 k = (char *) *(atts+1);
             } else if(strncmp((char *) *(atts), "v", 1) == 0) {
                 if(strcmp(k, "layer") == 0) {
-                    if (cNode)
-                        sscanf((char *) *(atts+1),"%hi",& cNode->layer);
-                    else if (cWay)
-                        sscanf((char *) *(atts+1),"%hi",& cWay->layer);
+                    if (data->cNode)
+                        sscanf((char *) *(atts+1),"%hi",& data->cNode->layer);
+                    else if (data->cWay)
+                        sscanf((char *) *(atts+1),"%hi",& data->cWay->layer);
                     return;
                 } else if(strcmp(k, "name") == 0) {
-                    if (cWay) {
-                        cWay->name = m_string_chunk_get(stringChunk, stringTree, 
+                    if (data->cWay) {
+                        data->cWay->name = m_string_chunk_get(stringChunk, stringTree, 
                                                         (char *) *(atts+1));
                     }
                     return;
@@ -140,45 +145,45 @@ osmStartElement(void *userData, const char *name, const char **atts) {
             atts += 2;
         }
         
-        cTag = g_new(osmTag, 1);
-        cTag->key = m_string_chunk_get(stringChunk, stringTree, k);
-        cTag->value = m_string_chunk_get(stringChunk, stringTree, v);
+        data->cTag = g_new(osmTag, 1);
+        data->cTag->key = m_string_chunk_get(stringChunk, stringTree, k);
+        data->cTag->value = m_string_chunk_get(stringChunk, stringTree, v);
         
         if (opts->debug > 1)
-            fprintf(stdout,"Tag: %s => %s\n", cTag->key, cTag->value);
+            fprintf(stdout,"Tag: %s => %s\n", data->cTag->key, data->cTag->value);
 
-        cntTag++;
-        if (cNode)
-            LL_INSERT_KEY(cTag,cNode->tag);
-        else if (cWay)
-            LL_INSERT_KEY(cTag,cWay->tag);
+        data->cntTag++;
+        if (data->cNode)
+            LL_INSERT_KEY(data->cTag, data->cNode->tag);
+        else if (data->cWay)
+            LL_INSERT_KEY(data->cTag, data->cWay->tag);
 
-        cTag = NULL;
+        data->cTag = NULL;
     }
     // Parsing Way
     else if (strncmp((char *) name, "way", 3) == 0) {
         if (opts->debug > 1)
             fprintf(stdout,"Parsing Way\n");
-        cWay = g_new(osmWay, 1);
+        data->cWay = g_new(osmWay, 1);
         while (*atts != NULL) {
             if(strncmp((char *) *(atts), "id", 2) == 0) {
-                sscanf((char *) *(atts+1),"%i",&cWay->id);
+                sscanf((char *) *(atts+1), "%i", &data->cWay->id);
                 break;
             }
             atts+=2;
         }
 
-        cWay->tag = NULL;
-        cWay->nd = NULL;
-        cWay->name = NULL;
-        cWay->layer = 0;
+        data->cWay->tag = NULL;
+        data->cWay->nd = NULL;
+        data->cWay->name = NULL;
+        data->cWay->layer = 0;
 
         // Insert Way
         osm->waycnt++;
-        LL_PREPEND(cWay,osm->ways);
+        LL_PREPEND(data->cWay, osm->ways);
 
         if (opts->debug > 1)
-            fprintf(stdout,"WAY(%i)\n", cWay->id);
+            fprintf(stdout,"WAY(%i)\n", data->cWay->id);
     }
     // Parsing WayNode
     else if (strncmp((char *) name, "nd", 2) == 0) {
@@ -194,7 +199,7 @@ osmStartElement(void *userData, const char *name, const char **atts) {
         }
 
         if (ref) {
-            cntNd++;
+            data->cntNd++;
             osmNode *n;
             
             n = g_hash_table_lookup(osm->nodeidx, &ref);
@@ -204,12 +209,12 @@ osmStartElement(void *userData, const char *name, const char **atts) {
             }
 
             // Insert WayNode
-            cWay->nd = g_slist_prepend(cWay->nd, n);
+            data->cWay->nd = g_slist_prepend(data->cWay->nd, n);
 
             if (opts->debug > 1)
                 fprintf(stdout," ND( %f %f )\n", n->lat, n->lon);
 
-            cNode=NULL;
+            data->cNode = NULL;
         }
     }
 }
@@ -224,14 +229,15 @@ osmStartElement(void *userData, const char *name, const char **atts) {
  */
 static void XMLCALL
 osmEndElement(void *userData, const char *name) {
+    mapUserData *data = (mapUserData *) userData;
     if (opts->debug > 1)
         fprintf(stdout,"osm05endElement\n");
     if (strncmp((char *) name, "node", 4) == 0) {
-        cNode = NULL;
+        data->cNode = NULL;
     } else if (strncmp((char *) name, "way", 3) == 0) {
-        if (cWay->nd != NULL)
-            cWay->nd = g_slist_reverse(cWay->nd);
-        cWay = NULL;
+        if (data->cWay->nd != NULL)
+            data->cWay->nd = g_slist_reverse(data->cWay->nd);
+        data->cWay = NULL;
     }
 }
 
@@ -242,10 +248,6 @@ osmFile* osmRead(char *filename) {
     if (opts->debug > 1)
         fprintf(stdout,"osmRead\n");
 
-    // Init vars
-    cntTag = 0;
-    cntNd = 0;
-
     // Local Vars
     GTimer *tOsmRead = g_timer_new();
     unsigned int size;
@@ -254,7 +256,11 @@ osmFile* osmRead(char *filename) {
     int len;
     int done;
     char *buf;
+    mapUserData *data = g_new(mapUserData, 1);
     osmFile *osm = NULL;
+    // Init vars
+    data->cntTag = 0;
+    data->cntNd = 0;
     
     // Test file
     if (!g_file_test (filename, G_FILE_TEST_IS_REGULAR)) {
@@ -282,6 +288,7 @@ osmFile* osmRead(char *filename) {
     osm->minlat = -190;
     osm->maxlon = -190;
     osm->maxlat = -190;
+    data->osm = osm;
 
     if (opts->debug > 0) {
         fprintf(stdout," OSM parsing   0%%");
@@ -291,7 +298,7 @@ osmFile* osmRead(char *filename) {
     // Create XML Parser
     XML_Parser parser = XML_ParserCreate(NULL);
     XML_SetElementHandler(parser, osmStartElement, osmEndElement);
-    XML_SetUserData(parser, osm);
+    XML_SetUserData(parser, data);
 
     // Create Buffer
     buf = g_malloc(BUFFSIZE*sizeof(char));
@@ -349,10 +356,11 @@ osmFile* osmRead(char *filename) {
     
     if (opts->debug > 0)
         fprintf(stdout,"\r OSM parsing done. (%i/%i/%i/%i) [%fs]\n",
-                osm->nodecnt, osm->waycnt, cntTag, cntNd,
+                osm->nodecnt, osm->waycnt, data->cntTag, data->cntNd,
                 g_timer_elapsed(tOsmRead,NULL));
     
     g_timer_destroy(tOsmRead);
+    g_free(data);
 
     return(osm);
 }
