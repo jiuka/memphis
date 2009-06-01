@@ -51,6 +51,15 @@ memphis_rule_set_set_property (GObject *object, guint property_id,
 }
 
 static void
+memphis_rule_set_dispose (GObject *object)
+{
+  MemphisRuleSet *self = MEMPHIS_RULESET (object);
+
+  rulesetFree(self->ruleset);
+  G_OBJECT_CLASS (memphis_rule_set_parent_class)->dispose (object);
+}
+
+static void
 memphis_rule_set_class_init (MemphisRuleSetClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
@@ -59,16 +68,32 @@ memphis_rule_set_class_init (MemphisRuleSetClass *klass)
 
   object_class->get_property = memphis_rule_set_get_property;
   object_class->set_property = memphis_rule_set_set_property;
+  object_class->dispose = memphis_rule_set_dispose;
 }
 
 static void
 memphis_rule_set_init (MemphisRuleSet *self)
 {
+  self->ruleset = NULL;
 }
 
 MemphisRuleSet*
-memphis_rule_set_new (void)
+memphis_rule_set_new_from_file (gchar* filename)
 {
+  MemphisRuleSet* mruleset = g_object_new (MEMPHIS_TYPE_RULESET, NULL);
+  mruleset->ruleset = (cfgRules *) rulesetRead (filename);
+  return mruleset;
+}
+
+MemphisRuleSet*
+memphis_rule_set_new_from_data (gchar* data)
+{
+  // TODO
   return g_object_new (MEMPHIS_TYPE_RULESET, NULL);
 }
 
+void
+memphis_rule_set_free (MemphisRuleSet* rules)
+{
+  g_object_unref (G_OBJECT (rules));
+}

@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "memphis.h"
+#include "memphis-renderer.h"
 #include "mlib.h"
 
 G_DEFINE_TYPE (MemphisRenderer, memphis_renderer, G_TYPE_OBJECT);
