@@ -23,6 +23,7 @@
 
 #include <glib-object.h>
 #include <cairo.h>
+#include "memphis.h"
 
 /*
  * Type macros.
