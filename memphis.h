@@ -22,3 +22,4 @@
 #include "memphis-map.h"
 #include "memphis-rule-set.h"
 #include "memphis-renderer.h"
+#include "memphis-data-pool.h"

@@ -44,7 +44,7 @@ G_BEGIN_DECLS
 
 typedef struct {
   GObject parent;
-  struct osmFile_ *map; // FIXME: osmFile *map;
+  osmFile *map;
   gint8 debug_level;
 /* 0: Be quiet
    1: Normal Output (Default)
