@@ -33,6 +33,8 @@
 #include "list.h"
 #include "mlib.h"
 
+#include "memphis.h"
+
 // Global Vars
 GStringChunk *stringChunk;
 GTree        *stringTree;
@@ -123,6 +125,8 @@ static void banner() {
 
 int main(int argc, char **argv) {
 
+    g_type_init ();
+
     cfgRules *ruleset;
     osmFile *osm;
 
@@ -162,11 +166,11 @@ int main(int argc, char **argv) {
 
     banner();
 
-    ruleset = (cfgRules *) rulesetRead(opts->cfgfn);
+    ruleset = (cfgRules *) rulesetRead(opts->cfgfn, opts->debug);
     if(ruleset == NULL)
         return(-1);
 
-    osm = (osmFile *) osmRead(opts->osmfn);
+    osm = (osmFile *) osmRead(opts->osmfn, opts->debug);
     if(ruleset == NULL)
         return(-1);
 

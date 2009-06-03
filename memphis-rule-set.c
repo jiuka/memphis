@@ -75,13 +75,14 @@ static void
 memphis_rule_set_init (MemphisRuleSet *self)
 {
   self->ruleset = NULL;
+  self->debug_level = 1;
 }
 
 MemphisRuleSet*
 memphis_rule_set_new_from_file (gchar* filename)
 {
   MemphisRuleSet* mruleset = g_object_new (MEMPHIS_TYPE_RULESET, NULL);
-  mruleset->ruleset = (cfgRules *) rulesetRead (filename);
+  mruleset->ruleset = (cfgRules *) rulesetRead (filename, mruleset->debug_level);
   return mruleset;
 }
 

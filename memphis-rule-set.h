@@ -45,6 +45,7 @@ G_BEGIN_DECLS
 typedef struct {
   GObject parent;
   cfgRules *ruleset;
+  gint8 debug_level;
 } MemphisRuleSet;
 
 typedef struct {

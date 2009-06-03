@@ -24,7 +24,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "main.h"
 #include "list.h"
 #include "ruleset.h"
 #include "mlib.h"
@@ -34,10 +33,8 @@
 #define MAXSTACK 20
 
 // External Vars
-extern memphisOpt   *opts;
 extern GStringChunk *stringChunk;
 extern GTree        *stringTree;
-
 
 typedef struct rulesUserData_ rulesUserData;
 struct rulesUserData_ {
@@ -47,6 +44,8 @@ struct rulesUserData_ {
   char **stringStack;
   // Collected Data
   cfgRules *ruleset;
+  // Debug
+  gint8 debug_level;
 };
 
 /**
@@ -61,7 +60,9 @@ static void XMLCALL
 cfgStartElement(void *userData, const char *name, const char **atts) {
     rulesUserData *data = (rulesUserData *)userData;
     cfgRules *ruleset = data->ruleset;
-    if (opts->debug > 1)
+    gint8 debug_level = data->debug_level;
+    
+    if (debug_level > 1)
         fprintf(stdout,"cfgStartElement\n");
 
     // Parsing Rules
@@ -198,7 +199,9 @@ static void XMLCALL
 cfgEndElement(void *userData, const char *name) {
     rulesUserData *data = (rulesUserData *)userData;
     cfgRules *ruleset = data->ruleset;
-    if (opts->debug > 1)
+    gint8 debug_level = data->debug_level;
+    
+    if (debug_level > 1)
         fprintf(stdout,"cfgEndElement\n");
 
     if (strcmp(name, "rule") == 0) {
@@ -223,8 +226,8 @@ cfgEndElement(void *userData, const char *name) {
  *
  * Called to parse rules in the rulefile. Returns a cfgRules struct.
  */
-cfgRules* rulesetRead(char *filename) {
-    if (opts->debug > 1)
+cfgRules* rulesetRead(char *filename, gint8 debug_level) {
+    if (debug_level > 1)
         fprintf(stdout,"rulesetRead\n");
 
     // Local Vars
@@ -264,8 +267,9 @@ cfgRules* rulesetRead(char *filename) {
     ruleset->cntRule = 0;
     ruleset->cntElse = 0;
     data->ruleset = ruleset;
+    data->debug_level = debug_level;
 
-    if (opts->debug > 0) {
+    if (debug_level > 0) {
         fprintf(stdout," Ruleset parsing   0%%");
         fflush(stdout);
     }
@@ -287,7 +291,7 @@ cfgRules* rulesetRead(char *filename) {
             return NULL;;
         }
         read += len;
-        if (opts->debug > 0) {
+        if (debug_level > 0) {
             fprintf(stdout,"\r Ruleset parsing % 3i%%", (int)((read*100)/size));
             fflush(stdout);
         }
@@ -306,7 +310,7 @@ cfgRules* rulesetRead(char *filename) {
     fclose(fd);
     g_free(data);
 
-    if (opts->debug > 0)
+    if (debug_level > 0)
         fprintf(stdout,"\r Ruleset parsing done. (%i/%i) [%fs]\n",
                 ruleset->cntRule,  ruleset->cntElse,
                 g_timer_elapsed(tRulesetRead,NULL));

@@ -21,6 +21,7 @@
 #define OSM05_H
 
 #include <glib.h>
+#include "memphis-map.h"
 
 typedef struct osmTag_ osmTag;
 struct osmTag_ {
@@ -80,7 +81,7 @@ struct osmFile_ {
 /*
  * Prototypes
  */
-osmFile* osmRead(char *filename);
+osmFile* osmRead (char *filename, gint8 debug_level);
 void osmFree(osmFile *osm);
 
 #endif /* OSM05_H */
