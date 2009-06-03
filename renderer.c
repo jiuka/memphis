@@ -335,7 +335,7 @@ static int renderCairoRun(renderInfo *info) {
         fprintf(stdout,"renderCairoRun\n");
     int layer;
 
-    // Vars uder while looping throug data
+    // Vars used while looping through data
     cfgRule     *rule;
 
     // Start checking osm from bottom layer.
