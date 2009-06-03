@@ -35,10 +35,6 @@
 
 #include "memphis.h"
 
-// Global Vars
-GStringChunk *stringChunk;
-GTree        *stringTree;
-
 /* Renderer Options */
 static memphisOpt opts_storage = {
     .debug = 1,
@@ -161,9 +157,6 @@ int main(int argc, char **argv) {
 
     g_option_context_free(optctx);
 
-    stringChunk = g_string_chunk_new(265);
-    stringTree = g_tree_new(m_tree_strcmp);
-
     banner();
 
     ruleset = (cfgRules *) rulesetRead(opts->cfgfn, opts->debug);
@@ -174,14 +167,10 @@ int main(int argc, char **argv) {
     if(ruleset == NULL)
         return(-1);
 
-    g_tree_destroy(stringTree);
-
     renderCairo(ruleset, osm);
 
     osmFree(osm);
     rulesetFree(ruleset);
-
-    g_string_chunk_free(stringChunk);
 
     return(0);
 }
