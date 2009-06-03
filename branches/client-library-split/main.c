@@ -163,13 +163,14 @@ int main(int argc, char **argv) {
     if(ruleset == NULL)
         return(-1);
 
-    osm = (osmFile *) osmRead(opts->osmfn, opts->debug);
-    if(ruleset == NULL)
+    //osm = (osmFile *) osmRead(opts->osmfn, opts->debug);
+    MemphisMap *map = memphis_map_new_from_file (opts->osmfn);
+    if(map == NULL)
         return(-1);
 
-    renderCairo(ruleset, osm);
+    renderCairo(ruleset, map->map);
 
-    osmFree(osm);
+    memphis_map_free (map);
     rulesetFree(ruleset);
 
     return(0);
