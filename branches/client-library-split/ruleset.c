@@ -27,14 +27,11 @@
 #include "list.h"
 #include "ruleset.h"
 #include "mlib.h"
+#include "memphis-data-pool.h"
 
 #define BUFFSIZE 1024
 #define MAXDEPTH 20
 #define MAXSTACK 20
-
-// External Vars
-extern GStringChunk *stringChunk;
-extern GTree        *stringTree;
 
 typedef struct rulesUserData_ rulesUserData;
 struct rulesUserData_ {
@@ -42,6 +39,7 @@ struct rulesUserData_ {
   cfgRule *currentRule;
   cfgRule *ruleStack[MAXSTACK];
   char **stringStack;
+  MemphisDataPool *pool;
   // Collected Data
   cfgRules *ruleset;
   // Debug
@@ -60,8 +58,10 @@ static void XMLCALL
 cfgStartElement(void *userData, const char *name, const char **atts) {
     rulesUserData *data = (rulesUserData *)userData;
     cfgRules *ruleset = data->ruleset;
+    GStringChunk *stringChunk = data->pool->stringChunk;
+    GTree *stringTree = data->pool->stringTree;
     gint8 debug_level = data->debug_level;
-    
+
     if (debug_level > 1)
         fprintf(stdout,"cfgStartElement\n");
 
@@ -267,6 +267,7 @@ cfgRules* rulesetRead(char *filename, gint8 debug_level) {
     ruleset->cntRule = 0;
     ruleset->cntElse = 0;
     data->ruleset = ruleset;
+    data->pool = memphis_data_pool_new ();
     data->debug_level = debug_level;
 
     if (debug_level > 0) {

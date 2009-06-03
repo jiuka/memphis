@@ -21,7 +21,6 @@
 #define OSM05_H
 
 #include <glib.h>
-#include "memphis-map.h"
 
 typedef struct osmTag_ osmTag;
 struct osmTag_ {

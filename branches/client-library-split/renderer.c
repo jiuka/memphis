@@ -35,8 +35,6 @@
 
 // External Vars
 extern memphisOpt   *opts;
-//extern GTree        *keyStrings;
-//extern GTree        *valStrings;
 
 /*
  * Internal used return values for stringInStrings.

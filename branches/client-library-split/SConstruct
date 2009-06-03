@@ -39,7 +39,8 @@ SOURCES = [
     'renderer.c',
     'ruleset.c',
     'textpath.c',
-    'mlib.c'
+    'mlib.c',
+    'memphis-data-pool.c'
 ]
 
 Default(env.Program('memphis', source = SOURCES))

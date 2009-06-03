@@ -28,12 +28,9 @@
 #include "list.h"
 #include "mlib.h"
 #include "osm05.h"
+#include "memphis-data-pool.h"
 
 #define BUFFSIZE 1024
-
-// External Vars
-extern GStringChunk *stringChunk;
-extern GTree        *stringTree;
 
 typedef struct mapUserData_ mapUserData;
 struct mapUserData_ {
@@ -41,6 +38,7 @@ struct mapUserData_ {
   osmTag *cTag;
   osmNode *cNode;
   osmWay *cWay;
+  MemphisDataPool *pool;
   // Collected Data
   osmFile *osm;
   // Counts (used for debugging only!)
@@ -61,6 +59,8 @@ static void XMLCALL
 osmStartElement(void *userData, const char *name, const char **atts) {
     mapUserData *data = (mapUserData *) userData;
     osmFile *osm = data->osm;
+    GStringChunk *stringChunk = data->pool->stringChunk;
+    GTree *stringTree = data->pool->stringTree;
     gint8 debug_level = data->debug_level;
     
     if (debug_level > 1)
@@ -231,7 +231,7 @@ osmStartElement(void *userData, const char *name, const char **atts) {
 static void XMLCALL
 osmEndElement(void *userData, const char *name) {
     mapUserData *data = (mapUserData *) userData;
-    int debug_level = data->debug_level;
+    gint8 debug_level = data->debug_level;
     
     if (debug_level > 1)
         fprintf(stdout,"osm05endElement\n");
@@ -264,6 +264,7 @@ osmFile* osmRead(char *filename, gint8 debug_level) {
     // Init vars
     data->cntTag = 0;
     data->cntNd = 0;
+    data->pool = memphis_data_pool_new ();
     data->debug_level = debug_level;
     
     // Test file
