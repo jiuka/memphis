@@ -58,24 +58,9 @@ memphis_renderer_draw (MemphisRenderer *renderer,
     cairo_t *cr)
 {
   g_return_if_fail (MEMPHIS_IS_RENDERER (renderer));
-  
-  //cfgRules *ruleset;
-  //osmFile *osm;
-  //stringChunk = g_string_chunk_new (265);
-  //stringTree = g_tree_new (m_tree_strcmp);
-
-  //ruleset = (cfgRules *) rulesetRead ("rule.xml");
-
-  //osm = (osmFile *) osmRead("zh.osm");
-
-  //g_tree_destroy(stringTree);
 
   //renderCairo(ruleset, osm);
 
-  //osmFree(osm);
-  //rulesetFree(ruleset);
-
-  //g_string_chunk_free(stringChunk);
 }
 
 void

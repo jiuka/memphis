@@ -14,6 +14,7 @@ if ARGUMENTS.get('profile') in ('y', 'yes'):
 
 env.ParseConfig('pkg-config --cflags --libs cairo')
 env.ParseConfig('pkg-config --cflags --libs glib-2.0')
+env.ParseConfig('pkg-config --cflags --libs gobject-2.0')
 
 conf = Configure(env)
 

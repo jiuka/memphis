@@ -76,13 +76,14 @@ static void
 memphis_map_init (MemphisMap *self)
 {
   self->map = NULL;
+  self->debug_level = 1;
 }
 
 MemphisMap*
 memphis_map_new_from_file (gchar* filename)
 {
   MemphisMap* mmap = g_object_new (MEMPHIS_TYPE_MAP, NULL);
-  mmap->map = (osmFile *) osmRead(filename);
+  mmap->map = (osmFile *) osmRead(filename, mmap->debug_level);
   return mmap;
 }
 
