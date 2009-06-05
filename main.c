@@ -123,8 +123,8 @@ int main(int argc, char **argv) {
 
     g_type_init ();
 
-    cfgRules *ruleset;
-    osmFile *osm;
+    MemphisRuleSet *ruleset;
+    MemphisMap *osm;
 
     GError *error = NULL;
     GOptionContext *optctx;
@@ -159,19 +159,18 @@ int main(int argc, char **argv) {
 
     banner();
 
-    ruleset = (cfgRules *) rulesetRead(opts->cfgfn, opts->debug);
+    ruleset = memphis_rule_set_new_from_file (opts->cfgfn);
     if(ruleset == NULL)
         return(-1);
 
-    //osm = (osmFile *) osmRead(opts->osmfn, opts->debug);
-    MemphisMap *map = memphis_map_new_from_file (opts->osmfn);
-    if(map == NULL)
+    osm = memphis_map_new_from_file (opts->osmfn);
+    if(osm == NULL)
         return(-1);
 
-    renderCairo(ruleset, map->map);
+    renderCairo(ruleset->ruleset, osm->map);
 
-    memphis_map_free (map);
-    rulesetFree(ruleset);
+    memphis_map_free (osm);
+    memphis_rule_set_free (ruleset);
 
     return(0);
 }
