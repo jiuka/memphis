@@ -20,19 +20,13 @@
 #include <glib.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
-#include <expat.h>
+#include <math.h>
 
 #include <sys/resource.h>
 
 #include "main.h"
-#include "osm05.h"
 #include "renderer.h"
-#include "ruleset.h"
-#include "list.h"
-#include "mlib.h"
-
 #include "memphis.h"
 
 /* Renderer Options */
@@ -46,6 +40,61 @@ static memphisOpt opts_storage = {
     .outdir = MEMPHIS_DEFAULT_OUTPUT_DIRECTORY,
 };
 memphisOpt  *opts = &opts_storage;
+
+static int renderCairo(cfgRules *ruleset, osmFile *osm, gint8 debug_level) {
+    if (debug_level > 1)
+        fprintf(stdout,"renderCairo\n");
+    int z;
+    renderInfo *info;
+    
+    // Initialize all layers
+    for (z = 0; z <= (opts->maxlayer - opts->minlayer); z++) {
+        coordinates min, max;
+        
+        info = g_new(renderInfo, 1);
+        info->zoom = z + opts->minlayer;
+        info->ruleset = ruleset;
+        info->osm = osm;
+                
+        min = coord2xy(osm->minlat, osm->minlon, info->zoom);
+        max = coord2xy(osm->maxlat, osm->maxlon, info->zoom);
+        int w = (int)ceil(max.x-min.x);
+        int h = (int)ceil(min.y-max.y);
+
+        info->offset = coord2xy(osm->maxlat, osm->minlon, info->zoom);
+
+        info->surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,w,h);
+        info->cr = cairo_create(info->surface);
+
+        cairo_rectangle(info->cr, 0, 0, w, h);
+        cairo_set_source_rgb(info->cr,
+                                    (double)ruleset->background[0]/(double)255,
+                                    (double)ruleset->background[1]/(double)255,
+                                    (double)ruleset->background[2]/(double)255);
+        cairo_fill(info->cr);
+        
+        renderCairoRun(info, debug_level);
+        
+        // Saving Images
+        char *filename;
+
+        filename = g_strdup_printf("%s/%02i.png", opts->outdir, info->zoom);
+        if (debug_level > 0) {
+            fprintf(stdout," Cairo rendering Z%i to '%s'", info->zoom, filename);
+            fflush(stdout);
+        }
+        cairo_surface_write_to_png(info->surface, filename);
+        g_free(filename);
+        cairo_destroy(info->cr);
+        cairo_surface_destroy(info->surface);
+        if (debug_level > 0)
+            fprintf(stdout," done.\n");
+            
+        g_free(info);
+    }
+    
+    return (0);
+}
 
 static gboolean set_verbosity_level(const gchar *option_name,
                                     const gchar *value,
@@ -167,7 +216,7 @@ int main(int argc, char **argv) {
     if(osm == NULL)
         return(-1);
 
-    renderCairo(ruleset->ruleset, osm->map);
+    renderCairo(ruleset->ruleset, osm->map, opts->debug);
 
     memphis_map_free (osm);
     memphis_rule_set_free (ruleset);

@@ -18,7 +18,6 @@
  */
 
 #include "memphis-renderer.h"
-#include "mlib.h"
 
 G_DEFINE_TYPE (MemphisRenderer, memphis_renderer, G_TYPE_OBJECT);
 
@@ -39,6 +38,7 @@ struct _MemphisRendererPrivate
   MemphisRuleSet *rules;
   guint resolution;
   guint zoom_level;
+  gint8 debug_level;
 };
 
 MemphisRenderer*
@@ -161,13 +161,11 @@ memphis_renderer_dispose (GObject *object)
   G_OBJECT_CLASS (memphis_renderer_parent_class)->dispose (object);
 }
 
-/*
 static void
 memphis_renderer_finalize (GObject *object)
 {
   G_OBJECT_CLASS (memphis_renderer_parent_class)->finalize (object);
 }
-*/
 
 static void
 memphis_renderer_get_property (GObject *object,
@@ -232,7 +230,7 @@ memphis_renderer_class_init (MemphisRendererClass *klass)
   object_class->get_property = memphis_renderer_get_property;
   object_class->set_property = memphis_renderer_set_property;
   object_class->dispose = memphis_renderer_dispose;
-  //object_class->finalize = memphis_renderer_finalize;
+  object_class->finalize = memphis_renderer_finalize;
 
   /**
   * MemphisRenderer:resolution:
@@ -304,8 +302,11 @@ static void
 memphis_renderer_init (MemphisRenderer *self)
 {
   MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
+  priv->map = NULL;
+  priv->rules = NULL;
   priv->resolution = 256;
   priv->zoom_level = 12;
+  priv->debug_level = 1;
 
   /* initialize all public and private members to reasonable default values. */
 
