@@ -18,6 +18,8 @@
  */
 
 #include "memphis-renderer.h"
+#include "renderer.h"
+#include <math.h>
 
 G_DEFINE_TYPE (MemphisRenderer, memphis_renderer, G_TYPE_OBJECT);
 
@@ -53,14 +55,60 @@ memphis_renderer_free (MemphisRenderer *renderer)
   g_object_unref (G_OBJECT (renderer));
 }
 
+/* does not obey resolution settings
+ * creates a png of the whole data of unpredictable size.
+ * probably not a very useful function for a generic library. */
 void
-memphis_renderer_draw (MemphisRenderer *renderer, 
-    cairo_t *cr)
+memphis_renderer_draw_png (MemphisRenderer *renderer, 
+    gchar *filename)
 {
   g_return_if_fail (MEMPHIS_IS_RENDERER (renderer));
 
-  //renderCairo(ruleset, osm);
+  MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (renderer);
+  renderInfo *info;
+  osmFile *osm;
+  cfgRules *ruleset;
+  coordinates min, max;
 
+  if (priv->debug_level > 1)
+    fprintf(stdout, "renderCairo\n");
+
+  info = g_new (renderInfo, 1);
+  info->zoom = priv->zoom_level;
+  info->ruleset = ruleset = priv->rules->ruleset;
+  info->osm = osm = priv->map->map;
+
+  info->offset = coord2xy (osm->maxlat, osm->minlon, info->zoom);
+
+  min = coord2xy (osm->minlat, osm->minlon, info->zoom);
+  max = coord2xy (osm->maxlat, osm->maxlon, info->zoom);
+  int w = (int) ceil (max.x-min.x);
+  int h = (int) ceil (min.y-max.y);
+
+  info->surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, w, h);
+  info->cr = cairo_create(info->surface);
+
+  cairo_rectangle(info->cr, 0, 0, w, h);
+  cairo_set_source_rgb(info->cr,
+      (double)ruleset->background[0] / 255.0,
+      (double)ruleset->background[1] / 255.0,
+      (double)ruleset->background[2] / 255.0);
+  cairo_fill(info->cr);
+
+  renderCairoRun(info, priv->debug_level);
+
+  if (priv->debug_level > 0) {
+    fprintf(stdout, " Cairo rendering Z%i to '%s'", info->zoom, filename);
+    fflush(stdout);
+  }
+  cairo_surface_write_to_png(info->surface, filename);
+  cairo_destroy(info->cr);
+  cairo_surface_destroy(info->surface);
+
+  if (priv->debug_level > 0)
+    fprintf(stdout, " done.\n");
+
+  g_free(info);
 }
 
 void
@@ -307,8 +355,6 @@ memphis_renderer_init (MemphisRenderer *self)
   priv->resolution = 256;
   priv->zoom_level = 12;
   priv->debug_level = 1;
-
-  /* initialize all public and private members to reasonable default values. */
-
+  
 }
 

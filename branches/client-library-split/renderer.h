@@ -39,7 +39,6 @@ struct renderInfo_ {
 /*
  * Function Prototype
  */
-//int renderCairo(cfgRules *ruleset, osmFile *osm, gint8 debug_level);
 int renderCairoRun(renderInfo *info, gint8 debug_level);
 
 #endif /* RENDER_H */
