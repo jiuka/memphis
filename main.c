@@ -182,6 +182,7 @@ int main(int argc, char **argv) {
     renderer = memphis_renderer_new ();
     memphis_renderer_set_map (renderer, osm);
     memphis_renderer_set_rules_set (renderer, ruleset);
+    memphis_renderer_set_debug_level (renderer, opts->debug);
     
     draw (renderer);
 

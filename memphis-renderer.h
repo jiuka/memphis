@@ -66,6 +66,8 @@ void memphis_renderer_set_resolution (MemphisRenderer *renderer,
     guint resolution);
 void memphis_renderer_set_zoom_level (MemphisRenderer *renderer,
     guint zoom_level);
+void memphis_renderer_set_debug_level (MemphisRenderer *renderer,
+    gint8 debug_level);
 void memphis_renderer_set_map (MemphisRenderer *renderer,
     MemphisMap* map);
 void memphis_renderer_set_rules_set (MemphisRenderer *renderer,
@@ -73,6 +75,7 @@ void memphis_renderer_set_rules_set (MemphisRenderer *renderer,
 
 guint memphis_renderer_get_resolution (MemphisRenderer *renderer);
 guint memphis_renderer_get_zoom_level (MemphisRenderer *renderer);
+gint8 memphis_renderer_get_debug_level (MemphisRenderer *renderer);
 MemphisMap* memphis_renderer_get_map (MemphisRenderer *renderer);
 MemphisRuleSet* memphis_renderer_get_rule_set (MemphisRenderer *renderer);
 
