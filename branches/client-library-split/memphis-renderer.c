@@ -31,7 +31,8 @@ enum
   PROP_MAP,
   PROP_RULE_SET,
   PROP_RESOLUTION,
-  PROP_ZOOM_LEVEL
+  PROP_ZOOM_LEVEL,
+  PROP_DEBUG_LEVEL
 };
 
 struct _MemphisRendererPrivate
@@ -55,7 +56,7 @@ memphis_renderer_free (MemphisRenderer *renderer)
   g_object_unref (G_OBJECT (renderer));
 }
 
-/* does not obey resolution settings
+/* does not obey resolution settings!
  * creates a png of the whole data of unpredictable size.
  * probably not a very useful function for a generic library. */
 void
@@ -71,7 +72,7 @@ memphis_renderer_draw_png (MemphisRenderer *renderer,
   coordinates min, max;
 
   if (priv->debug_level > 1)
-    fprintf(stdout, "renderCairo\n");
+    fprintf (stdout, "renderCairo\n");
 
   info = g_new (renderInfo, 1);
   info->zoom = priv->zoom_level;
@@ -82,33 +83,33 @@ memphis_renderer_draw_png (MemphisRenderer *renderer,
 
   min = coord2xy (osm->minlat, osm->minlon, info->zoom);
   max = coord2xy (osm->maxlat, osm->maxlon, info->zoom);
-  int w = (int) ceil (max.x-min.x);
-  int h = (int) ceil (min.y-max.y);
+  int w = (int) ceil (max.x - min.x);
+  int h = (int) ceil (min.y - max.y);
 
-  info->surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, w, h);
-  info->cr = cairo_create(info->surface);
+  info->surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, w, h);
+  info->cr = cairo_create (info->surface);
 
-  cairo_rectangle(info->cr, 0, 0, w, h);
-  cairo_set_source_rgb(info->cr,
+  cairo_rectangle (info->cr, 0, 0, w, h);
+  cairo_set_source_rgb (info->cr,
       (double)ruleset->background[0] / 255.0,
       (double)ruleset->background[1] / 255.0,
       (double)ruleset->background[2] / 255.0);
-  cairo_fill(info->cr);
+  cairo_fill (info->cr);
 
-  renderCairoRun(info, priv->debug_level);
+  renderCairoRun (info, priv->debug_level);
 
   if (priv->debug_level > 0) {
-    fprintf(stdout, " Cairo rendering Z%i to '%s'", info->zoom, filename);
-    fflush(stdout);
+    fprintf (stdout, " Cairo rendering Z%i to '%s'", info->zoom, filename);
+    fflush (stdout);
   }
-  cairo_surface_write_to_png(info->surface, filename);
-  cairo_destroy(info->cr);
-  cairo_surface_destroy(info->surface);
+  cairo_surface_write_to_png (info->surface, filename);
+  cairo_destroy (info->cr);
+  cairo_surface_destroy (info->surface);
 
   if (priv->debug_level > 0)
-    fprintf(stdout, " done.\n");
+    fprintf (stdout, " done.\n");
 
-  g_free(info);
+  g_free (info);
 }
 
 void
@@ -196,6 +197,23 @@ memphis_renderer_get_rule_set (MemphisRenderer *self)
   return priv->rules;
 }
 
+void
+memphis_renderer_set_debug_level (MemphisRenderer *self, gint8 debug_level)
+{
+  g_return_if_fail (MEMPHIS_IS_RENDERER (self));
+
+  MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
+  priv->debug_level = debug_level;
+}
+
+gint8
+memphis_renderer_get_debug_level (MemphisRenderer *self)
+{
+  g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), 0);
+
+  MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
+  return priv->debug_level;
+}
 
 static void
 memphis_renderer_dispose (GObject *object)
@@ -237,6 +255,9 @@ memphis_renderer_get_property (GObject *object,
       case PROP_RULE_SET:
         g_value_set_object (value, priv->rules);
         break;
+      case PROP_DEBUG_LEVEL:
+        g_value_set_int (value, priv->debug_level);
+        break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
     }
@@ -262,6 +283,9 @@ memphis_renderer_set_property (GObject *object,
         break;
       case PROP_RULE_SET:
         memphis_renderer_set_rules_set (self, g_value_get_object (value));
+        break;
+      case PROP_DEBUG_LEVEL:
+        memphis_renderer_set_debug_level (self, g_value_get_int (value));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -337,11 +361,28 @@ memphis_renderer_class_init (MemphisRendererClass *klass)
   * Since: 0.1
   */
   g_object_class_install_property (object_class,
-      PROP_ZOOM_LEVEL,
+      PROP_RULE_SET,
       g_param_spec_object ("rule-set",
         "A MemphisRuleSet",
         "Memphis rendering rules",
         MEMPHIS_TYPE_RULESET,
+        G_PARAM_READWRITE));
+
+  /**
+  * MemphisRenderer:rule-set:
+  *
+  * A MemphisRuleSet.
+  *
+  * Since: 0.1
+  */
+  g_object_class_install_property (object_class,
+      PROP_DEBUG_LEVEL,
+      g_param_spec_int ("debug-level",
+        "Debug level",
+        "The renderer debug level",
+        0,
+        2,
+        1,
         G_PARAM_READWRITE));
 
 }
