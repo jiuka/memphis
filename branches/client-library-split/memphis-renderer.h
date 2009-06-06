@@ -60,6 +60,8 @@ GType memphis_renderer_get_type (void);
  * Method definitions.
  */
 MemphisRenderer* memphis_renderer_new ();
+MemphisRenderer* memphis_renderer_new_full (MemphisRuleSet *rules,
+    MemphisMap *map);
 void memphis_renderer_free (MemphisRenderer *renderer);
 
 void memphis_renderer_set_resolution (MemphisRenderer *renderer,

@@ -50,6 +50,15 @@ memphis_renderer_new ()
   return g_object_new (MEMPHIS_TYPE_RENDERER, NULL);
 }
 
+MemphisRenderer*
+memphis_renderer_new_full (MemphisRuleSet *rules, MemphisMap *map)
+{
+  MemphisRenderer* r = g_object_new (MEMPHIS_TYPE_RENDERER, NULL);
+  memphis_renderer_set_map (r, map);
+  memphis_renderer_set_rules_set (r, rules);
+  return r;
+}
+
 void
 memphis_renderer_free (MemphisRenderer *renderer)
 {
@@ -333,7 +342,7 @@ memphis_renderer_class_init (MemphisRendererClass *klass)
       g_param_spec_uint ("zoom-level",
         "Map zoom level",
         "The zoom level",
-        0,
+        12,
         17,
         12,
         G_PARAM_READWRITE));
