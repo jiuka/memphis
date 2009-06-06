@@ -23,6 +23,7 @@
 
 #include <glib-object.h>
 #include <cairo.h>
+#include <stdio.h>
 #include "memphis.h"
 
 /*
@@ -75,8 +76,8 @@ guint memphis_renderer_get_zoom_level (MemphisRenderer *renderer);
 MemphisMap* memphis_renderer_get_map (MemphisRenderer *renderer);
 MemphisRuleSet* memphis_renderer_get_rule_set (MemphisRenderer *renderer);
 
-void memphis_renderer_draw (MemphisRenderer *renderer,
-    cairo_t *cr);
+void memphis_renderer_draw_png (MemphisRenderer *renderer,
+    gchar *filename);
 
 void memphis_renderer_draw_tile (MemphisRenderer *renderer,
     cairo_t *cr,
