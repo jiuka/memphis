@@ -89,4 +89,13 @@ void memphis_renderer_draw_tile (MemphisRenderer *renderer,
     guint x,
     guint y);
 
+gint memphis_renderer_get_row_count (MemphisRenderer *self);
+gint memphis_renderer_get_column_count (MemphisRenderer *self);
+gint memphis_renderer_get_min_x_tile (MemphisRenderer *self);
+gint memphis_renderer_get_max_x_tile (MemphisRenderer *self);
+gint memphis_renderer_get_min_y_tile (MemphisRenderer *self);
+gint memphis_renderer_get_max_y_tile (MemphisRenderer *self);
+gboolean memphis_renderer_tile_has_data (MemphisRenderer *self,
+    gint x, gint y);
+
 #endif /* __MEMPHIS_RENDERER_H__ */

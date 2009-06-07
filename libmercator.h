@@ -25,7 +25,7 @@
 #define degrees(a) (a*180.0/G_PI)
 #define radians(a) (a*G_PI/180.0)
 
-#define TILESIZE        256
+#define TILESIZE        256 // TODO make dynamic!
 #define LINESIZE(z)     (int)(exp2(z-12)/(z-12+1))
 
 
@@ -57,6 +57,9 @@ coordinates latlon2xy(double lat, double lon, int z);
 coordinates latEdges(int y, int z);
 coordinates lonEdges(int x, int z);
 edges tileEdges(int x, int y, int z);
+coordinates tile2latlon (int x, int y, int z);
+int lon2tilex (double lon_deg, int z);
+int lat2tiley (double lat_deg, int z);
 
 #endif //LIBMERCATOR_H
 

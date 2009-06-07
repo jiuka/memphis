@@ -26,9 +26,10 @@
 
 coordinates coord2xy(double lat, double lon, int z) {
     coordinates result;
-    result.x = numTiles(z) * TILESIZE * (lon + 180) / 360;
-    result.y = numTiles(z) * TILESIZE * (1 - log(tan(radians(lat)) + sec(radians(lat))) / G_PI) / 2;
-    return(result);
+    result.x = numTiles(z) * TILESIZE * (lon + 180.0) / 360.0;
+    result.y = numTiles(z) * TILESIZE * (1.0 - log(tan(radians(lat))
+            + sec(radians(lat))) / G_PI) / 2.0;
+    return result;
 }
 
 coordinates latlon2relativeXY(double lat, double lon) {
@@ -43,7 +44,8 @@ coordinates latlon2relativeXY(double lat, double lon) {
 coordinates latlon2xy(double lat, double lon, int z) {
     coordinates result;
     result.x = numTiles(z) * (lon + 180) / 360;
-    result.y = numTiles(z) * (1 - log(tan(radians(lat)) + sec(radians(lat))) / G_PI) / 2;
+    result.y = numTiles(z) * (1 - log(tan(radians(lat))
+            + sec(radians(lat))) / G_PI) / 2;
 
     return(result);
 }
@@ -81,6 +83,41 @@ edges tile2edges(int x, int y, int z) {
     result.E = ret.y;
 
     return(result);
+}
+
+/* converts 'slippy maps' tile number to lat & lon in degrees */
+coordinates tile2latlon (int x, int y, int z) {
+    coordinates ret; /* (lat_deg, lon_deg) */
+    int n;
+    double lat_rad;
+    
+    n = numTiles (z);
+    ret.y = (double) x / (double) n * 360.0 - 180.0;
+    lat_rad = atan (sinh (G_PI * (1.0 - 2.0 * (double) y / (double) n)));
+    ret.x = lat_rad * 180.0 / G_PI;
+
+    return ret; 
+}
+
+/* converts lon in degrees to a 'slippy maps' x tile number */
+int lon2tilex (double lon_deg, int z) {
+    double ret;
+    ret = ((lon_deg + 180.0) / 360.0) * numTiles (z);
+    
+    return floor (ret);
+}
+
+/* converts lat in degrees to a 'slippy maps' y tile number */
+int lat2tiley (double lat_deg, int z) {
+    int n;
+    double ret, lat_rad;
+    
+    n = numTiles (z);
+    lat_rad = lat_deg * G_PI / 180.0;
+    ret = (1.0 - (log (tan (lat_rad) + sec (lat_rad)) / G_PI))
+            / 2.0 * n;
+    
+    return floor (ret);
 }
 
 /*
