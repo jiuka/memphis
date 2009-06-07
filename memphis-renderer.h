@@ -17,7 +17,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-/* inclusion guard */
 #ifndef __MEMPHIS_RENDERER_H__
 #define __MEMPHIS_RENDERER_H__
 
@@ -43,15 +42,11 @@ typedef struct _MemphisRendererPrivate MemphisRendererPrivate;
 struct _MemphisRenderer
 {
   GObject parent_instance;
-
-  /* instance members */
 };
 
 struct _MemphisRendererClass
 {
   GObjectClass parent_class;
-
-  /* class members */
 };
 
 GType memphis_renderer_get_type (void);
@@ -89,13 +84,13 @@ void memphis_renderer_draw_tile (MemphisRenderer *renderer,
     guint x,
     guint y);
 
-gint memphis_renderer_get_row_count (MemphisRenderer *self);
-gint memphis_renderer_get_column_count (MemphisRenderer *self);
-gint memphis_renderer_get_min_x_tile (MemphisRenderer *self);
-gint memphis_renderer_get_max_x_tile (MemphisRenderer *self);
-gint memphis_renderer_get_min_y_tile (MemphisRenderer *self);
-gint memphis_renderer_get_max_y_tile (MemphisRenderer *self);
-gboolean memphis_renderer_tile_has_data (MemphisRenderer *self,
+gint memphis_renderer_get_row_count (MemphisRenderer *renderer);
+gint memphis_renderer_get_column_count (MemphisRenderer *renderer);
+gint memphis_renderer_get_min_x_tile (MemphisRenderer *renderer);
+gint memphis_renderer_get_max_x_tile (MemphisRenderer *renderer);
+gint memphis_renderer_get_min_y_tile (MemphisRenderer *renderer);
+gint memphis_renderer_get_max_y_tile (MemphisRenderer *renderer);
+gboolean memphis_renderer_tile_has_data (MemphisRenderer *renderer,
     gint x, gint y);
 
 #endif /* __MEMPHIS_RENDERER_H__ */
