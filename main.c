@@ -136,7 +136,6 @@ int main(int argc, char **argv) {
     MemphisRuleSet *ruleset;
     MemphisMap *osm;
     MemphisRenderer *renderer;
-
     GError *error = NULL;
     GOptionContext *optctx;
     GOptionGroup *grp;
@@ -178,9 +177,7 @@ int main(int argc, char **argv) {
     if(osm == NULL)
         return(-1);
     
-    renderer = memphis_renderer_new ();
-    memphis_renderer_set_map (renderer, osm);
-    memphis_renderer_set_rules_set (renderer, ruleset);
+    renderer = memphis_renderer_new_full (ruleset, osm);
     memphis_renderer_set_debug_level (renderer, opts->debug);
     
     draw (renderer);
