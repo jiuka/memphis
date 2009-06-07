@@ -26,7 +26,6 @@
 #include <sys/resource.h>
 
 #include "main.h"
-#include "renderer.h"
 #include "memphis.h"
 
 /* Renderer Options */
@@ -45,14 +44,14 @@ static int draw (MemphisRenderer *renderer) {
   gint z, zoom;
   gchar *filename;
 
-  // Initialize all layers
+  // Initialize all layers 
   for (z = 0; z <= (opts->maxlayer - opts->minlayer); z++) {
     zoom = z + opts->minlayer;
     memphis_renderer_set_zoom_level (renderer, zoom);
     // Save Images
-    filename = g_strdup_printf("%s/%02i.png", opts->outdir, zoom);
+    filename = g_strdup_printf ("%s/%02i.png", opts->outdir, zoom);
     memphis_renderer_draw_png (renderer, filename);
-    g_free(filename);
+    g_free (filename);
   }
 
   return 0;

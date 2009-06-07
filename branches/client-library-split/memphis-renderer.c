@@ -148,14 +148,12 @@ memphis_renderer_draw_tile (MemphisRenderer *renderer,
   info->surface = NULL;
   info->cr = cr;
 
-  //g_printf ("max/min: %f/%f\n", osm->maxlat, osm->minlon);
-  //g_printf ("xy: 0-%i\n", (1 << info->zoom) - 1);
-
   crd = tile2latlon (x, y, info->zoom);
-  g_print ("tile: %i/%i, lat/lon: %f/%f\n", x, y, crd.x, crd.y);
+  
+  if (priv->debug_level > 0)
+    fprintf (stdout, " Cairo rendering tile: (%i, %i)\n", x, y);
   
   info->offset = coord2xy (crd.x, crd.y, info->zoom);
-  //g_print ("offset: %f/%f\n", info->offset.x, info->offset.y);
 
   cairo_rectangle (info->cr, 0, 0, priv->resolution, priv->resolution);
   cairo_set_source_rgb (info->cr,
@@ -164,6 +162,7 @@ memphis_renderer_draw_tile (MemphisRenderer *renderer,
       (double) ruleset->background[2] / 255.0);
   cairo_fill (info->cr);
 
+  // TODO: don't draw if it is empty anyway?
   renderCairoRun (info, priv->debug_level);
   
   g_free (info);

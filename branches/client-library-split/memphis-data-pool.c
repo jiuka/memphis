@@ -56,16 +56,16 @@ memphis_data_pool_set_property (GObject *object, guint property_id,
 static void
 memphis_data_pool_dispose (GObject *object)
 {
-  MemphisDataPool *self = (MemphisDataPool *) object;
-  g_tree_destroy (self->stringTree);
-  g_string_chunk_free (self->stringChunk);
-  
   G_OBJECT_CLASS (memphis_data_pool_parent_class)->dispose (object);
 }
 
 static void
 memphis_data_pool_finalize (GObject *object)
 {
+  MemphisDataPool *self = (MemphisDataPool *) object;
+  g_tree_destroy (self->stringTree);
+  g_string_chunk_free (self->stringChunk);
+  
   G_OBJECT_CLASS (memphis_data_pool_parent_class)->finalize (object);
 }
 
