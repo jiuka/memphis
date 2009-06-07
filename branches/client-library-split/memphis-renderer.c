@@ -80,6 +80,9 @@ memphis_renderer_draw_png (MemphisRenderer *renderer,
   cfgRules *ruleset;
   coordinates min, max;
 
+  g_return_if_fail (MEMPHIS_IS_RULESET (priv->rules)
+      && MEMPHIS_IS_MAP (priv->map));
+
   if (priv->debug_level > 1)
     fprintf (stdout, "renderCairo\n");
 
@@ -129,7 +132,41 @@ memphis_renderer_draw_tile (MemphisRenderer *renderer,
 {
   g_return_if_fail (MEMPHIS_IS_RENDERER (renderer));
 
-  // TODO
+  MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (renderer);
+  renderInfo *info;
+  osmFile *osm;
+  cfgRules *ruleset;
+  coordinates crd;
+
+  g_return_if_fail (MEMPHIS_IS_RULESET (priv->rules)
+      && MEMPHIS_IS_MAP (priv->map));
+
+  info = g_new (renderInfo, 1);
+  info->zoom = priv->zoom_level;
+  info->ruleset = ruleset = priv->rules->ruleset;
+  info->osm = osm = priv->map->map;
+  info->surface = NULL;
+  info->cr = cr;
+
+  //g_printf ("max/min: %f/%f\n", osm->maxlat, osm->minlon);
+  //g_printf ("xy: 0-%i\n", (1 << info->zoom) - 1);
+
+  crd = tile2latlon (x, y, info->zoom);
+  g_print ("tile: %i/%i, lat/lon: %f/%f\n", x, y, crd.x, crd.y);
+  
+  info->offset = coord2xy (crd.x, crd.y, info->zoom);
+  //g_print ("offset: %f/%f\n", info->offset.x, info->offset.y);
+
+  cairo_rectangle (info->cr, 0, 0, priv->resolution, priv->resolution);
+  cairo_set_source_rgb (info->cr,
+      (double) ruleset->background[0] / 255.0,
+      (double) ruleset->background[1] / 255.0,
+      (double) ruleset->background[2] / 255.0);
+  cairo_fill (info->cr);
+
+  renderCairoRun (info, priv->debug_level);
+  
+  g_free (info);
 }
 
 void
@@ -408,3 +445,67 @@ memphis_renderer_init (MemphisRenderer *self)
   
 }
 
+gint
+memphis_renderer_get_row_count (MemphisRenderer *self)
+{
+  MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
+  return (1 << priv->zoom_level);
+}
+
+gint
+memphis_renderer_get_column_count (MemphisRenderer *self)
+{
+  MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
+  return (1 << priv->zoom_level);
+}
+
+gint
+memphis_renderer_get_min_x_tile (MemphisRenderer *self)
+{
+  MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
+  
+  return lon2tilex (priv->map->map->minlon, priv->zoom_level);
+}
+
+gint
+memphis_renderer_get_max_x_tile (MemphisRenderer *self)
+{
+  MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
+  
+  return lon2tilex (priv->map->map->maxlon, priv->zoom_level);
+}
+
+gint
+memphis_renderer_get_min_y_tile (MemphisRenderer *self)
+{
+  MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
+  
+  return lat2tiley (priv->map->map->maxlat, priv->zoom_level);
+}
+
+gint
+memphis_renderer_get_max_y_tile (MemphisRenderer *self)
+{
+  MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
+  
+  return lat2tiley (priv->map->map->minlat, priv->zoom_level);
+}
+
+gboolean
+memphis_renderer_tile_has_data (MemphisRenderer *self, gint x, gint y)
+{
+  g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), FALSE);
+
+  gint minx, miny, maxx, maxy;
+  MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
+
+  minx = lon2tilex (priv->map->map->minlon, priv->zoom_level);
+  miny = lat2tiley (priv->map->map->minlat, priv->zoom_level);
+  maxx = lon2tilex (priv->map->map->maxlon, priv->zoom_level);
+  maxy = lat2tiley (priv->map->map->maxlat, priv->zoom_level);
+
+  if (!(x >= minx && x <= maxx && y >= miny && y <= maxy))
+    return FALSE;
+  
+  return TRUE;
+}
