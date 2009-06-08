@@ -140,6 +140,8 @@ memphis_rule_set_load_from_file (MemphisRuleSet *rules, gchar *filename)
 void
 memphis_rule_set_load_from_data (MemphisRuleSet *rules, gchar *data)
 {
+  g_return_if_fail (MEMPHIS_IS_RULESET (rules));
+  
   if (rules->ruleset != NULL)
     rulesetFree (rules->ruleset);
   
@@ -148,7 +150,7 @@ memphis_rule_set_load_from_data (MemphisRuleSet *rules, gchar *data)
 }
 
 void
-memphis_rule_set_free (MemphisRuleSet* rules)
+memphis_rule_set_free (MemphisRuleSet *rules)
 {
   g_return_if_fail (MEMPHIS_IS_RULESET (rules));
 
@@ -156,7 +158,7 @@ memphis_rule_set_free (MemphisRuleSet* rules)
 }
 
 void
-memphis_rule_set_set_debug_level (MemphisRuleSet* rules,
+memphis_rule_set_set_debug_level (MemphisRuleSet *rules,
     gint8 debug_level)
 {
   g_return_if_fail (MEMPHIS_IS_RULESET (rules));
@@ -166,7 +168,7 @@ memphis_rule_set_set_debug_level (MemphisRuleSet* rules,
 }
 
 gint8
-memphis_rule_set_get_debug_level (MemphisRuleSet* rules)
+memphis_rule_set_get_debug_level (MemphisRuleSet *rules)
 {
   g_return_val_if_fail (MEMPHIS_IS_RULESET (rules), -1);
 

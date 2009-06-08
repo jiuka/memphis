@@ -37,7 +37,6 @@
 
 typedef struct _MemphisRenderer        MemphisRenderer;
 typedef struct _MemphisRendererClass   MemphisRendererClass;
-typedef struct _MemphisRendererPrivate MemphisRendererPrivate;
 
 struct _MemphisRenderer
 {
