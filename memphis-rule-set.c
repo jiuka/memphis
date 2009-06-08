@@ -92,6 +92,23 @@ memphis_rule_set_class_init (MemphisRuleSetClass *klass)
   object_class->set_property = memphis_rule_set_set_property;
   object_class->dispose = memphis_rule_set_dispose;
   object_class->finalize = memphis_rule_set_finalize;
+
+  /**
+  * MemphisRuleSet:debug-level:
+  *
+  * The debug level of the rule parser.
+  *
+  * Since: 0.1
+  */
+  g_object_class_install_property (object_class,
+      PROP_DEBUG_LEVEL,
+      g_param_spec_int ("debug-level",
+        "Debug level",
+        "The parser debug level",
+        0,
+        2,
+        1,
+        G_PARAM_READWRITE));
 }
 
 static void
