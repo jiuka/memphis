@@ -22,8 +22,13 @@
 
 G_DEFINE_TYPE (MemphisMap, memphis_map, G_TYPE_OBJECT)
 
-#define GET_PRIVATE(o) \
-  (G_TYPE_INSTANCE_GET_PRIVATE ((o), MEMPHIS_TYPE_MAP, MemphisMapPrivate))
+#define MEMPHIS_MAP_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), MEMPHIS_TYPE_MAP, MemphisMapPrivate))
+
+enum
+{
+  PROP_0,
+  PROP_DEBUG_LEVEL
+};
 
 typedef struct _MemphisMapPrivate MemphisMapPrivate;
 
@@ -77,6 +82,23 @@ memphis_map_class_init (MemphisMapClass *klass)
   object_class->set_property = memphis_map_set_property;
   object_class->dispose = memphis_map_dispose;
   object_class->finalize = memphis_map_finalize;
+
+  /**
+  * MemphisMap:debug-level:
+  *
+  * The debug level of the map parser.
+  *
+  * Since: 0.1
+  */
+  g_object_class_install_property (object_class,
+      PROP_DEBUG_LEVEL,
+      g_param_spec_int ("debug-level",
+        "Debug level",
+        "The parser debug level",
+        0,
+        2,
+        1,
+        G_PARAM_READWRITE));
 }
 
 static void

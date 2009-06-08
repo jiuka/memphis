@@ -420,9 +420,9 @@ memphis_renderer_class_init (MemphisRendererClass *klass)
         G_PARAM_READWRITE));
 
   /**
-  * MemphisRenderer:rule-set:
+  * MemphisRenderer:debug-level:
   *
-  * A MemphisRuleSet.
+  * The debug level of the renderer.
   *
   * Since: 0.1
   */
