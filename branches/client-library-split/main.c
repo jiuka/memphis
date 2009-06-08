@@ -169,14 +169,16 @@ int main(int argc, char **argv) {
 
     banner();
 
-    ruleset = memphis_rule_set_new_from_file (opts->cfgfn);
-    if(ruleset == NULL)
+    ruleset = memphis_rule_set_new ();
+
+    memphis_rule_set_load_from_file (ruleset, opts->cfgfn);
+    if(ruleset->ruleset == NULL)
         return(-1);
 
     osm = memphis_map_new_from_file (opts->osmfn);
-    if(osm == NULL)
+    if(osm->map == NULL)
         return(-1);
-    
+
     renderer = memphis_renderer_new_full (ruleset, osm);
     memphis_renderer_set_debug_level (renderer, opts->debug);
     
