@@ -31,9 +31,10 @@ struct renderInfo_ {
         coordinates     offset;
         cairo_surface_t *surface;
         cairo_t         *cr;
-        short int       zoom;
         cfgRules        *ruleset;
         osmFile         *osm;
+        unsigned int    resolution;
+        short int       zoom;
    };
 
 /*

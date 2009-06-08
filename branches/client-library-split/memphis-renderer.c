@@ -87,14 +87,15 @@ memphis_renderer_draw_png (MemphisRenderer *renderer,
     fprintf (stdout, "renderCairo\n");
 
   info = g_new (renderInfo, 1);
-  info->zoom = priv->zoom_level;
   info->ruleset = ruleset = priv->rules->ruleset;
   info->osm = osm = priv->map->map;
+  info->resolution = priv->resolution;
+  info->zoom = priv->zoom_level;
 
-  info->offset = coord2xy (osm->maxlat, osm->minlon, info->zoom);
+  info->offset = coord2xy (osm->maxlat, osm->minlon, info->zoom, info->resolution);
 
-  min = coord2xy (osm->minlat, osm->minlon, info->zoom);
-  max = coord2xy (osm->maxlat, osm->maxlon, info->zoom);
+  min = coord2xy (osm->minlat, osm->minlon, info->zoom, info->resolution);
+  max = coord2xy (osm->maxlat, osm->maxlon, info->zoom, info->resolution);
   int w = (int) ceil (max.x - min.x);
   int h = (int) ceil (min.y - max.y);
 
@@ -142,20 +143,21 @@ memphis_renderer_draw_tile (MemphisRenderer *renderer,
       && MEMPHIS_IS_MAP (priv->map));
 
   info = g_new (renderInfo, 1);
-  info->zoom = priv->zoom_level;
   info->ruleset = ruleset = priv->rules->ruleset;
   info->osm = osm = priv->map->map;
   info->surface = NULL;
   info->cr = cr;
+  info->resolution = priv->resolution;
+  info->zoom = priv->zoom_level;
 
   crd = tile2latlon (x, y, info->zoom);
   
   if (priv->debug_level > 0)
     fprintf (stdout, " Cairo rendering tile: (%i, %i)\n", x, y);
   
-  info->offset = coord2xy (crd.x, crd.y, info->zoom);
+  info->offset = coord2xy (crd.x, crd.y, info->zoom, info->resolution);
 
-  cairo_rectangle (info->cr, 0, 0, priv->resolution, priv->resolution);
+  cairo_rectangle (info->cr, 0, 0, info->resolution, info->resolution);
   cairo_set_source_rgb (info->cr,
       (double) ruleset->background[0] / 255.0,
       (double) ruleset->background[1] / 255.0,

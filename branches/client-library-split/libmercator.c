@@ -24,10 +24,10 @@
 #include "libmercator.h"
 
 
-coordinates coord2xy(double lat, double lon, int z) {
+coordinates coord2xy(double lat, double lon, int z, int tilesize) {
     coordinates result;
-    result.x = numTiles(z) * TILESIZE * (lon + 180.0) / 360.0;
-    result.y = numTiles(z) * TILESIZE * (1.0 - log(tan(radians(lat))
+    result.x = numTiles(z) * tilesize * (lon + 180.0) / 360.0;
+    result.y = numTiles(z) * tilesize * (1.0 - log(tan(radians(lat))
             + sec(radians(lat))) / G_PI) / 2.0;
     return result;
 }

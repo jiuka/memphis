@@ -25,9 +25,7 @@
 #define degrees(a) (a*180.0/G_PI)
 #define radians(a) (a*G_PI/180.0)
 
-#define TILESIZE        256 // TODO make dynamic!
 #define LINESIZE(z)     (int)(exp2(z-12)/(z-12+1))
-
 
 #define mercatorToLat(Y) degrees(atan(sinh(Y)))
 
@@ -51,7 +49,7 @@ struct edges_ {
 /*
  * Function Prototype
  */
-coordinates coord2xy(double lat, double lon, int z);
+coordinates coord2xy(double lat, double lon, int z, int tilesize);
 coordinates latlon2relativeXY(double lat, double lon);
 coordinates latlon2xy(double lat, double lon, int z);
 coordinates latEdges(int y, int z);

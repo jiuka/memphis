@@ -58,14 +58,14 @@ static void drawPath(renderInfo *info, GSList *nodes, gint8 debug_level) {
 
     iter = nodes;
     nd = iter->data;
-    xy = coord2xy(nd->lat, nd->lon, info->zoom);
+    xy = coord2xy(nd->lat, nd->lon, info->zoom, info->resolution);
     cairo_move_to(info->cr, xy.x-info->offset.x,
                             xy.y-info->offset.y);
     
     iter = g_slist_next(iter);
     while(iter) {
         nd = iter->data;
-        xy = coord2xy(nd->lat, nd->lon, info->zoom);
+        xy = coord2xy(nd->lat, nd->lon, info->zoom, info->resolution);
         cairo_line_to(info->cr, xy.x-info->offset.x, xy.y-info->offset.y);
         iter = g_slist_next(iter);
     }
