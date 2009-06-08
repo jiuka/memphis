@@ -254,7 +254,7 @@ memphis_renderer_set_debug_level (MemphisRenderer *self, gint8 debug_level)
   if (priv->map != NULL)
     priv->map->debug_level = debug_level;
   if (priv->rules != NULL)
-    priv->rules->debug_level = debug_level;
+    memphis_rule_set_set_debug_level (priv->rules, debug_level);
 }
 
 gint8

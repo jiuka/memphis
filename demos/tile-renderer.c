@@ -32,7 +32,9 @@ int main () {
   gint i, j, maxx, maxy;
   gchar *path;
 
-  rules = memphis_rule_set_new_from_file ("rule.xml");
+  rules = memphis_rule_set_new ();
+  memphis_rule_set_load_from_file (rules, "rule.xml");
+  
   map = memphis_map_new_from_file ("map.osm");
 
   r = memphis_renderer_new_full (rules, map);
