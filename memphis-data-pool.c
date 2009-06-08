@@ -22,15 +22,6 @@
 
 G_DEFINE_TYPE (MemphisDataPool, memphis_data_pool, G_TYPE_OBJECT)
 
-#define GET_PRIVATE(o) \
-  (G_TYPE_INSTANCE_GET_PRIVATE ((o), MEMPHIS_TYPE_DATA_POOL, MemphisDataPoolPrivate))
-
-typedef struct _MemphisDataPoolPrivate MemphisDataPoolPrivate;
-
-struct _MemphisDataPoolPrivate {
-    int dummy;
-};
-
 static MemphisDataPool *instance = NULL;
 
 static void
@@ -73,8 +64,6 @@ static void
 memphis_data_pool_class_init (MemphisDataPoolClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
-
-  g_type_class_add_private (klass, sizeof (MemphisDataPoolPrivate));
 
   object_class->get_property = memphis_data_pool_get_property;
   object_class->set_property = memphis_data_pool_set_property;
