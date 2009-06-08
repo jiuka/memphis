@@ -35,6 +35,8 @@ enum
   PROP_DEBUG_LEVEL
 };
 
+typedef struct _MemphisRendererPrivate MemphisRendererPrivate;
+
 struct _MemphisRendererPrivate
 {
   MemphisMap *map;
@@ -53,6 +55,8 @@ memphis_renderer_new ()
 MemphisRenderer*
 memphis_renderer_new_full (MemphisRuleSet *rules, MemphisMap *map)
 {
+  g_return_val_if_fail (MEMPHIS_IS_RULESET (rules) && MEMPHIS_IS_MAP (map), NULL);
+
   MemphisRenderer* r = g_object_new (MEMPHIS_TYPE_RENDERER, NULL);
   memphis_renderer_set_map (r, map);
   memphis_renderer_set_rules_set (r, rules);
@@ -141,6 +145,9 @@ memphis_renderer_draw_tile (MemphisRenderer *renderer,
 
   g_return_if_fail (MEMPHIS_IS_RULESET (priv->rules)
       && MEMPHIS_IS_MAP (priv->map));
+
+  g_return_if_fail (priv->map->map != NULL
+      && priv->rules->ruleset != NULL);
 
   info = g_new (renderInfo, 1);
   info->ruleset = ruleset = priv->rules->ruleset;
@@ -252,7 +259,7 @@ memphis_renderer_set_debug_level (MemphisRenderer *self, gint8 debug_level)
   MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
   priv->debug_level = debug_level;
   if (priv->map != NULL)
-    priv->map->debug_level = debug_level;
+    memphis_map_set_debug_level (priv->map, debug_level);
   if (priv->rules != NULL)
     memphis_rule_set_set_debug_level (priv->rules, debug_level);
 }
@@ -447,12 +454,12 @@ memphis_renderer_init (MemphisRenderer *self)
   priv->resolution = 256;
   priv->zoom_level = 12;
   priv->debug_level = 1;
-  
 }
 
 gint
 memphis_renderer_get_row_count (MemphisRenderer *self)
 {
+  g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), -1);
   MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
   return (1 << priv->zoom_level);
 }
@@ -460,6 +467,7 @@ memphis_renderer_get_row_count (MemphisRenderer *self)
 gint
 memphis_renderer_get_column_count (MemphisRenderer *self)
 {
+  g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), -1);
   MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
   return (1 << priv->zoom_level);
 }
@@ -467,6 +475,7 @@ memphis_renderer_get_column_count (MemphisRenderer *self)
 gint
 memphis_renderer_get_min_x_tile (MemphisRenderer *self)
 {
+  g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), -1);
   MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
   
   return lon2tilex (priv->map->map->minlon, priv->zoom_level);
@@ -475,14 +484,16 @@ memphis_renderer_get_min_x_tile (MemphisRenderer *self)
 gint
 memphis_renderer_get_max_x_tile (MemphisRenderer *self)
 {
+  g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), -1);
   MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
-  
+
   return lon2tilex (priv->map->map->maxlon, priv->zoom_level);
 }
 
 gint
 memphis_renderer_get_min_y_tile (MemphisRenderer *self)
 {
+  g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), -1);
   MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
   
   return lat2tiley (priv->map->map->maxlat, priv->zoom_level);
@@ -491,6 +502,7 @@ memphis_renderer_get_min_y_tile (MemphisRenderer *self)
 gint
 memphis_renderer_get_max_y_tile (MemphisRenderer *self)
 {
+  g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), -1);
   MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
   
   return lat2tiley (priv->map->map->minlat, priv->zoom_level);

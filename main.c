@@ -170,13 +170,14 @@ int main(int argc, char **argv) {
     banner();
 
     ruleset = memphis_rule_set_new ();
+    osm = memphis_map_new ();
 
-    memphis_rule_set_load_from_file (ruleset, opts->cfgfn);
-    if(ruleset->ruleset == NULL)
+    memphis_map_load_from_file (osm, opts->osmfn);
+    if (osm->map == NULL)
         return(-1);
 
-    osm = memphis_map_new_from_file (opts->osmfn);
-    if(osm->map == NULL)
+    memphis_rule_set_load_from_file (ruleset, opts->cfgfn);
+    if (ruleset->ruleset == NULL)
         return(-1);
 
     renderer = memphis_renderer_new_full (ruleset, osm);

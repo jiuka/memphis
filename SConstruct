@@ -45,7 +45,7 @@ SOURCES = [
     'memphis-renderer.c'
 ]
 
-Default(env.Program('memphis', source = [SOURCES, 'main.c']))
+Default(env.Program('memphis', source = ['main.c', SOURCES]))
 
 env.Program('testTextPath', source=['test/testTextPath.c','textpath.c'])
 env.Program('testSize', source=['test/testSize.c'])
@@ -54,4 +54,4 @@ env.Program('testRuleset', source=['test/testRuleset.c','ruleset.c','mlib.c'])
 
 #env.Program('testRuleset', source=['ruleset.c','testRuleset.c'])
 
-env.Program('tile-renderer', source = [SOURCES, 'demos/tile-renderer.c'])
+env.Program('tile-renderer', source = ['demos/tile-renderer.c', SOURCES])
