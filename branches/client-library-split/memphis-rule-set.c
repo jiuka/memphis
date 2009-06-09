@@ -77,7 +77,9 @@ memphis_rule_set_finalize (GObject *object)
 {
   MemphisRuleSet *self = MEMPHIS_RULESET (object);
 
-  rulesetFree(self->ruleset);
+  if (self->ruleset != NULL)
+    rulesetFree(self->ruleset);
+  
   G_OBJECT_CLASS (memphis_rule_set_parent_class)->finalize (object);
 }
 
