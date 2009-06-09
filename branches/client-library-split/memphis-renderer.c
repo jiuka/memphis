@@ -25,6 +25,9 @@ G_DEFINE_TYPE (MemphisRenderer, memphis_renderer, G_TYPE_OBJECT);
 
 #define MEMPHIS_RENDERER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), MEMPHIS_TYPE_RENDERER, MemphisRendererPrivate))
 
+#define MEMPHIS_RENDERER_MIN_ZOOM_LEVEL 12
+#define MEMPHIS_RENDERER_MAX_ZOOM_LEVEL 17
+
 enum
 {
   PROP_0,
@@ -66,12 +69,15 @@ memphis_renderer_new_full (MemphisRuleSet *rules, MemphisMap *map)
 void
 memphis_renderer_free (MemphisRenderer *renderer)
 {
+  g_return_if_fail (MEMPHIS_IS_RENDERER (renderer));
+  
   g_object_unref (G_OBJECT (renderer));
 }
 
 /* does not obey resolution settings!
  * creates a png of the whole data of unpredictable size.
- * probably not a very useful function for a generic library. */
+ * probably not a very useful function for a generic library.
+ * Should be removed! */
 void
 memphis_renderer_draw_png (MemphisRenderer *renderer, 
     gchar *filename)
@@ -86,6 +92,8 @@ memphis_renderer_draw_png (MemphisRenderer *renderer,
 
   g_return_if_fail (MEMPHIS_IS_RULESET (priv->rules)
       && MEMPHIS_IS_MAP (priv->map));
+
+  g_return_if_fail (priv->rules->ruleset && priv->map->map);
 
   if (priv->debug_level > 1)
     fprintf (stdout, "renderCairo\n");
@@ -146,8 +154,7 @@ memphis_renderer_draw_tile (MemphisRenderer *renderer,
   g_return_if_fail (MEMPHIS_IS_RULESET (priv->rules)
       && MEMPHIS_IS_MAP (priv->map));
 
-  g_return_if_fail (priv->map->map != NULL
-      && priv->rules->ruleset != NULL);
+  g_return_if_fail (priv->rules->ruleset && priv->map->map);
 
   info = g_new (renderInfo, 1);
   info->ruleset = ruleset = priv->rules->ruleset;
@@ -171,7 +178,7 @@ memphis_renderer_draw_tile (MemphisRenderer *renderer,
       (double) ruleset->background[2] / 255.0);
   cairo_fill (info->cr);
 
-  // TODO: don't draw if it is empty anyway?
+  // TODO: don't draw if it is empty anyway? Find a good threshold!
   renderCairoRun (info, priv->debug_level);
   
   g_free (info);
@@ -201,7 +208,8 @@ memphis_renderer_set_zoom_level (MemphisRenderer *self, guint zoom_level)
   g_return_if_fail (MEMPHIS_IS_RENDERER (self));
 
   MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
-  priv->zoom_level = zoom_level;
+  priv->zoom_level = CLAMP (zoom_level, MEMPHIS_RENDERER_MIN_ZOOM_LEVEL,
+      MEMPHIS_RENDERER_MAX_ZOOM_LEVEL);
 }
 
 guint
@@ -225,7 +233,7 @@ memphis_renderer_set_map (MemphisRenderer *self, MemphisMap *map)
 MemphisMap*
 memphis_renderer_get_map (MemphisRenderer *self)
 {
-  g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), 0);
+  g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), NULL);
 
   MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
   return priv->map;
@@ -460,6 +468,7 @@ gint
 memphis_renderer_get_row_count (MemphisRenderer *self)
 {
   g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), -1);
+  
   MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
   return (1 << priv->zoom_level);
 }
@@ -468,6 +477,7 @@ gint
 memphis_renderer_get_column_count (MemphisRenderer *self)
 {
   g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), -1);
+  
   MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
   return (1 << priv->zoom_level);
 }
@@ -476,8 +486,10 @@ gint
 memphis_renderer_get_min_x_tile (MemphisRenderer *self)
 {
   g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), -1);
-  MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
   
+  MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
+  g_return_val_if_fail (MEMPHIS_IS_MAP (priv->map), -1);
+  g_return_val_if_fail (priv->map->map, -1);
   return lon2tilex (priv->map->map->minlon, priv->zoom_level);
 }
 
@@ -485,8 +497,10 @@ gint
 memphis_renderer_get_max_x_tile (MemphisRenderer *self)
 {
   g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), -1);
+  
   MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
-
+  g_return_val_if_fail (MEMPHIS_IS_MAP (priv->map), -1);
+  g_return_val_if_fail (priv->map->map, -1);
   return lon2tilex (priv->map->map->maxlon, priv->zoom_level);
 }
 
@@ -494,8 +508,10 @@ gint
 memphis_renderer_get_min_y_tile (MemphisRenderer *self)
 {
   g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), -1);
-  MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
   
+  MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
+  g_return_val_if_fail (MEMPHIS_IS_MAP (priv->map), -1);
+  g_return_val_if_fail (priv->map->map, -1);
   return lat2tiley (priv->map->map->maxlat, priv->zoom_level);
 }
 
@@ -503,8 +519,10 @@ gint
 memphis_renderer_get_max_y_tile (MemphisRenderer *self)
 {
   g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), -1);
-  MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
   
+  MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
+  g_return_val_if_fail (MEMPHIS_IS_MAP (priv->map), -1);
+  g_return_val_if_fail (priv->map->map, -1);
   return lat2tiley (priv->map->map->minlat, priv->zoom_level);
 }
 
@@ -515,6 +533,8 @@ memphis_renderer_tile_has_data (MemphisRenderer *self, gint x, gint y)
 
   gint minx, miny, maxx, maxy;
   MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
+  g_return_val_if_fail (MEMPHIS_IS_MAP (priv->map), -1);
+  g_return_val_if_fail (priv->map->map, -1);
 
   minx = lon2tilex (priv->map->map->minlon, priv->zoom_level);
   miny = lat2tiley (priv->map->map->minlat, priv->zoom_level);

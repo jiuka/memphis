@@ -25,9 +25,6 @@
 #include <stdio.h>
 #include "memphis.h"
 
-/*
- * Type macros.
- */
 #define MEMPHIS_TYPE_RENDERER                  (memphis_renderer_get_type ())
 #define MEMPHIS_RENDERER(obj)                  (G_TYPE_CHECK_INSTANCE_CAST ((obj), MEMPHIS_TYPE_RENDERER, MemphisRenderer))
 #define MEMPHIS_IS_RENDERER(obj)               (G_TYPE_CHECK_INSTANCE_TYPE ((obj), MEMPHIS_TYPE_RENDERER))
@@ -50,9 +47,6 @@ struct _MemphisRendererClass
 
 GType memphis_renderer_get_type (void);
 
-/*
- * Method definitions.
- */
 MemphisRenderer* memphis_renderer_new ();
 MemphisRenderer* memphis_renderer_new_full (MemphisRuleSet *rules,
     MemphisMap *map);
