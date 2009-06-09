@@ -18,10 +18,11 @@
  */
 
 #include "../memphis.h"
+#include <stdlib.h>
 
 #define RESOLUTION 256
 
-int main () {
+int main (int argc, char **argv) {
   g_type_init ();
   
   MemphisRenderer *r;
@@ -30,16 +31,27 @@ int main () {
   cairo_surface_t *surface;
   cairo_t *cr;
   gint i, j, maxx, maxy;
-  gchar *path;
+  gchar *path, *mapfile;
+  gint zoom_level;
+
+  if (argc > 1)
+    zoom_level = atoi(argv[1]);
+  else
+    zoom_level = 14;
+
+  if (argc > 2)
+    mapfile = argv[2];
+  else
+    mapfile = "map.osm";
 
   rules = memphis_rule_set_new ();
   memphis_rule_set_load_from_file (rules, "rule.xml");
   map = memphis_map_new ();
-  memphis_map_load_from_file (map, "map.osm");
+  memphis_map_load_from_file (map, mapfile);
 
   r = memphis_renderer_new_full (rules, map);
   memphis_renderer_set_resolution (r, RESOLUTION);
-  memphis_renderer_set_zoom_level (r, 14);
+  memphis_renderer_set_zoom_level (r, zoom_level);
   memphis_renderer_set_debug_level (r, 1);
   g_print ("Tile resolution: %u\n", memphis_renderer_get_resolution (r));
 
