@@ -259,12 +259,15 @@ osmFile* osmRead(char *filename, gint8 debug_level) {
     int len;
     int done;
     char *buf;
+    osmFile *osm;
     mapUserData *data = g_new(mapUserData, 1);
-    osmFile *osm = NULL;
     // Init vars
+    data->cTag = NULL;
+    data->cNode = NULL;
+    data->cWay = NULL;
+    data->pool = memphis_data_pool_new ();
     data->cntTag = 0;
     data->cntNd = 0;
-    data->pool = memphis_data_pool_new ();
     data->debug_level = debug_level;
     
     // Test file
@@ -357,7 +360,7 @@ osmFile* osmRead(char *filename, gint8 debug_level) {
     }
 
     g_hash_table_destroy(osm->nodeidx);
-    osm->nodeidx=NULL;
+    osm->nodeidx = NULL;
     
     if (debug_level > 0)
         fprintf(stdout,"\r OSM parsing done. (%i/%i/%i/%i) [%fs]\n",
