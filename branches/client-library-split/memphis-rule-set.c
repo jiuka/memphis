@@ -128,7 +128,7 @@ memphis_rule_set_new ()
 void
 memphis_rule_set_load_from_file (MemphisRuleSet *rules, gchar *filename)
 {
-  g_return_if_fail (MEMPHIS_IS_RULESET (rules));
+  g_return_if_fail (MEMPHIS_IS_RULESET (rules) && filename != NULL);
 
   MemphisRuleSetPrivate *priv = MEMPHIS_RULESET_GET_PRIVATE (rules);
   if (rules->ruleset != NULL)
@@ -140,7 +140,7 @@ memphis_rule_set_load_from_file (MemphisRuleSet *rules, gchar *filename)
 void
 memphis_rule_set_load_from_data (MemphisRuleSet *rules, gchar *data)
 {
-  g_return_if_fail (MEMPHIS_IS_RULESET (rules));
+  g_return_if_fail (MEMPHIS_IS_RULESET (rules) && data != NULL);
   
   if (rules->ruleset != NULL)
     rulesetFree (rules->ruleset);

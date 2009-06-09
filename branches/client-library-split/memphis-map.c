@@ -130,7 +130,7 @@ memphis_map_new ()
 void
 memphis_map_load_from_file (MemphisMap *map, gchar *filename)
 {
-  g_return_if_fail (MEMPHIS_IS_MAP (map));
+  g_return_if_fail (MEMPHIS_IS_MAP (map) && filename != NULL);
 
   MemphisMapPrivate *priv = MEMPHIS_MAP_GET_PRIVATE (map);
   if (map->map != NULL)
@@ -142,7 +142,7 @@ memphis_map_load_from_file (MemphisMap *map, gchar *filename)
 void
 memphis_map_load_from_data (MemphisMap *map, gchar *data)
 {
-  g_return_if_fail (MEMPHIS_IS_MAP (map));
+  g_return_if_fail (MEMPHIS_IS_MAP (map) && data != NULL);
 
   if (map->map != NULL)
     osmFree (map->map);
