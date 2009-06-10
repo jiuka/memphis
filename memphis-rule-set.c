@@ -67,12 +67,6 @@ memphis_rule_set_set_property (GObject *object, guint property_id,
 }
 
 static void
-memphis_rule_set_dispose (GObject *object)
-{
-  G_OBJECT_CLASS (memphis_rule_set_parent_class)->dispose (object);
-}
-
-static void
 memphis_rule_set_finalize (GObject *object)
 {
   MemphisRuleSet *self = MEMPHIS_RULESET (object);
@@ -92,7 +86,6 @@ memphis_rule_set_class_init (MemphisRuleSetClass *klass)
 
   object_class->get_property = memphis_rule_set_get_property;
   object_class->set_property = memphis_rule_set_set_property;
-  object_class->dispose = memphis_rule_set_dispose;
   object_class->finalize = memphis_rule_set_finalize;
 
   /**

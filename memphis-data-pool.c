@@ -45,12 +45,6 @@ memphis_data_pool_set_property (GObject *object, guint property_id,
 }
 
 static void
-memphis_data_pool_dispose (GObject *object)
-{
-  G_OBJECT_CLASS (memphis_data_pool_parent_class)->dispose (object);
-}
-
-static void
 memphis_data_pool_finalize (GObject *object)
 {
   MemphisDataPool *self = (MemphisDataPool *) object;
@@ -67,7 +61,6 @@ memphis_data_pool_class_init (MemphisDataPoolClass *klass)
 
   object_class->get_property = memphis_data_pool_get_property;
   object_class->set_property = memphis_data_pool_set_property;
-  object_class->dispose = memphis_data_pool_dispose;
   object_class->finalize = memphis_data_pool_finalize;
 }
 
