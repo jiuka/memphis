@@ -68,12 +68,6 @@ memphis_map_set_property (GObject *object, guint property_id,
 }
 
 static void
-memphis_map_dispose (GObject *object)
-{
-  G_OBJECT_CLASS (memphis_map_parent_class)->dispose (object);
-}
-
-static void
 memphis_map_finalize (GObject *object)
 {
   MemphisMap *self = MEMPHIS_MAP (object);
@@ -92,7 +86,6 @@ memphis_map_class_init (MemphisMapClass *klass)
 
   object_class->get_property = memphis_map_get_property;
   object_class->set_property = memphis_map_set_property;
-  object_class->dispose = memphis_map_dispose;
   object_class->finalize = memphis_map_finalize;
 
   /**
