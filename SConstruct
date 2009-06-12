@@ -1,7 +1,7 @@
 # scons build file
 
 env = Environment()
-env.MergeFlags(['-Wall -lm -std=c99 -lexpat'])
+env.MergeFlags(['-Wall -Werror -lm -std=c99 -lexpat'])
 
 if ARGUMENTS.get('optimize') in ('y', 'yes'):
     env.Append(CCFLAGS = ['-O2', '-fomit-frame-pointer'])

@@ -356,7 +356,7 @@ void rulesetFree(cfgRules * ruleset) {
     }
     g_free(lrule);
     g_free(ruleset);
-};
+}
 
 /*
  * vim: expandtab shiftwidth=4 tabstop=4:
