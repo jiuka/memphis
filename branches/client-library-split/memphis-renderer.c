@@ -21,7 +21,7 @@
 #include "renderer.h"
 #include <math.h>
 
-G_DEFINE_TYPE (MemphisRenderer, memphis_renderer, G_TYPE_OBJECT);
+G_DEFINE_TYPE (MemphisRenderer, memphis_renderer, G_TYPE_OBJECT)
 
 #define MEMPHIS_RENDERER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), MEMPHIS_TYPE_RENDERER, MemphisRendererPrivate))
 

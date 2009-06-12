@@ -414,7 +414,7 @@ void osmFree(osmFile *osm) {
     }
     g_free(lnode);
     g_free(osm);
-};
+}
 
 /*
  * vim: expandtab shiftwidth=4 tabstop=4:
