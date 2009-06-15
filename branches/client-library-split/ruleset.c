@@ -21,7 +21,6 @@
 #include <glib/gstdio.h>
 #include <time.h>
 #include <expat.h>
-#include <stdio.h>
 #include <string.h>
 
 #include "list.h"
@@ -63,7 +62,7 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
     gint8 debug_level = data->debug_level;
 
     if (debug_level > 1)
-        fprintf(stdout,"cfgStartElement\n");
+        g_fprintf (stdout, "cfgStartElement\n");
 
     // Parsing Rules
     if (strcmp((char *) name, "rules") == 0) {
@@ -202,7 +201,7 @@ cfgEndElement(void *userData, const char *name) {
     gint8 debug_level = data->debug_level;
     
     if (debug_level > 1)
-        fprintf(stdout,"cfgEndElement\n");
+        g_fprintf (stdout, "cfgEndElement\n");
 
     if (strcmp(name, "rule") == 0) {
         // Fetching Parrent from stack
@@ -228,7 +227,7 @@ cfgEndElement(void *userData, const char *name) {
  */
 cfgRules* rulesetRead(char *filename, gint8 debug_level) {
     if (debug_level > 1)
-        fprintf(stdout,"rulesetRead\n");
+        g_fprintf (stdout, "rulesetRead\n");
 
     // Local Vars
     GTimer *tRulesetRead = g_timer_new();
@@ -248,7 +247,7 @@ cfgRules* rulesetRead(char *filename, gint8 debug_level) {
     
     // Test file
     if (!g_file_test (filename, G_FILE_TEST_IS_REGULAR)) {
-        fprintf(stderr,"Error: \"%s\" is not a file.\n",filename);
+        g_fprintf (stderr, "Error: \"%s\" is not a file.\n", filename);
         return NULL;
     }
     
@@ -258,7 +257,7 @@ cfgRules* rulesetRead(char *filename, gint8 debug_level) {
     // Open file
     FILE *fd = fopen(filename,"r");
     if(fd == NULL) {
-        fprintf(stderr,"Error: Can't open file \"%s\"\n",filename);
+        g_fprintf (stderr, "Error: Can't open file \"%s\"\n", filename);
         return NULL;
     }
 
@@ -271,7 +270,7 @@ cfgRules* rulesetRead(char *filename, gint8 debug_level) {
     data->debug_level = debug_level;
 
     if (debug_level > 0) {
-        fprintf(stdout," Ruleset parsing   0%%");
+        g_fprintf(stdout, " Ruleset parsing   0%%");
         fflush(stdout);
     }
 
@@ -288,17 +287,17 @@ cfgRules* rulesetRead(char *filename, gint8 debug_level) {
     while(!feof(fd)) {
          len = (int)fread(buf, 1, BUFFSIZE, fd);
          if (ferror(fd)) {
-            fprintf(stderr, "Read error\n");
+            g_fprintf(stderr, "Read error\n");
             return NULL;;
         }
         read += len;
         if (debug_level > 0) {
-            fprintf(stdout,"\r Ruleset parsing % 3i%%", (int)((read*100)/size));
+            g_fprintf(stdout, "\r Ruleset parsing % 3i%%", (int)((read*100)/size));
             fflush(stdout);
         }
         done = len < sizeof(buf);
         if (XML_Parse(parser, buf, len, done) == XML_STATUS_ERROR) {
-            fprintf(stderr, "Parse error at line %iu:\n%s\n",
+            g_fprintf(stderr, "Parse error at line %iu:\n%s\n",
                 (int) XML_GetCurrentLineNumber(parser),
                 XML_ErrorString(XML_GetErrorCode(parser)));
             exit(-1);
@@ -312,7 +311,7 @@ cfgRules* rulesetRead(char *filename, gint8 debug_level) {
     g_free(data);
 
     if (debug_level > 0)
-        fprintf(stdout,"\r Ruleset parsing done. (%i/%i) [%fs]\n",
+        g_fprintf (stdout, "\r Ruleset parsing done. (%i/%i) [%fs]\n",
                 ruleset->cntRule,  ruleset->cntElse,
                 g_timer_elapsed(tRulesetRead,NULL));
     

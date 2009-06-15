@@ -20,7 +20,7 @@
 
 #include <math.h>
 #include <string.h>
-#include <stdio.h>
+#include <glib/gstdio.h>
 
 #include "memphis-renderer.h"
 #include "list.h"
@@ -126,7 +126,7 @@ memphis_renderer_draw_png (MemphisRenderer *renderer,
   g_return_if_fail (priv->rules->ruleset && priv->map->map);
 
   if (priv->debug_level > 1)
-    fprintf (stdout, "renderCairo\n");
+    g_fprintf (stdout, "renderCairo\n");
 
   ruleset = priv->rules->ruleset;
   osm = priv->map->map;
@@ -152,7 +152,7 @@ memphis_renderer_draw_png (MemphisRenderer *renderer,
   renderCairo (info);
 
   if (priv->debug_level > 0) {
-    fprintf (stdout, " Cairo rendering Z%i to '%s'", priv->zoom_level, filename);
+    g_fprintf (stdout, " Cairo rendering Z%i to '%s'", priv->zoom_level, filename);
     fflush (stdout);
   }
   cairo_surface_write_to_png (surface, filename);
@@ -162,7 +162,7 @@ memphis_renderer_draw_png (MemphisRenderer *renderer,
   g_free (info);
 
   if (priv->debug_level > 0)
-    fprintf (stdout, " done.\n");
+    g_fprintf (stdout, " done.\n");
 }
 
 void
@@ -195,7 +195,7 @@ memphis_renderer_draw_tile (MemphisRenderer *renderer,
   info->offset = coord2xy (crd.x, crd.y, priv->zoom_level, priv->resolution);
 
   if (priv->debug_level > 0)
-    fprintf (stdout, " Cairo rendering tile: (%i, %i)\n", x, y);
+    g_fprintf (stdout, " Cairo rendering tile: (%i, %i)\n", x, y);
 
   cairo_rectangle (info->cr, 0, 0, priv->resolution, priv->resolution);
   cairo_set_source_rgb (info->cr,
@@ -216,7 +216,7 @@ memphis_renderer_draw_tile (MemphisRenderer *renderer,
   g_free (info);
 
   if (priv->debug_level > 0)
-    fprintf (stdout, " done.\n");
+    g_fprintf (stdout, " done.\n");
 }
 
 void
@@ -596,7 +596,7 @@ static void drawPath (renderInfo *info, GSList *nodes) {
   MemphisRendererPrivate *p = info->priv;
 
   if (G_UNLIKELY (p->debug_level > 1))
-    fprintf (stdout, "drawPath\n");
+    g_fprintf (stdout, "drawPath\n");
 
   iter = nodes;
   nd = iter->data;
@@ -622,7 +622,7 @@ static void drawPath (renderInfo *info, GSList *nodes) {
  */
 static void strokePath (renderInfo *info) {
   if (G_UNLIKELY (info->priv->debug_level > 1))
-    fprintf (stdout,"strokePath\n");
+    g_fprintf (stdout,"strokePath\n");
 
   cairo_set_line_width (info->cr, 0);
   cairo_stroke (info->cr);
@@ -635,7 +635,7 @@ static void strokePath (renderInfo *info) {
  */
 static void drawPolygone (renderInfo *info, cfgDraw *draw) {
   if (G_UNLIKELY (info->priv->debug_level > 1))
-    fprintf (stdout, "drawPolygone\n");
+    g_fprintf (stdout, "drawPolygone\n");
 
   cairo_surface_t *image = NULL;
   cairo_pattern_t *pattern = NULL;
@@ -681,7 +681,7 @@ static void drawPolygone (renderInfo *info, cfgDraw *draw) {
  */
 static void drawLine (renderInfo *info, cfgDraw *draw) {
   if (G_UNLIKELY (info->priv->debug_level > 1))
-    fprintf (stdout, "drawLine\n");
+    g_fprintf (stdout, "drawLine\n");
 
   cairo_set_line_cap (info->cr, CAIRO_LINE_CAP_ROUND);
   cairo_set_line_join (info->cr, CAIRO_LINE_JOIN_ROUND);
@@ -700,7 +700,7 @@ static void drawLine (renderInfo *info, cfgDraw *draw) {
  */
 static void drawText (renderInfo *info, char *text, cfgDraw *draw) {
   if (G_UNLIKELY (info->priv->debug_level > 1))
-    fprintf(stdout, "drawText\n");
+    g_fprintf(stdout, "drawText\n");
 
   cairo_select_font_face (info->cr, "Sans", CAIRO_FONT_SLANT_NORMAL,
                                             CAIRO_FONT_WEIGHT_NORMAL);
@@ -719,7 +719,7 @@ static void drawText (renderInfo *info, char *text, cfgDraw *draw) {
 static compare_result_e stringInStrings(char *string, char **strings,
       gint8 debug_level) {
   if (G_UNLIKELY (debug_level > 1))
-    fprintf(stdout, "stringInStrings\n");
+    g_fprintf(stdout, "stringInStrings\n");
   compare_result_e r = TAG_CMP_NOT_EQUAL;
   while (*strings != NULL) {
     if (string == *strings) {
@@ -744,7 +744,7 @@ static int matchRule (cfgRule *rule, osmTag *tag, gint8 debug_level) {
   int k, v;
 
   if (G_UNLIKELY (debug_level > 1))
-    fprintf(stdout, "matchRule\n");
+    g_fprintf(stdout, "matchRule\n");
 
   while(tag) {
       k = stringInStrings (tag->key, rule->key, debug_level);
@@ -770,7 +770,7 @@ static int matchRule (cfgRule *rule, osmTag *tag, gint8 debug_level) {
 static int checkRule (cfgRule *rule, osmTag *tag, short int type,
     gint8 debug_level) {
   if (G_UNLIKELY (debug_level > 1))
-    fprintf(stdout, "checkRule\n");
+    g_fprintf(stdout, "checkRule\n");
 
   int not;
   cfgRule *iter;
@@ -881,7 +881,7 @@ static int renderCairo (renderInfo *info) {
   cfgRules *ruleset = p->rules->ruleset;
 
   if (p->debug_level > 1)
-    fprintf (stdout, "renderCairoRun\n");
+    g_fprintf (stdout, "renderCairoRun\n");
 
   // Vars used while looping through data
   cfgRule     *rule;
@@ -890,7 +890,7 @@ static int renderCairo (renderInfo *info) {
   for (layer = -5; layer <= 5; layer++) {
 
       if (p->debug_level > 0) {
-          fprintf(stdout,"\r Cairo drawing z%i Layer % 2i", p->zoom_level, layer);
+          g_fprintf(stdout,"\r Cairo drawing z%i Layer % 2i", p->zoom_level, layer);
           fflush(stdout);
       }
 
@@ -910,7 +910,7 @@ static int renderCairo (renderInfo *info) {
   }
 
   if (p->debug_level > 0)
-      fprintf (stdout, "\r Cairo drawing done\n");
+      g_fprintf (stdout, "\r Cairo drawing done\n");
 
   return 0;
 }

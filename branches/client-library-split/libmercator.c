@@ -19,7 +19,6 @@
 
 #include <glib.h>
 #include <math.h>
-#include <stdio.h>
 
 #include "libmercator.h"
 
