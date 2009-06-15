@@ -22,7 +22,6 @@
 
 #include <glib-object.h>
 #include <cairo.h>
-#include <stdio.h>
 #include "memphis.h"
 
 #define MEMPHIS_TYPE_RENDERER                  (memphis_renderer_get_type ())
