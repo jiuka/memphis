@@ -19,10 +19,8 @@
 
 #include <glib.h>
 #include <glib/gstdio.h>
-
 #include <time.h>
 #include <expat.h>
-#include <stdio.h>
 #include <string.h>
 
 #include "list.h"
@@ -64,11 +62,11 @@ osmStartElement(void *userData, const char *name, const char **atts) {
     gint8 debug_level = data->debug_level;
     
     if (debug_level > 1)
-        fprintf(stdout,"osm05startElement\n");
+        g_fprintf (stdout, "osm05startElement\n");
     // Parsing Bounds
     if (strncmp((char *) name, "bounds", 6) == 0) {
         if (debug_level > 1)
-            fprintf(stdout,"Parsing Bounds\n");
+            g_fprintf (stdout, "Parsing Bounds\n");
         while (*atts != NULL) {
             if(strcmp((char *) *(atts), "minlat" ) == 0) {
                 sscanf((char *) *(atts+1),"%f",&osm->minlat);
@@ -85,7 +83,7 @@ osmStartElement(void *userData, const char *name, const char **atts) {
     // Parsing Node
     else if (strncmp((char *) name, "node", 4) == 0) {
         if (debug_level > 1)
-            fprintf(stdout,"Parsing Node\n");
+            g_fprintf (stdout, "Parsing Node\n");
         data->cNode = g_new(osmNode, 1);
         while (*atts != NULL) {
             if(strcmp((char *) *(atts), "id") == 0) {
@@ -107,12 +105,13 @@ osmStartElement(void *userData, const char *name, const char **atts) {
         LL_PREPEND(data->cNode, osm->nodes);
 
         if (debug_level > 1)
-            fprintf(stdout,"NODE: %i %f %f\n", data->cNode->id, data->cNode->lat, data->cNode->lon);
+            g_fprintf (stdout, "NODE: %i %f %f\n", data->cNode->id,
+                    data->cNode->lat, data->cNode->lon);
     }
     // Parsing Tags
     else if (strncmp((char *) name, "tag", 4) == 0) {
         if (debug_level > 1)
-            fprintf(stdout,"Parsing Tag\n");
+            g_fprintf (stdout, "Parsing Tag\n");
 
         if (!data->cNode && !data->cWay) // End if there is nothing to add the tag to
             return;
@@ -151,7 +150,7 @@ osmStartElement(void *userData, const char *name, const char **atts) {
         data->cTag->value = m_string_chunk_get(stringChunk, stringTree, v);
         
         if (debug_level > 1)
-            fprintf(stdout,"Tag: %s => %s\n", data->cTag->key, data->cTag->value);
+            g_fprintf (stdout, "Tag: %s => %s\n", data->cTag->key, data->cTag->value);
 
         data->cntTag++;
         if (data->cNode)
@@ -164,7 +163,7 @@ osmStartElement(void *userData, const char *name, const char **atts) {
     // Parsing Way
     else if (strncmp((char *) name, "way", 3) == 0) {
         if (debug_level > 1)
-            fprintf(stdout,"Parsing Way\n");
+            g_fprintf (stdout, "Parsing Way\n");
         data->cWay = g_new(osmWay, 1);
         while (*atts != NULL) {
             if(strncmp((char *) *(atts), "id", 2) == 0) {
@@ -184,12 +183,12 @@ osmStartElement(void *userData, const char *name, const char **atts) {
         LL_PREPEND(data->cWay, osm->ways);
 
         if (debug_level > 1)
-            fprintf(stdout,"WAY(%i)\n", data->cWay->id);
+            g_fprintf (stdout, "WAY(%i)\n", data->cWay->id);
     }
     // Parsing WayNode
     else if (strncmp((char *) name, "nd", 2) == 0) {
         if (debug_level > 1)
-            fprintf(stdout,"Parsing Nd\n");
+            g_fprintf (stdout, "Parsing Nd\n");
         int ref = 0;
         while (*atts != NULL) {
             if(strncmp((char *) *(atts), "ref", 2) == 0) {
@@ -213,7 +212,7 @@ osmStartElement(void *userData, const char *name, const char **atts) {
             data->cWay->nd = g_slist_prepend(data->cWay->nd, n);
 
             if (debug_level > 1)
-                fprintf(stdout," ND( %f %f )\n", n->lat, n->lon);
+                g_fprintf (stdout, " ND( %f %f )\n", n->lat, n->lon);
 
             data->cNode = NULL;
         }
@@ -234,7 +233,7 @@ osmEndElement(void *userData, const char *name) {
     gint8 debug_level = data->debug_level;
     
     if (debug_level > 1)
-        fprintf(stdout,"osm05endElement\n");
+        g_fprintf(stdout, "osm05endElement\n");
     if (strncmp((char *) name, "node", 4) == 0) {
         data->cNode = NULL;
     } else if (strncmp((char *) name, "way", 3) == 0) {
@@ -249,7 +248,7 @@ osmEndElement(void *userData, const char *name) {
  */
 osmFile* osmRead(char *filename, gint8 debug_level) {
     if (debug_level > 1)
-        fprintf(stdout,"osmRead\n");
+        g_fprintf (stdout, "osmRead\n");
 
     // Local Vars
     GTimer *tOsmRead = g_timer_new();
@@ -272,7 +271,7 @@ osmFile* osmRead(char *filename, gint8 debug_level) {
     
     // Test file
     if (!g_file_test (filename, G_FILE_TEST_IS_REGULAR)) {
-        fprintf(stderr,"Error: \"%s\" is not a file.\n",filename);
+        g_fprintf (stderr, "Error: \"%s\" is not a file.\n",filename);
         return NULL;
     }
     
@@ -282,7 +281,7 @@ osmFile* osmRead(char *filename, gint8 debug_level) {
     // Open file
     FILE *fd = fopen(filename,"r");
     if(fd == NULL) {
-        fprintf(stderr,"Error: Can't open file \"%s\"\n",filename);
+        g_fprintf (stderr, "Error: Can't open file \"%s\"\n", filename);
         return NULL;
     }
 
@@ -299,7 +298,7 @@ osmFile* osmRead(char *filename, gint8 debug_level) {
     data->osm = osm;
 
     if (debug_level > 0) {
-        fprintf(stdout," OSM parsing   0%%");
+        g_fprintf (stdout, " OSM parsing   0%%");
         fflush(stdout);
     }
 
@@ -315,17 +314,17 @@ osmFile* osmRead(char *filename, gint8 debug_level) {
     while(!feof(fd)) {
         len = (int)fread(buf, 1, BUFFSIZE, fd);
         if (ferror(fd)) {
-            fprintf(stderr, "Read error\n");
+            g_fprintf (stderr, "Read error\n");
             return NULL;;
         }
         read += len;
         if (debug_level > 0) {
-            fprintf(stdout,"\r OSM parsing % 3i%%", (int)((read*100)/size));
+            g_fprintf (stdout, "\r OSM parsing % 3i%%", (int)((read*100)/size));
             fflush(stdout);
         }
         done = len < sizeof(buf);
         if (XML_Parse(parser, buf, len, done) == XML_STATUS_ERROR) {
-            fprintf(stderr, "Parse error at line %iu:\n%s\n",
+            g_fprintf (stderr, "Parse error at line %iu:\n%s\n",
                 (int) XML_GetCurrentLineNumber(parser),
                 XML_ErrorString(XML_GetErrorCode(parser)));
             exit(-1);

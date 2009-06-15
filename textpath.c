@@ -20,8 +20,6 @@
 #include <glib.h>
 #include <math.h>
 #include <cairo.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 #include "ruleset.h"

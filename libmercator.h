@@ -30,7 +30,6 @@
 // FIXME: Improve scaling factors for zoom levels < 12
 #define LINESIZE(z)     ((z)<12 ? 1 : (z)==18 ? 6 : (int)(exp2(z-12)/(z-12+1)))
 
-
 #define mercatorToLat(Y) degrees(atan(sinh(Y)))
 
 /*

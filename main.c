@@ -18,12 +18,9 @@
  */
 
 #include <glib.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-
-#include <sys/resource.h>
 
 #include "main.h"
 #include "memphis.h"
@@ -126,7 +123,7 @@ static GOptionEntry memphis_option_entries[] = {
 };
 
 static void banner() {
-    fprintf(stdout,"Memphis OSM Renderer " MEMPHIS_VERSION "\n");
+    g_print("Memphis OSM Renderer " MEMPHIS_VERSION "\n");
 }
 
 int main(int argc, char **argv) {
@@ -162,7 +159,7 @@ int main(int argc, char **argv) {
     if (opts->cfgfn == NULL || opts->osmfn == NULL) {
         g_print("error: rules file or osm map file missing:\n\n%s\n",
                 g_option_context_get_summary(optctx));
-        exit(-1);
+        return(-1);
     }
 
     g_option_context_free(optctx);
