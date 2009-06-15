@@ -35,7 +35,6 @@ env = conf.Finish()
 SOURCES = [
     'libmercator.c',
     'osm05.c',
-    'renderer.c',
     'ruleset.c',
     'textpath.c',
     'mlib.c',
