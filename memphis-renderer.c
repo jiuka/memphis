@@ -178,8 +178,14 @@ memphis_renderer_draw_tile (MemphisRenderer *renderer,
       (double) ruleset->background[2] / 255.0);
   cairo_fill (info->cr);
 
-  // TODO: don't draw if it is empty anyway? Find a good threshold!
-  renderCairoRun (info, priv->debug_level);
+  // TODO: Is this a good cut-off to draw background tiles only?
+  if (x < memphis_renderer_get_max_x_tile (renderer) + 2 &&
+      x > memphis_renderer_get_min_x_tile (renderer) - 2 &&
+      y < memphis_renderer_get_max_y_tile (renderer) + 2 &&
+      y > memphis_renderer_get_min_y_tile (renderer) - 2)
+  {
+    renderCairoRun (info, priv->debug_level);
+  }
   
   g_free (info);
 }
