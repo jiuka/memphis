@@ -25,7 +25,11 @@
 #define degrees(a) (a*180.0/G_PI)
 #define radians(a) (a*G_PI/180.0)
 
-#define LINESIZE(z)     (int)(exp2(z-12)/(z-12+1))
+//#define LINESIZE(z)     (int)(exp2(z-12)/(z-12+1))
+//#define LINESIZE(z)     ((z)<=12 ? 1 : (z)<=14 ? 2 : (z)<=15 ? 3 : (z)<=16 ? 3 : (z) <= 17 ? 5 : (z)<=18 ? 6 : 6)
+// FIXME: Improve scaling factors for zoom levels < 12
+#define LINESIZE(z)     ((z)<12 ? 1 : (z)==18 ? 6 : (int)(exp2(z-12)/(z-12+1)))
+
 
 #define mercatorToLat(Y) degrees(atan(sinh(Y)))
 
