@@ -88,8 +88,8 @@ gint memphis_renderer_get_min_y_tile (MemphisRenderer *renderer,
 gint memphis_renderer_get_max_y_tile (MemphisRenderer *renderer,
     guint zoom_level);
 gboolean memphis_renderer_tile_has_data (MemphisRenderer *renderer,
-    gint x,
-    gint y,
+    guint x,
+    guint y,
     guint zoom_level);
 
 #endif /* __MEMPHIS_RENDERER_H__ */
