@@ -523,7 +523,7 @@ memphis_renderer_get_max_y_tile (MemphisRenderer *self, guint zoom_level)
 }
 
 gboolean
-memphis_renderer_tile_has_data (MemphisRenderer *self, gint x, gint y,
+memphis_renderer_tile_has_data (MemphisRenderer *self, guint x, guint y,
     guint zoom_level)
 {
   g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), FALSE);
