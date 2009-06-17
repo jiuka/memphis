@@ -53,8 +53,6 @@ void memphis_renderer_free (MemphisRenderer *renderer);
 
 void memphis_renderer_set_resolution (MemphisRenderer *renderer,
     guint resolution);
-void memphis_renderer_set_zoom_level (MemphisRenderer *renderer,
-    guint zoom_level);
 void memphis_renderer_set_debug_level (MemphisRenderer *renderer,
     gint8 debug_level);
 void memphis_renderer_set_map (MemphisRenderer *renderer,
@@ -63,26 +61,35 @@ void memphis_renderer_set_rules_set (MemphisRenderer *renderer,
     MemphisRuleSet* rules);
 
 guint memphis_renderer_get_resolution (MemphisRenderer *renderer);
-guint memphis_renderer_get_zoom_level (MemphisRenderer *renderer);
 gint8 memphis_renderer_get_debug_level (MemphisRenderer *renderer);
 MemphisMap* memphis_renderer_get_map (MemphisRenderer *renderer);
 MemphisRuleSet* memphis_renderer_get_rule_set (MemphisRenderer *renderer);
 
 void memphis_renderer_draw_png (MemphisRenderer *renderer,
-    gchar *filename);
+    gchar *filename,
+    guint zoom_level);
 
 void memphis_renderer_draw_tile (MemphisRenderer *renderer,
     cairo_t *cr,
     guint x,
-    guint y);
+    guint y,
+    guint zoom_level);
 
-gint memphis_renderer_get_row_count (MemphisRenderer *renderer);
-gint memphis_renderer_get_column_count (MemphisRenderer *renderer);
-gint memphis_renderer_get_min_x_tile (MemphisRenderer *renderer);
-gint memphis_renderer_get_max_x_tile (MemphisRenderer *renderer);
-gint memphis_renderer_get_min_y_tile (MemphisRenderer *renderer);
-gint memphis_renderer_get_max_y_tile (MemphisRenderer *renderer);
+gint memphis_renderer_get_row_count (MemphisRenderer *renderer,
+    guint zoom_level);
+gint memphis_renderer_get_column_count (MemphisRenderer *renderer,
+    guint zoom_level);
+gint memphis_renderer_get_min_x_tile (MemphisRenderer *renderer,
+    guint zoom_level);
+gint memphis_renderer_get_max_x_tile (MemphisRenderer *renderer,
+    guint zoom_level);
+gint memphis_renderer_get_min_y_tile (MemphisRenderer *renderer,
+    guint zoom_level);
+gint memphis_renderer_get_max_y_tile (MemphisRenderer *renderer,
+    guint zoom_level);
 gboolean memphis_renderer_tile_has_data (MemphisRenderer *renderer,
-    gint x, gint y);
+    gint x,
+    gint y,
+    guint zoom_level);
 
 #endif /* __MEMPHIS_RENDERER_H__ */

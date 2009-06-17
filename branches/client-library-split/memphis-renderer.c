@@ -42,7 +42,6 @@ enum
   PROP_MAP,
   PROP_RULE_SET,
   PROP_RESOLUTION,
-  PROP_ZOOM_LEVEL,
   PROP_DEBUG_LEVEL
 };
 
@@ -52,7 +51,6 @@ struct _MemphisRendererPrivate
   MemphisMap *map;
   MemphisRuleSet *rules;
   guint resolution;
-  guint zoom_level;
   gint8 debug_level;
 };
 
@@ -62,6 +60,7 @@ struct _MemphisRendererPrivate
 typedef struct renderInfo_ renderInfo;
 struct renderInfo_ {
   coordinates     offset;
+  guint           zoom_level;
   cairo_t         *cr;
   MemphisRendererPrivate *priv;
 };
@@ -109,7 +108,7 @@ memphis_renderer_free (MemphisRenderer *renderer)
  * Should be removed! */
 void
 memphis_renderer_draw_png (MemphisRenderer *renderer, 
-    gchar *filename)
+    gchar *filename, guint zoom_level)
 {
   g_return_if_fail (MEMPHIS_IS_RENDERER (renderer));
 
@@ -128,17 +127,21 @@ memphis_renderer_draw_png (MemphisRenderer *renderer,
   if (priv->debug_level > 1)
     g_fprintf (stdout, "renderCairo\n");
 
+  zoom_level = CLAMP (zoom_level, MEMPHIS_RENDERER_MIN_ZOOM_LEVEL,
+      MEMPHIS_RENDERER_MAX_ZOOM_LEVEL);
+
   ruleset = priv->rules->ruleset;
   osm = priv->map->map;
-  min = coord2xy (osm->minlat, osm->minlon, priv->zoom_level, priv->resolution);
-  max = coord2xy (osm->maxlat, osm->maxlon, priv->zoom_level, priv->resolution);
+  min = coord2xy (osm->minlat, osm->minlon, zoom_level, priv->resolution);
+  max = coord2xy (osm->maxlat, osm->maxlon, zoom_level, priv->resolution);
   int w = (int) ceil (max.x - min.x);
   int h = (int) ceil (min.y - max.y);
 
   surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, w, h);
 
   info = g_new (renderInfo, 1);
-  info->offset = coord2xy (osm->maxlat, osm->minlon, priv->zoom_level, priv->resolution);
+  info->offset = coord2xy (osm->maxlat, osm->minlon, zoom_level, priv->resolution);
+  info->zoom_level = zoom_level;
   info->cr = cairo_create (surface);
   info->priv = priv;
 
@@ -152,7 +155,7 @@ memphis_renderer_draw_png (MemphisRenderer *renderer,
   renderCairo (info);
 
   if (priv->debug_level > 0) {
-    g_fprintf (stdout, " Cairo rendering Z%i to '%s'", priv->zoom_level, filename);
+    g_fprintf (stdout, " Cairo rendering Z%i to '%s'", info->zoom_level, filename);
     fflush (stdout);
   }
   cairo_surface_write_to_png (surface, filename);
@@ -169,7 +172,8 @@ void
 memphis_renderer_draw_tile (MemphisRenderer *renderer,
     cairo_t *cr,
     guint x,
-    guint y)
+    guint y,
+    guint zoom_level)
 {
   g_return_if_fail (MEMPHIS_IS_RENDERER (renderer));
 
@@ -189,13 +193,15 @@ memphis_renderer_draw_tile (MemphisRenderer *renderer,
   
   info = g_new (renderInfo, 1);
   info->cr = cr;
+  info->zoom_level = CLAMP (zoom_level, MEMPHIS_RENDERER_MIN_ZOOM_LEVEL,
+      MEMPHIS_RENDERER_MAX_ZOOM_LEVEL);
   info->priv = priv;
 
-  crd = tile2latlon (x, y, priv->zoom_level);
-  info->offset = coord2xy (crd.x, crd.y, priv->zoom_level, priv->resolution);
+  crd = tile2latlon (x, y, info->zoom_level);
+  info->offset = coord2xy (crd.x, crd.y, info->zoom_level, priv->resolution);
 
   if (priv->debug_level > 0)
-    g_fprintf (stdout, " Cairo rendering tile: (%i, %i)\n", x, y);
+    g_fprintf (stdout, " Cairo rendering tile: (%i, %i, %i)\n", x, y, info->zoom_level);
 
   cairo_rectangle (info->cr, 0, 0, priv->resolution, priv->resolution);
   cairo_set_source_rgb (info->cr,
@@ -205,10 +211,10 @@ memphis_renderer_draw_tile (MemphisRenderer *renderer,
   cairo_fill (info->cr);
 
   // TODO: Is this a good cut-off to draw background tiles only?
-  if (x < memphis_renderer_get_max_x_tile (renderer) + 2 &&
-      x > memphis_renderer_get_min_x_tile (renderer) - 2 &&
-      y < memphis_renderer_get_max_y_tile (renderer) + 2 &&
-      y > memphis_renderer_get_min_y_tile (renderer) - 2)
+  if (x < memphis_renderer_get_max_x_tile (renderer, info->zoom_level) + 2 &&
+      x > memphis_renderer_get_min_x_tile (renderer, info->zoom_level) - 2 &&
+      y < memphis_renderer_get_max_y_tile (renderer, info->zoom_level) + 2 &&
+      y > memphis_renderer_get_min_y_tile (renderer, info->zoom_level) - 2)
   {
     renderCairo (info);
   }
@@ -235,25 +241,6 @@ memphis_renderer_get_resolution (MemphisRenderer *self)
 
   MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
   return priv->resolution;
-}
-
-void
-memphis_renderer_set_zoom_level (MemphisRenderer *self, guint zoom_level)
-{
-  g_return_if_fail (MEMPHIS_IS_RENDERER (self));
-
-  MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
-  priv->zoom_level = CLAMP (zoom_level, MEMPHIS_RENDERER_MIN_ZOOM_LEVEL,
-      MEMPHIS_RENDERER_MAX_ZOOM_LEVEL);
-}
-
-guint
-memphis_renderer_get_zoom_level (MemphisRenderer *self)
-{
-  g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), 0);
-
-  MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
-  return priv->zoom_level;
 }
 
 void
@@ -347,9 +334,6 @@ memphis_renderer_get_property (GObject *object,
       case PROP_RESOLUTION:
         g_value_set_uint (value, priv->resolution);
         break;
-      case PROP_ZOOM_LEVEL:
-        g_value_set_uint (value, priv->zoom_level);
-        break;
       case PROP_MAP:
         g_value_set_object (value, priv->map);
         break;
@@ -375,9 +359,6 @@ memphis_renderer_set_property (GObject *object,
     {
       case PROP_RESOLUTION:
         memphis_renderer_set_resolution (self, g_value_get_uint (value));
-        break;
-      case PROP_ZOOM_LEVEL:
-        memphis_renderer_set_zoom_level (self, g_value_get_uint (value));
         break;
       case PROP_MAP:
         memphis_renderer_set_map (self, g_value_get_object (value));
@@ -420,23 +401,6 @@ memphis_renderer_class_init (MemphisRendererClass *klass)
         8,
         2048,
         256,
-        G_PARAM_READWRITE));
-
-  /**
-  * MemphisRenderer:zoom-level:
-  *
-  * The zoom level.
-  *
-  * Since: 0.1
-  */
-  g_object_class_install_property (object_class,
-      PROP_ZOOM_LEVEL,
-      g_param_spec_uint ("zoom-level",
-        "Map zoom level",
-        "The zoom level",
-        12,
-        17,
-        12,
         G_PARAM_READWRITE));
 
   /**
@@ -495,74 +459,72 @@ memphis_renderer_init (MemphisRenderer *self)
   priv->map = NULL;
   priv->rules = NULL;
   priv->resolution = 256;
-  priv->zoom_level = 12;
   priv->debug_level = 1;
 }
 
 gint
-memphis_renderer_get_row_count (MemphisRenderer *self)
+memphis_renderer_get_row_count (MemphisRenderer *self, guint zoom_level)
 {
   g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), -1);
   
-  MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
-  return (1 << priv->zoom_level);
+  return (1 << zoom_level);
 }
 
 gint
-memphis_renderer_get_column_count (MemphisRenderer *self)
+memphis_renderer_get_column_count (MemphisRenderer *self, guint zoom_level)
 {
   g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), -1);
   
-  MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
-  return (1 << priv->zoom_level);
+  return (1 << zoom_level);
 }
 
 gint
-memphis_renderer_get_min_x_tile (MemphisRenderer *self)
+memphis_renderer_get_min_x_tile (MemphisRenderer *self, guint zoom_level)
 {
   g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), -1);
   
   MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
   g_return_val_if_fail (MEMPHIS_IS_MAP (priv->map), -1);
   g_return_val_if_fail (priv->map->map, -1);
-  return lon2tilex (priv->map->map->minlon, priv->zoom_level);
+  return lon2tilex (priv->map->map->minlon, zoom_level);
 }
 
 gint
-memphis_renderer_get_max_x_tile (MemphisRenderer *self)
+memphis_renderer_get_max_x_tile (MemphisRenderer *self, guint zoom_level)
 {
   g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), -1);
   
   MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
   g_return_val_if_fail (MEMPHIS_IS_MAP (priv->map), -1);
   g_return_val_if_fail (priv->map->map, -1);
-  return lon2tilex (priv->map->map->maxlon, priv->zoom_level);
+  return lon2tilex (priv->map->map->maxlon, zoom_level);
 }
 
 gint
-memphis_renderer_get_min_y_tile (MemphisRenderer *self)
+memphis_renderer_get_min_y_tile (MemphisRenderer *self, guint zoom_level)
 {
   g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), -1);
   
   MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
   g_return_val_if_fail (MEMPHIS_IS_MAP (priv->map), -1);
   g_return_val_if_fail (priv->map->map, -1);
-  return lat2tiley (priv->map->map->maxlat, priv->zoom_level);
+  return lat2tiley (priv->map->map->maxlat, zoom_level);
 }
 
 gint
-memphis_renderer_get_max_y_tile (MemphisRenderer *self)
+memphis_renderer_get_max_y_tile (MemphisRenderer *self, guint zoom_level)
 {
   g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), -1);
   
   MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
   g_return_val_if_fail (MEMPHIS_IS_MAP (priv->map), -1);
   g_return_val_if_fail (priv->map->map, -1);
-  return lat2tiley (priv->map->map->minlat, priv->zoom_level);
+  return lat2tiley (priv->map->map->minlat, zoom_level);
 }
 
 gboolean
-memphis_renderer_tile_has_data (MemphisRenderer *self, gint x, gint y)
+memphis_renderer_tile_has_data (MemphisRenderer *self, gint x, gint y,
+    guint zoom_level)
 {
   g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), FALSE);
 
@@ -571,10 +533,10 @@ memphis_renderer_tile_has_data (MemphisRenderer *self, gint x, gint y)
   g_return_val_if_fail (MEMPHIS_IS_MAP (priv->map), -1);
   g_return_val_if_fail (priv->map->map, -1);
 
-  minx = lon2tilex (priv->map->map->minlon, priv->zoom_level);
-  miny = lat2tiley (priv->map->map->minlat, priv->zoom_level);
-  maxx = lon2tilex (priv->map->map->maxlon, priv->zoom_level);
-  maxy = lat2tiley (priv->map->map->maxlat, priv->zoom_level);
+  minx = lon2tilex (priv->map->map->minlon, zoom_level);
+  miny = lat2tiley (priv->map->map->minlat, zoom_level);
+  maxx = lon2tilex (priv->map->map->maxlon, zoom_level);
+  maxy = lat2tiley (priv->map->map->maxlat, zoom_level);
 
   if (x < minx || x > maxx || y < miny || y > maxy)
     return FALSE;
@@ -600,14 +562,14 @@ static void drawPath (renderInfo *info, GSList *nodes) {
 
   iter = nodes;
   nd = iter->data;
-  xy = coord2xy (nd->lat, nd->lon, p->zoom_level, p->resolution);
+  xy = coord2xy (nd->lat, nd->lon, info->zoom_level, p->resolution);
   cairo_move_to (info->cr, xy.x - info->offset.x,
                            xy.y - info->offset.y);
 
   iter = g_slist_next(iter);
   while (iter) {
     nd = iter->data;
-    xy = coord2xy (nd->lat, nd->lon, p->zoom_level, p->resolution);
+    xy = coord2xy (nd->lat, nd->lon, info->zoom_level, p->resolution);
     cairo_line_to (info->cr, xy.x - info->offset.x,
                              xy.y - info->offset.y);
     iter = g_slist_next (iter);
@@ -685,7 +647,7 @@ static void drawLine (renderInfo *info, cfgDraw *draw) {
 
   cairo_set_line_cap (info->cr, CAIRO_LINE_CAP_ROUND);
   cairo_set_line_join (info->cr, CAIRO_LINE_JOIN_ROUND);
-  cairo_set_line_width (info->cr, draw->width * LINESIZE (info->priv->zoom_level));
+  cairo_set_line_width (info->cr, draw->width * LINESIZE (info->zoom_level));
 
   cairo_set_source_rgb (info->cr, (double)draw->color[0]/255.0,
                                   (double)draw->color[1]/255.0,
@@ -707,7 +669,7 @@ static void drawText (renderInfo *info, char *text, cfgDraw *draw) {
   cairo_set_source_rgb (info->cr, (double)draw->color[0]/255.0,
                                   (double)draw->color[1]/255.0,
                                   (double)draw->color[2]/255.0);
-  cairo_set_font_size (info->cr, draw->width * LINESIZE (info->priv->zoom_level));
+  cairo_set_font_size (info->cr, draw->width * LINESIZE (info->zoom_level));
   textPath (info->cr, text);
 }
 
@@ -825,7 +787,7 @@ static void renderPaths (renderInfo *info, int layer,
   }
   if (paths) {
       while(draw) {
-          if (draw->minzoom > p->zoom_level || draw->maxzoom < p->zoom_level) {
+          if (draw->minzoom > info->zoom_level || draw->maxzoom < info->zoom_level) {
               draw = draw->next;
               continue;
           }
@@ -852,7 +814,7 @@ static void renderText (renderInfo *info, int layer,
 
   while (draw) {
       if (draw->type == TEXT) {
-          if (draw->minzoom <= p->zoom_level && p->zoom_level <= draw->maxzoom) {
+          if (draw->minzoom <= info->zoom_level && info->zoom_level <= draw->maxzoom) {
               LIST_FOREACH(way, osm->ways) {
                   //Only objects on current layer
                   if (way->layer != layer || way->name == NULL)
@@ -890,7 +852,7 @@ static int renderCairo (renderInfo *info) {
   for (layer = -5; layer <= 5; layer++) {
 
       if (p->debug_level > 0) {
-          g_fprintf(stdout,"\r Cairo drawing z%i Layer % 2i", p->zoom_level, layer);
+          g_fprintf(stdout,"\r Cairo drawing z%i Layer % 2i", info->zoom_level, layer);
           fflush(stdout);
       }
 
