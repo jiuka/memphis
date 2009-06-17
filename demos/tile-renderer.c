@@ -51,17 +51,16 @@ int main (int argc, char **argv) {
 
   r = memphis_renderer_new_full (rules, map);
   memphis_renderer_set_resolution (r, RESOLUTION);
-  memphis_renderer_set_zoom_level (r, zoom_level);
   memphis_renderer_set_debug_level (r, 1);
   g_print ("Tile resolution: %u\n", memphis_renderer_get_resolution (r));
 
-  maxx = memphis_renderer_get_max_x_tile (r);
-  maxy = memphis_renderer_get_max_y_tile (r);
-  i = memphis_renderer_get_min_x_tile (r);
+  maxx = memphis_renderer_get_max_x_tile (r, zoom_level);
+  maxy = memphis_renderer_get_max_y_tile (r, zoom_level);
+  i = memphis_renderer_get_min_x_tile (r, zoom_level);
   
   for (; i <= maxx; i++)
     {
-      j = memphis_renderer_get_min_y_tile (r);
+      j = memphis_renderer_get_min_y_tile (r, zoom_level);
       for (; j <= maxy; j++)
         {
           surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
@@ -70,7 +69,7 @@ int main (int argc, char **argv) {
           path = g_strdup_printf ("tiles/%i_%i.png", i, j);
 
           g_print ("Drawing tile: %i, %i\n", i, j);
-          memphis_renderer_draw_tile (r, cr, i, j);
+          memphis_renderer_draw_tile (r, cr, i, j, zoom_level);
           cairo_surface_write_to_png(surface, path);
           
           g_free (path);
