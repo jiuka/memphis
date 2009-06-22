@@ -86,11 +86,11 @@ memphis_renderer_new ()
 MemphisRenderer*
 memphis_renderer_new_full (MemphisRuleSet *rules, MemphisMap *map)
 {
-  g_return_val_if_fail (MEMPHIS_IS_RULESET (rules) && MEMPHIS_IS_MAP (map), NULL);
-
   MemphisRenderer* r = g_object_new (MEMPHIS_TYPE_RENDERER, NULL);
-  memphis_renderer_set_map (r, map);
-  memphis_renderer_set_rules_set (r, rules);
+  if (map)
+    memphis_renderer_set_map (r, map);
+  if (rules)
+    memphis_renderer_set_rules_set (r, rules);
   return r;
 }
 
