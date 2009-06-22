@@ -323,8 +323,10 @@ memphis_renderer_dispose (GObject *object)
   MemphisRenderer *self = MEMPHIS_RENDERER (object);
   MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
 
-  g_object_unref (G_OBJECT (priv->map));
-  g_object_unref (G_OBJECT (priv->rules));
+  if (priv->map)
+    g_object_unref (G_OBJECT (priv->map));
+  if (priv->rules)
+    g_object_unref (G_OBJECT (priv->rules));
 
   G_OBJECT_CLASS (memphis_renderer_parent_class)->dispose (object);
 }
