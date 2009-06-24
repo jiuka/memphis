@@ -247,7 +247,7 @@ cfgRules* rulesetRead(char *filename, gint8 debug_level) {
     
     // Test file
     if (!g_file_test (filename, G_FILE_TEST_IS_REGULAR)) {
-        g_fprintf (stderr, "Error: \"%s\" is not a file.\n", filename);
+        g_critical ("Error: \"%s\" is not a file.\n", filename);
         return NULL;
     }
     
@@ -257,7 +257,7 @@ cfgRules* rulesetRead(char *filename, gint8 debug_level) {
     // Open file
     FILE *fd = fopen(filename,"r");
     if(fd == NULL) {
-        g_fprintf (stderr, "Error: Can't open file \"%s\"\n", filename);
+        g_critical ("Error: Can't open file \"%s\"\n", filename);
         return NULL;
     }
 
