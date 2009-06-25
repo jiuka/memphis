@@ -121,7 +121,7 @@ memphis_rule_set_new ()
 }
 
 void
-memphis_rule_set_load_from_file (MemphisRuleSet *rules, gchar *filename)
+memphis_rule_set_load_from_file (MemphisRuleSet *rules, const gchar *filename)
 {
   g_return_if_fail (MEMPHIS_IS_RULESET (rules) && filename != NULL);
 
@@ -133,7 +133,7 @@ memphis_rule_set_load_from_file (MemphisRuleSet *rules, gchar *filename)
 }
 
 void
-memphis_rule_set_load_from_data (MemphisRuleSet *rules, gchar *data)
+memphis_rule_set_load_from_data (MemphisRuleSet *rules, const gchar *data)
 {
   g_return_if_fail (MEMPHIS_IS_RULESET (rules) && data != NULL);
   

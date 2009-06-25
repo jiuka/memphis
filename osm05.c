@@ -246,7 +246,7 @@ osmEndElement(void *userData, const char *name) {
 /**
  * rulesetRead
  */
-osmFile* osmRead(char *filename, gint8 debug_level) {
+osmFile* osmRead(const char *filename, gint8 debug_level) {
     if (debug_level > 1)
         g_fprintf (stdout, "osmRead\n");
 

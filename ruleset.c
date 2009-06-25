@@ -225,7 +225,7 @@ cfgEndElement(void *userData, const char *name) {
  *
  * Called to parse rules in the rulefile. Returns a cfgRules struct.
  */
-cfgRules* rulesetRead(char *filename, gint8 debug_level) {
+cfgRules* rulesetRead(const char *filename, gint8 debug_level) {
     if (debug_level > 1)
         g_fprintf (stdout, "rulesetRead\n");
 

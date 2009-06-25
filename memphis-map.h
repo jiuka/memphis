@@ -56,8 +56,8 @@ GType memphis_map_get_type (void);
 MemphisMap* memphis_map_new ();
 void memphis_map_free (MemphisMap *map);
 
-void memphis_map_load_from_file (MemphisMap *map, gchar *filename);
-void memphis_map_load_from_data (MemphisMap *map, gchar *data);
+void memphis_map_load_from_file (MemphisMap *map, const gchar *filename);
+void memphis_map_load_from_data (MemphisMap *map, const gchar *data);
 
 void memphis_map_set_debug_level (MemphisMap *map, gint8 debug_level);
 gint8 memphis_map_get_debug_level (MemphisMap *map);
