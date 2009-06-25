@@ -89,7 +89,7 @@ struct cfgRules_ {
 /*
  * Prototypes
  */
-cfgRules* rulesetRead(char *filename, gint8 debug_level);
+cfgRules* rulesetRead(const char *filename, gint8 debug_level);
 void rulesetFree(cfgRules * ruleset);
 
 #endif /* RULESET_H */
