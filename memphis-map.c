@@ -133,15 +133,15 @@ memphis_map_load_from_file (MemphisMap *map, const gchar *filename)
 }
 
 void
-memphis_map_load_from_data (MemphisMap *map, const gchar *data)
+memphis_map_load_from_data (MemphisMap *map, const gchar *data, guint size)
 {
   g_return_if_fail (MEMPHIS_IS_MAP (map) && data != NULL);
 
+  MemphisMapPrivate *priv = MEMPHIS_MAP_GET_PRIVATE (map);
   if (map->map != NULL)
     osmFree (map->map);
-  
-  // TODO
-  map->map = NULL;
+
+  map->map = osmRead_from_buffer (data, size, priv->debug_level);
 }
 
 void

@@ -680,7 +680,7 @@ static void drawText (renderInfo *info, char *text, cfgDraw *draw) {
   if (G_UNLIKELY (info->priv->debug_level > 1))
     g_fprintf(stdout, "drawText\n");
 
-  cairo_select_font_face (info->cr, "Sans", CAIRO_FONT_SLANT_NORMAL,
+  cairo_select_font_face (info->cr, "sans-serif", CAIRO_FONT_SLANT_NORMAL,
                                             CAIRO_FONT_WEIGHT_NORMAL);
   cairo_set_source_rgb (info->cr, (double)draw->color[0]/255.0,
                                   (double)draw->color[1]/255.0,
