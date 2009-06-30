@@ -81,6 +81,7 @@ struct osmFile_ {
  * Prototypes
  */
 osmFile* osmRead (const char *filename, gint8 debug_level);
+osmFile* osmRead_from_buffer (const char *buffer, guint size, gint8 debug_level);
 void osmFree(osmFile *osm);
 
 #endif /* OSM05_H */

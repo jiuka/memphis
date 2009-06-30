@@ -259,15 +259,7 @@ osmFile* osmRead(const char *filename, gint8 debug_level) {
     int done;
     char *buf;
     osmFile *osm;
-    mapUserData *data = g_new(mapUserData, 1);
-    // Init vars
-    data->cTag = NULL;
-    data->cNode = NULL;
-    data->cWay = NULL;
-    data->pool = memphis_data_pool_new ();
-    data->cntTag = 0;
-    data->cntNd = 0;
-    data->debug_level = debug_level;
+    mapUserData *data;
     
     // Test file
     if (!g_file_test (filename, G_FILE_TEST_IS_REGULAR)) {
@@ -284,6 +276,16 @@ osmFile* osmRead(const char *filename, gint8 debug_level) {
         g_critical ("Error: Can't open file \"%s\"\n", filename);
         return NULL;
     }
+
+    // Init vars
+    data = g_new(mapUserData, 1);
+    data->cTag = NULL;
+    data->cNode = NULL;
+    data->cWay = NULL;
+    data->pool = memphis_data_pool_new ();
+    data->cntTag = 0;
+    data->cntNd = 0;
+    data->debug_level = debug_level;
 
     osm = g_new(osmFile, 1);
     osm->nodes = NULL;
@@ -315,7 +317,7 @@ osmFile* osmRead(const char *filename, gint8 debug_level) {
         len = (int)fread(buf, 1, BUFFSIZE, fd);
         if (ferror(fd)) {
             g_fprintf (stderr, "Read error\n");
-            return NULL;;
+            return NULL;
         }
         read += len;
         if (debug_level > 0) {
@@ -370,6 +372,97 @@ osmFile* osmRead(const char *filename, gint8 debug_level) {
     g_free(data);
 
     return(osm);
+}
+
+osmFile* osmRead_from_buffer (const char *buffer, guint size, gint8 debug_level) {
+    if (debug_level > 1)
+        g_fprintf (stdout, "osmRead\n");
+
+    g_assert (buffer != NULL && size > 0);
+
+    // Local Vars
+    GTimer *tOsmRead = g_timer_new();
+    int isDone;
+    osmFile *osm;
+    mapUserData *data;
+    
+    // Init vars
+    data = g_new(mapUserData, 1);
+    data->cTag = NULL;
+    data->cNode = NULL;
+    data->cWay = NULL;
+    data->pool = memphis_data_pool_new ();
+    data->cntTag = 0;
+    data->cntNd = 0;
+    data->debug_level = debug_level;
+
+    osm = g_new(osmFile, 1);
+    osm->nodes = NULL;
+    osm->nodeidx = g_hash_table_new(g_int_hash, g_int_equal);
+    osm->nodecnt = 0;
+    osm->ways = NULL;
+    osm->waycnt = 0;
+    osm->minlon = -190;
+    osm->minlat = -190;
+    osm->maxlon = -190;
+    osm->maxlat = -190;
+    
+    data->osm = osm;
+
+    if (debug_level > 0) {
+        g_fprintf (stdout, " OSM parsing   0%%");
+        fflush(stdout);
+    }
+
+    // Create XML Parser
+    XML_Parser parser = XML_ParserCreate(NULL);
+    XML_SetElementHandler(parser, osmStartElement, osmEndElement);
+    XML_SetUserData(parser, data);
+
+    // Parse the buffer
+    if (XML_Parse (parser, buffer, size, isDone) == XML_STATUS_ERROR) {
+        g_fprintf (stderr, "Parse error at line %iu:\n%s\n",
+            (int) XML_GetCurrentLineNumber(parser),
+            XML_ErrorString(XML_GetErrorCode(parser)));
+        exit (-1);
+    }
+
+    // Cleaning Memory
+    XML_ParserFree(parser);
+
+    // No bounds set
+    if(osm->minlon == -190 || osm->minlat == -190 ||
+        osm->maxlon == -190 || osm->maxlat == -190) {
+
+        osm->minlon = 360.0;
+        osm->minlat = 180.0;
+        osm->maxlon = -360.0;
+        osm->maxlat = -180.0;
+
+        osmNode *node;
+        LIST_FOREACH(node, osm->nodes) {
+            if(node->lon < osm->minlon)
+                osm->minlon = node->lon;
+            if(node->lat < osm->minlat)
+                osm->minlat = node->lat;
+            if(node->lon > osm->maxlon)
+                osm->maxlon = node->lon;
+            if(node->lat > osm->maxlat)
+                osm->maxlat = node->lat;
+        }
+    }
+
+    g_hash_table_destroy(osm->nodeidx);
+    osm->nodeidx = NULL;
+    
+    if (debug_level > 0)
+        fprintf(stdout,"\r OSM parsing done. (%i/%i/%i/%i) [%fs]\n",
+                osm->nodecnt, osm->waycnt, data->cntTag, data->cntNd,
+                g_timer_elapsed(tOsmRead,NULL));
+    
+    g_timer_destroy(tOsmRead);
+
+    return osm;
 }
 
 void osmFree(osmFile *osm) {
