@@ -59,7 +59,8 @@ void memphis_rule_set_free (MemphisRuleSet *rules);
 void memphis_rule_set_load_from_file (MemphisRuleSet *rules,
     const gchar *filename);
 void memphis_rule_set_load_from_data (MemphisRuleSet *rules,
-    const gchar *data);
+    const gchar *data,
+    guint size);
 
 void memphis_rule_set_set_debug_level (MemphisRuleSet *rules,
     gint8 debug_level);
