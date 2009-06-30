@@ -382,10 +382,10 @@ osmFile* osmRead_from_buffer (const char *buffer, guint size, gint8 debug_level)
 
     // Local Vars
     GTimer *tOsmRead = g_timer_new();
-    int isDone;
+    int isDone = 0;
     osmFile *osm;
     mapUserData *data;
-    
+
     // Init vars
     data = g_new(mapUserData, 1);
     data->cTag = NULL;
@@ -406,7 +406,7 @@ osmFile* osmRead_from_buffer (const char *buffer, guint size, gint8 debug_level)
     osm->minlat = -190;
     osm->maxlon = -190;
     osm->maxlat = -190;
-    
+
     data->osm = osm;
 
     if (debug_level > 0) {
