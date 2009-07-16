@@ -138,12 +138,12 @@ memphis_rule_set_load_from_data (MemphisRuleSet *rules,
     guint size)
 {
   g_return_if_fail (MEMPHIS_IS_RULESET (rules) && data != NULL);
-  
+
+  MemphisRuleSetPrivate *priv = MEMPHIS_RULESET_GET_PRIVATE (rules);
   if (rules->ruleset != NULL)
     rulesetFree (rules->ruleset);
-  
-  // TODO
-  rules->ruleset = NULL;
+
+  rules->ruleset = rulesetRead_from_buffer (data, size, priv->debug_level);
 }
 
 void

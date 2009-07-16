@@ -320,10 +320,75 @@ cfgRules* rulesetRead(const char *filename, gint8 debug_level) {
     return(ruleset);
 }
 
+/**
+ * rulesetRead_from_buffer:
+ * @buffer: Buffer containing a rule-set
+ * @size: Size of the buffer
+ *
+ * Called to parse rules in a buffer. Returns a cfgRules struct.
+ */
+cfgRules* rulesetRead_from_buffer (const char *buffer, guint size, gint8 debug_level) {
+    if (debug_level > 1)
+        g_fprintf (stdout, "rulesetRead\n");
+
+    g_assert (buffer != NULL && size > 0);
+
+    // Local Vars
+    GTimer *tRulesetRead = g_timer_new();
+    int         len;
+    int         isDone = 0;
+    rulesUserData *data = g_new(rulesUserData, 1);
+    cfgRules    *ruleset = NULL;
+
+    // NULL rule stack
+    for (len=0;len<MAXDEPTH;len++) {
+        data->ruleStack[len] = NULL;
+    }
+
+    ruleset = g_new(cfgRules, 1);
+    ruleset->depth = -1;
+    ruleset->cntRule = 0;
+    ruleset->cntElse = 0;
+    data->ruleset = ruleset;
+    data->pool = memphis_data_pool_new ();
+    data->debug_level = debug_level;
+
+    if (debug_level > 0) {
+        g_fprintf(stdout, " Ruleset parsing   0%%");
+        fflush(stdout);
+    }
+
+    // Create XML Parser
+    XML_Parser parser = XML_ParserCreate(NULL);
+    XML_SetElementHandler(parser, cfgStartElement, cfgEndElement);
+    XML_SetUserData(parser, data);
+
+    // Parse the buffer
+    if (XML_Parse (parser, buffer, size, isDone) == XML_STATUS_ERROR) {
+        g_fprintf (stderr, "Parse error at line %iu:\n%s\n",
+            (int) XML_GetCurrentLineNumber(parser),
+            XML_ErrorString(XML_GetErrorCode(parser)));
+        exit (-1);
+    }
+
+    // Cleaning Memory
+    XML_ParserFree(parser);
+    g_free(data);
+
+    if (debug_level > 0)
+        g_fprintf (stdout, "\r Ruleset parsing done. (%i/%i) [%fs]\n",
+                ruleset->cntRule,  ruleset->cntElse,
+                g_timer_elapsed(tRulesetRead,NULL));
+
+    g_timer_destroy(tRulesetRead);
+
+    return(ruleset);
+}
+
 void rulesetFree(cfgRules * ruleset) {
     cfgRule *rule, *lrule;
     cfgDraw *draw, *ldraw;
-    
+
     for(rule = ruleset->rule, lrule = NULL;
         rule != NULL;
         lrule = rule, rule = rule->next)
