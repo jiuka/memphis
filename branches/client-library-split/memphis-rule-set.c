@@ -428,50 +428,6 @@ memphis_rule_set_set_rule (MemphisRuleSet *self, MemphisRule *rule)
           drw = tmp;
         }
         res->draw = drw;
-      /* Update cfgDraw's */
-      /*while (drw != NULL)
-        {
-          
-          if (drw->type == LINE)
-            {
-              if (line_seen) {
-                drw->minzoom = rule->line_z[0];
-                drw->maxzoom = rule->line_z[1];
-                drw->color[0] = rule->line_color[0];
-                drw->color[1] = rule->line_color[1];
-                drw->color[2] = rule->line_color[2];
-                g_print ("COLOR2: %d %d %d\n", drw->color[0], drw->color[1], drw->color[2]);
-                drw->width = rule->line_size;
-              } else {
-                drw->minzoom = rule->border_z[0];
-                drw->maxzoom = rule->border_z[1];
-                drw->color[0] = rule->border_color[0];
-                drw->color[1] = rule->border_color[1];
-                drw->color[2] = rule->border_color[2];
-                g_print ("COLOR2b: %d %d %d\n", drw->color[0], drw->color[1], drw->color[2]);
-                drw->width = rule->border_size;
-                line_seen = TRUE;
-              }
-            }
-          else if (drw->type == TEXT)
-            {
-              drw->minzoom = rule->text_z[0];
-              drw->maxzoom = rule->text_z[1];
-              drw->color[0] = rule->text_color[0];
-              drw->color[1] = rule->text_color[1];
-              drw->color[2] = rule->text_color[2];
-              drw->width = rule->text_size;
-            }
-          else if (drw->type == POLYGONE)
-            {
-              drw->minzoom = rule->polygon_z[0];
-              drw->maxzoom = rule->polygon_z[1];
-              drw->color[0] = rule->polygon_color[0];
-              drw->color[1] = rule->polygon_color[1];
-              drw->color[2] = rule->polygon_color[2];
-            }
-           drw = drw->next;
-        }*/
     }
   else
     {
