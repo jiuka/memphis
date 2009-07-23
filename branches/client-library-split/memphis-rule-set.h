@@ -22,6 +22,7 @@
 
 #include <glib-object.h>
 #include "ruleset.h"
+#include "memphis-rule.h"
 
 G_BEGIN_DECLS
 
@@ -66,6 +67,16 @@ void memphis_rule_set_set_debug_level (MemphisRuleSet *rules,
     gint8 debug_level);
 
 gint8 memphis_rule_set_get_debug_level (MemphisRuleSet *rules);
+
+void memphis_rule_set_set_bg_color (MemphisRuleSet *rules,
+    gint16 r, gint16 g, gint16 b);
+void memphis_rule_set_get_bg_color (MemphisRuleSet *self,
+    gint16 *r, gint16 *g, gint16 *b);
+
+GList* memphis_rule_set_get_rule_ids (MemphisRuleSet *rules);
+
+void memphis_rule_set_set_rule (MemphisRuleSet *rules, MemphisRule *rule);
+MemphisRule* memphis_rule_set_get_rule (MemphisRuleSet *rules, const gchar *id);
 
 G_END_DECLS
 

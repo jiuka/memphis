@@ -18,6 +18,7 @@
  */
 
 #include "memphis-rule-set.h"
+#include <string.h>
 
 G_DEFINE_TYPE (MemphisRuleSet, memphis_rule_set, G_TYPE_OBJECT)
 
@@ -171,4 +172,313 @@ memphis_rule_set_get_debug_level (MemphisRuleSet *rules)
 
   MemphisRuleSetPrivate *priv = MEMPHIS_RULESET_GET_PRIVATE (rules);
   return priv->debug_level;
+}
+
+void
+memphis_rule_set_set_bg_color (MemphisRuleSet *self,
+    gint16 r, gint16 g, gint16 b)
+{
+  self->ruleset->background[0] = r;
+  self->ruleset->background[1] = g;
+  self->ruleset->background[2] = b;
+}
+
+void
+memphis_rule_set_get_bg_color (MemphisRuleSet *self,
+    gint16 *r, gint16 *g, gint16 *b)
+{
+  *r = self->ruleset->background[0];
+  *g = self->ruleset->background[1];
+  *b = self->ruleset->background[2];
+}
+
+GList *
+memphis_rule_set_get_rule_ids (MemphisRuleSet *self)
+{
+  g_return_val_if_fail (MEMPHIS_IS_RULESET (self), NULL);
+
+  GList *list = NULL;
+  cfgRule *curr = self->ruleset->rule;
+  while (curr != NULL)
+   {
+     if (curr->draw != NULL)
+      {
+        gchar *keys = g_strjoinv ("|", curr->key);
+        gchar *values = g_strjoinv ("|", curr->value);
+        gchar *id = g_strconcat (keys, ":", values, NULL);
+        list = g_list_append (list, id);
+        g_free (keys);
+        g_free (values);
+      }            
+      curr = curr->next;
+   }
+   return list;
+}
+
+static MemphisRule *
+rule_new_from_cfgRule (cfgRule *curr)
+{
+  MemphisRule *rule;
+  rule = memphis_rule_new ();
+  rule->keys = g_strdupv (curr->key);
+  rule->values = g_strdupv (curr->value);
+  rule->type = curr->type;
+
+  cfgDraw *drw = curr->draw;
+  gboolean line_seen = FALSE;
+  while (drw != NULL)
+    {
+      if (drw->type == POLYGONE)
+        {
+          rule->polygon_color[0] = drw->color[0];
+          rule->polygon_color[1] = drw->color[1];
+          rule->polygon_color[2] = drw->color[2];
+          rule->polygon_z[0] = drw->minzoom;
+          rule->polygon_z[1] = drw->maxzoom;
+          // TODO support pattern
+        }
+      else if (drw->type == LINE)
+        {
+          if (line_seen) {
+            rule->line_color[0] = drw->color[0];
+            rule->line_color[1] = drw->color[1];
+            rule->line_color[2] = drw->color[2];
+            rule->line_size = drw->width;
+            rule->line_z[0] = drw->minzoom;
+            rule->line_z[1] = drw->maxzoom;
+          } else {
+            rule->border_color[0] = drw->color[0];
+            rule->border_color[1] = drw->color[1];
+            rule->border_color[2] = drw->color[2];
+            rule->border_size = drw->width;
+            rule->border_z[0] = drw->minzoom;
+            rule->border_z[1] = drw->maxzoom;
+            line_seen = TRUE;
+          }
+        }
+      else if (drw->type == TEXT)
+        {
+          rule->text_color[0] = drw->color[0];
+          rule->text_color[1] = drw->color[1];
+          rule->text_color[2] = drw->color[2];
+          rule->text_size = drw->width;
+          rule->text_z[0] = drw->minzoom;
+          rule->text_z[1] = drw->maxzoom;
+        }
+      drw = drw->next;
+    }
+  /*
+  cfgDraw *ndrw = curr->ndraw;
+  while (ndrw != NULL)
+    {
+      g_print ("NDRAW: %d\n", ndrw->type);
+      ndrw = ndrw->next;
+    }
+  */
+
+  return rule;
+}
+
+static cfgRule *
+search_rule (cfgRule *rules, gchar **keys, gchar **values)
+{
+  int i;
+  gint len;
+  gboolean found = FALSE;
+  gboolean miss = FALSE;
+  gint num_keys = g_strv_length (keys);
+  gint num_values = g_strv_length (values);
+  cfgRule *curr = rules;
+
+  while (curr != NULL && !found)
+   {
+      miss = FALSE;
+      if (curr->draw != NULL)
+      {
+        len = g_strv_length (curr->key);
+        if (len != num_keys)
+          {
+            curr = curr->next;
+            continue;
+          }
+        for (i = 0; i < len; i++)
+          {
+            if (strcmp (curr->key[i], keys[i]) != 0)
+              miss = TRUE;
+          }
+
+        len = g_strv_length (curr->value);
+        if (len != num_values || miss)
+          {
+            curr = curr->next;
+            continue;
+          }
+        for (i = 0; i < len; i++)
+          {
+            if (strcmp (curr->value[i], values[i]) != 0)
+              miss = TRUE;
+          }
+        if (miss)
+          {
+            curr = curr->next;
+            continue;
+          }
+
+        found = TRUE;
+      }
+    else
+      {
+        curr = curr->next;
+      }
+   }
+
+  return curr;
+}
+
+MemphisRule *
+memphis_rule_set_get_rule (MemphisRuleSet *self, const gchar *id)
+{
+  g_return_val_if_fail (MEMPHIS_IS_RULESET (self) && id != NULL, NULL);
+
+  gchar **tmp = g_strsplit (id, ":", -1);
+  gchar **keys = g_strsplit (tmp[0], "|", -1);
+  gchar **values = g_strsplit (tmp[1], "|", -1);
+  g_strfreev (tmp);
+
+  cfgRule *res = search_rule (self->ruleset->rule, keys, values);
+
+  g_strfreev (keys);
+  g_strfreev (values);
+
+  if (res != NULL)
+      return rule_new_from_cfgRule (res);
+
+  return NULL;
+}
+
+void
+memphis_rule_set_set_rule (MemphisRuleSet *self, MemphisRule *rule)
+{
+  g_return_if_fail (MEMPHIS_IS_RULESET (self) && MEMPHIS_IS_RULE (rule));
+
+  cfgRule *res = search_rule (self->ruleset->rule, rule->keys, rule->values);
+  cfgDraw *drw, *tmp;
+
+  if (res != NULL)
+    {
+      drw = res->draw;
+      /* delete old cfgDraw's */
+      while (drw != NULL)
+        {
+          tmp = drw;
+          drw = drw->next;
+          g_free (tmp);
+        }
+      drw = NULL;
+      /* Add new cfgDraw's */
+      if (rule->polygon_color[0] != -1)
+        {
+          tmp = g_new (cfgDraw, 1);
+          tmp->next = drw;
+          tmp->type = POLYGONE;
+          tmp->minzoom = rule->polygon_z[0];
+          tmp->maxzoom = rule->polygon_z[1];
+          tmp->color[0] = rule->polygon_color[0];
+          tmp->color[1] = rule->polygon_color[1];
+          tmp->color[2] = rule->polygon_color[2];
+          drw = tmp;
+        }
+      if (rule->line_color[0] != -1)
+        {
+          tmp = g_new (cfgDraw, 1);
+          tmp->next = drw;
+          tmp->type = LINE;
+          tmp->minzoom = rule->line_z[0];
+          tmp->maxzoom = rule->line_z[1];
+          tmp->color[0] = rule->line_color[0];
+          tmp->color[1] = rule->line_color[1];
+          tmp->color[2] = rule->line_color[2];
+          tmp->width = rule->line_size;
+          drw = tmp;
+        }
+      if (rule->border_color[0] != -1)
+        {
+          tmp = g_new (cfgDraw, 1);
+          tmp->next = drw;
+          tmp->type = LINE;
+          tmp->minzoom = rule->border_z[0];
+          tmp->maxzoom = rule->border_z[1];
+          tmp->color[0] = rule->border_color[0];
+          tmp->color[1] = rule->border_color[1];
+          tmp->color[2] = rule->border_color[2];
+          tmp->width = rule->border_size;
+          drw = tmp;
+        }
+      if (rule->text_color[0] != -1)
+        {
+          tmp = g_new (cfgDraw, 1);
+          tmp->next = drw;
+          tmp->type = TEXT;
+          tmp->minzoom = rule->text_z[0];
+          tmp->maxzoom = rule->text_z[1];
+          tmp->color[0] = rule->text_color[0];
+          tmp->color[1] = rule->text_color[1];
+          tmp->color[2] = rule->text_color[2];
+          tmp->width = rule->text_size;
+          drw = tmp;
+        }
+        res->draw = drw;
+      /* Update cfgDraw's */
+      /*while (drw != NULL)
+        {
+          
+          if (drw->type == LINE)
+            {
+              if (line_seen) {
+                drw->minzoom = rule->line_z[0];
+                drw->maxzoom = rule->line_z[1];
+                drw->color[0] = rule->line_color[0];
+                drw->color[1] = rule->line_color[1];
+                drw->color[2] = rule->line_color[2];
+                g_print ("COLOR2: %d %d %d\n", drw->color[0], drw->color[1], drw->color[2]);
+                drw->width = rule->line_size;
+              } else {
+                drw->minzoom = rule->border_z[0];
+                drw->maxzoom = rule->border_z[1];
+                drw->color[0] = rule->border_color[0];
+                drw->color[1] = rule->border_color[1];
+                drw->color[2] = rule->border_color[2];
+                g_print ("COLOR2b: %d %d %d\n", drw->color[0], drw->color[1], drw->color[2]);
+                drw->width = rule->border_size;
+                line_seen = TRUE;
+              }
+            }
+          else if (drw->type == TEXT)
+            {
+              drw->minzoom = rule->text_z[0];
+              drw->maxzoom = rule->text_z[1];
+              drw->color[0] = rule->text_color[0];
+              drw->color[1] = rule->text_color[1];
+              drw->color[2] = rule->text_color[2];
+              drw->width = rule->text_size;
+            }
+          else if (drw->type == POLYGONE)
+            {
+              drw->minzoom = rule->polygon_z[0];
+              drw->maxzoom = rule->polygon_z[1];
+              drw->color[0] = rule->polygon_color[0];
+              drw->color[1] = rule->polygon_color[1];
+              drw->color[2] = rule->polygon_color[2];
+            }
+           drw = drw->next;
+        }*/
+    }
+  else
+    {
+      /* Append cfgRule */
+
+      /* Add new cfgDraw's */
+
+      // TODO
+    }
 }
