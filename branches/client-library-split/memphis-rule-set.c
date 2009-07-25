@@ -209,7 +209,7 @@ memphis_rule_set_get_rule_ids (MemphisRuleSet *self)
         list = g_list_append (list, id);
         g_free (keys);
         g_free (values);
-      }            
+      }
       curr = curr->next;
    }
    return list;
