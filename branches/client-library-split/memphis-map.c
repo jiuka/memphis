@@ -168,3 +168,16 @@ memphis_map_get_debug_level (MemphisMap *map)
   MemphisMapPrivate *priv = MEMPHIS_MAP_GET_PRIVATE (map);
   return priv->debug_level;
 }
+
+void
+memhis_map_get_bounding_box (MemphisMap *map,
+    gdouble *minlat,
+    gdouble *minlon,
+    gdouble *maxlat,
+    gdouble *maxlon)
+{
+  *minlat = map->map->minlat;
+  *minlon = map->map->minlon;
+  *maxlat = map->map->maxlat;
+  *maxlon = map->map->maxlon;
+}
