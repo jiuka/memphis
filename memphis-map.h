@@ -62,6 +62,12 @@ void memphis_map_load_from_data (MemphisMap *map, const gchar *data, guint size)
 void memphis_map_set_debug_level (MemphisMap *map, gint8 debug_level);
 gint8 memphis_map_get_debug_level (MemphisMap *map);
 
+void memhis_map_get_bounding_box (MemphisMap *map,
+    gdouble *minlat,
+    gdouble *minlon,
+    gdouble *maxlat,
+    gdouble *maxlon);
+
 G_END_DECLS
 
 #endif /* _MEMPHIS_MAP */
