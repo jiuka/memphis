@@ -78,7 +78,7 @@ GList* memphis_rule_set_get_rule_ids (MemphisRuleSet *rules);
 void memphis_rule_set_set_rule (MemphisRuleSet *rules, MemphisRule *rule);
 MemphisRule* memphis_rule_set_get_rule (MemphisRuleSet *rules, const gchar *id);
 
-gboolean memphis_rule_set_remove_rule (MemphisRuleSet *self, gchar *id);
+gboolean memphis_rule_set_remove_rule (MemphisRuleSet *rules, const gchar *id);
 
 G_END_DECLS
 
