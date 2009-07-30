@@ -422,6 +422,23 @@ void rulesetFree(cfgRules * ruleset) {
     g_free(ruleset);
 }
 
+void cfgRuleFree (cfgRule *rule)
+{
+  g_free (rule->key);
+  g_free (rule->value);
+
+  cfgDraw *tmp;
+  cfgDraw *drw = rule->draw;
+  while (drw != NULL)
+    {
+      tmp = drw;
+      drw = drw->next;
+      g_free (tmp);
+    }
+
+  g_free (rule);
+}
+
 /*
  * vim: expandtab shiftwidth=4 tabstop=4:
  */

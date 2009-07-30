@@ -94,6 +94,8 @@ cfgRules* rulesetRead_from_buffer (const char *buffer, guint size,
     gint8 debug_level);
 void rulesetFree(cfgRules * ruleset);
 
+void cfgRuleFree (cfgRule *rule);
+
 #endif /* RULESET_H */
 
 /*
