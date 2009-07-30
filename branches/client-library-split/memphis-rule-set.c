@@ -453,7 +453,7 @@ memphis_rule_set_get_rule (MemphisRuleSet *self, const gchar *id)
   g_strfreev (values);
 
   if (res != NULL)
-      return rule_new_from_cfgRule (res);
+    return rule_new_from_cfgRule (res);
 
   return NULL;
 }
@@ -495,7 +495,7 @@ memphis_rule_set_set_rule (MemphisRuleSet *self, MemphisRule *rule)
 }
 
 gboolean
-memphis_rule_set_remove_rule (MemphisRuleSet *self, gchar *id)
+memphis_rule_set_remove_rule (MemphisRuleSet *self, const gchar *id)
 {
   g_return_val_if_fail (MEMPHIS_IS_RULESET (self) && id != NULL, FALSE);
 
