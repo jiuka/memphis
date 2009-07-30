@@ -46,7 +46,7 @@ typedef struct {
 
   gchar **keys;
   gchar **values;
-  gint16 type;
+  gint16 type; /* Node, way or relation */
 
   gint16 polygon_color[3];
   gint16 polygon_z[2];
