@@ -347,7 +347,7 @@ cfgRule_new_from_rule (MemphisRule *rule)
   int c, len;
   MemphisDataPool *pool = memphis_data_pool_new ();
   cfgRule *new = g_new (cfgRule, 1);
-  
+
   new->type = rule->type;
   new->value = g_strdupv (rule->values);
   len = g_strv_length (new->value);

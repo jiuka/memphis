@@ -170,7 +170,7 @@ memphis_map_get_debug_level (MemphisMap *map)
 }
 
 void
-memhis_map_get_bounding_box (MemphisMap *map,
+memphis_map_get_bounding_box (MemphisMap *map,
     gdouble *minlat,
     gdouble *minlon,
     gdouble *maxlat,
