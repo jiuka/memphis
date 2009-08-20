@@ -55,4 +55,4 @@ env.Program('testRuleset', source=['test/testRuleset.c','ruleset.c','mlib.c'])
 #env.Program('testRuleset', source=['ruleset.c','testRuleset.c'])
 
 env.Program('tile-renderer', source = ['demos/tile-renderer.c', SOURCES])
-env.Program('crash', source = ['demos/do_not_crash.c', SOURCES])
+env.Program('testing', source = ['tests/tests.c', SOURCES])

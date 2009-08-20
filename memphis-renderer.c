@@ -546,8 +546,11 @@ memphis_renderer_tile_has_data (MemphisRenderer *self, guint x, guint y,
 
   gint minx, miny, maxx, maxy;
   MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
-  g_return_val_if_fail (MEMPHIS_IS_MAP (priv->map), -1);
-  g_return_val_if_fail (priv->map->map, -1);
+
+  if (!MEMPHIS_IS_MAP (priv->map))
+    return FALSE;
+  if (priv->map->map == NULL)
+    return FALSE;
 
   minx = lon2tilex (priv->map->map->minlon, zoom_level);
   miny = lat2tiley (priv->map->map->minlat, zoom_level);
