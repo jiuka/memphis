@@ -40,7 +40,7 @@ int main () {
     stringChunk = g_string_chunk_new(256);
     stringTree = g_tree_new(m_tree_strcmp);
 
-    osmFile *osm = (osmFile *) osmRead("test/map.osm");
+    osmFile *osm = (osmFile *) osmRead("test/map.osm", 1);
 
     g_tree_destroy(stringTree);
 
