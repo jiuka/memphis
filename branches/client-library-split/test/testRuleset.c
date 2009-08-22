@@ -40,7 +40,7 @@ int main () {
     stringChunk = g_string_chunk_new(265);
     stringTree = g_tree_new(m_tree_strcmp);
 
-    cfgRules *ruleset = (cfgRules *) rulesetRead("test/ruleset.xml");
+    cfgRules *ruleset = (cfgRules *) rulesetRead("test/ruleset.xml", 1);
 
     g_tree_destroy(stringTree);
 
