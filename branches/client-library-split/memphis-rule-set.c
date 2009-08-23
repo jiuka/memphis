@@ -178,20 +178,20 @@ memphis_rule_set_get_debug_level (MemphisRuleSet *rules)
 
 void
 memphis_rule_set_set_bg_color (MemphisRuleSet *self,
-    gint16 r, gint16 g, gint16 b)
+    guint16 r, guint16 g, guint16 b)
 {
-  self->ruleset->background[0] = r;
-  self->ruleset->background[1] = g;
-  self->ruleset->background[2] = b;
+  self->ruleset->background[0] = (gint16) r;
+  self->ruleset->background[1] = (gint16) g;
+  self->ruleset->background[2] = (gint16) b;
 }
 
 void
 memphis_rule_set_get_bg_color (MemphisRuleSet *self,
-    gint16 *r, gint16 *g, gint16 *b)
+    guint16 *r, guint16 *g, guint16 *b)
 {
-  *r = self->ruleset->background[0];
-  *g = self->ruleset->background[1];
-  *b = self->ruleset->background[2];
+  *r = (guint16) self->ruleset->background[0];
+  *g = (guint16) self->ruleset->background[1];
+  *b = (guint16) self->ruleset->background[2];
 }
 
 GList *

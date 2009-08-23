@@ -69,9 +69,9 @@ void memphis_rule_set_set_debug_level (MemphisRuleSet *rules,
 gint8 memphis_rule_set_get_debug_level (MemphisRuleSet *rules);
 
 void memphis_rule_set_set_bg_color (MemphisRuleSet *rules,
-    gint16 r, gint16 g, gint16 b);
+    guint16 r, guint16 g, guint16 b);
 void memphis_rule_set_get_bg_color (MemphisRuleSet *self,
-    gint16 *r, gint16 *g, gint16 *b);
+    guint16 *r, guint16 *g, guint16 *b);
 
 GList* memphis_rule_set_get_rule_ids (MemphisRuleSet *rules);
 
