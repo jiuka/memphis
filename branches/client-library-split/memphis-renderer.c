@@ -189,7 +189,8 @@ memphis_renderer_draw_tile (MemphisRenderer *renderer,
 
   if (!MEMPHIS_IS_RULE_SET (priv->rules)
       || !MEMPHIS_IS_MAP (priv->map)) {
-    g_fprintf (stdout, " No map and/or rules data: Draw nothing\n");
+    if (priv->debug_level > 0)
+      g_fprintf (stdout, " No map and/or rules data: Draw nothing\n");
     return;
   }
   if (!(priv->rules->ruleset && priv->map->map)) {
