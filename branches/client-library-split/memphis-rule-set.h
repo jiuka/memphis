@@ -26,22 +26,22 @@
 
 G_BEGIN_DECLS
 
-#define MEMPHIS_TYPE_RULESET memphis_rule_set_get_type()
+#define MEMPHIS_TYPE_RULE_SET memphis_rule_set_get_type()
 
-#define MEMPHIS_RULESET(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), MEMPHIS_TYPE_RULESET, MemphisRuleSet))
+#define MEMPHIS_RULE_SET(obj) \
+  (G_TYPE_CHECK_INSTANCE_CAST ((obj), MEMPHIS_TYPE_RULE_SET, MemphisRuleSet))
 
-#define MEMPHIS_RULESET_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_CAST ((klass), MEMPHIS_TYPE_RULESET, MemphisRuleSetClass))
+#define MEMPHIS_RULE_SET_CLASS(klass) \
+  (G_TYPE_CHECK_CLASS_CAST ((klass), MEMPHIS_TYPE_RULE_SET, MemphisRuleSetClass))
 
-#define MEMPHIS_IS_RULESET(obj) \
-  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), MEMPHIS_TYPE_RULESET))
+#define MEMPHIS_IS_RULE_SET(obj) \
+  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), MEMPHIS_TYPE_RULE_SET))
 
-#define MEMPHIS_IS_RULESET_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_TYPE ((klass), MEMPHIS_TYPE_RULESET))
+#define MEMPHIS_IS_RULE_SET_CLASS(klass) \
+  (G_TYPE_CHECK_CLASS_TYPE ((klass), MEMPHIS_TYPE_RULE_SET))
 
-#define MEMPHIS_RULESET_GET_CLASS(obj) \
-  (G_TYPE_INSTANCE_GET_CLASS ((obj), MEMPHIS_TYPE_RULESET, MemphisRuleSetClass))
+#define MEMPHIS_RULE_SET_GET_CLASS(obj) \
+  (G_TYPE_INSTANCE_GET_CLASS ((obj), MEMPHIS_TYPE_RULE_SET, MemphisRuleSetClass))
 
 typedef struct {
   GObject parent;
