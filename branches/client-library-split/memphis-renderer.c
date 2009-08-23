@@ -187,9 +187,11 @@ memphis_renderer_draw_tile (MemphisRenderer *renderer,
   cfgRules *ruleset;
   coordinates crd;
 
-  g_return_if_fail (MEMPHIS_IS_RULESET (priv->rules)
-      && MEMPHIS_IS_MAP (priv->map));
-
+  if (!MEMPHIS_IS_RULESET (priv->rules)
+      || !MEMPHIS_IS_MAP (priv->map)) {
+    g_fprintf (stdout, " No map and/or rules data: Draw nothing\n");
+    return;
+  }
   if (!(priv->rules->ruleset && priv->map->map)) {
     if (priv->debug_level > 0)
       g_fprintf (stdout, " No map and/or rules data: Draw nothing\n");
@@ -198,7 +200,7 @@ memphis_renderer_draw_tile (MemphisRenderer *renderer,
 
   ruleset = priv->rules->ruleset;
   osm = priv->map->map;
-  
+
   info = g_new (renderInfo, 1);
   info->cr = cr;
   info->zoom_level = CLAMP (zoom_level, MEMPHIS_RENDERER_MIN_ZOOM_LEVEL,
@@ -500,8 +502,11 @@ memphis_renderer_get_min_x_tile (MemphisRenderer *self, guint zoom_level)
   g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), -1);
 
   MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
-  g_return_val_if_fail (MEMPHIS_IS_MAP (priv->map), -1);
-  g_return_val_if_fail (priv->map->map, -1);
+  if (!MEMPHIS_IS_MAP (priv->map))
+    return -1;
+  if (priv->map->map == NULL)
+    return -1;
+
   return lon2tilex (priv->map->map->minlon, zoom_level);
 }
 
@@ -511,8 +516,11 @@ memphis_renderer_get_max_x_tile (MemphisRenderer *self, guint zoom_level)
   g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), -1);
   
   MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
-  g_return_val_if_fail (MEMPHIS_IS_MAP (priv->map), -1);
-  g_return_val_if_fail (priv->map->map, -1);
+  if (!MEMPHIS_IS_MAP (priv->map))
+    return -1;
+  if (priv->map->map == NULL)
+    return -1;
+
   return lon2tilex (priv->map->map->maxlon, zoom_level);
 }
 
@@ -522,8 +530,11 @@ memphis_renderer_get_min_y_tile (MemphisRenderer *self, guint zoom_level)
   g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), -1);
   
   MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
-  g_return_val_if_fail (MEMPHIS_IS_MAP (priv->map), -1);
-  g_return_val_if_fail (priv->map->map, -1);
+  if (!MEMPHIS_IS_MAP (priv->map))
+    return -1;
+  if (priv->map->map == NULL)
+    return -1;
+
   return lat2tiley (priv->map->map->maxlat, zoom_level);
 }
 
@@ -533,8 +544,11 @@ memphis_renderer_get_max_y_tile (MemphisRenderer *self, guint zoom_level)
   g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), -1);
   
   MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
-  g_return_val_if_fail (MEMPHIS_IS_MAP (priv->map), -1);
-  g_return_val_if_fail (priv->map->map, -1);
+  if (!MEMPHIS_IS_MAP (priv->map))
+    return -1;
+  if (priv->map->map == NULL)
+    return -1;
+
   return lat2tiley (priv->map->map->minlat, zoom_level);
 }
 
@@ -565,8 +579,8 @@ memphis_renderer_tile_has_data (MemphisRenderer *self, guint x, guint y,
 
 /*
  * function: drawPath
- * @cr  Array of cairo resources
- * @nd  Liked list if osmNd's
+ * @info data of this render session
+ * @nodes Liked list of osmNode's
  *
  * This function is used to prepare a Path.
  */
@@ -597,7 +611,7 @@ static void drawPath (renderInfo *info, GSList *nodes) {
 
 /*
  * function: strokePath
- * @cr  Array of cairo resources
+ * @info data of this render session
  *
  * This function is stroke all current path without drawing anithing.
  */
@@ -611,6 +625,8 @@ static void strokePath (renderInfo *info) {
 
 /*
  * function: drawPolygone
+ * @info data of this render session
+ * @draw a cfgDraw
  *
  * This function fill the prepared paths with the configured color.
  */
@@ -657,6 +673,8 @@ static void drawPolygone (renderInfo *info, cfgDraw *draw) {
 
 /*
  * function: drawLine
+ * @info data of this render session
+ * @draw a cfgDraw
  *
  * This function draw the prepared paths with the configured color.
  */
@@ -676,6 +694,8 @@ static void drawLine (renderInfo *info, cfgDraw *draw) {
 
 /*
  * function: drawText
+ * @info data of this render session
+ * @draw a cfgDraw
  *
  * This function draw the given text along the current path.
  */
