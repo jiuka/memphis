@@ -119,7 +119,7 @@ memphis_renderer_draw_png (MemphisRenderer *renderer,
   coordinates min, max;
   cairo_surface_t *surface;
 
-  g_return_if_fail (MEMPHIS_IS_RULESET (priv->rules)
+  g_return_if_fail (MEMPHIS_IS_RULE_SET (priv->rules)
       && MEMPHIS_IS_MAP (priv->map));
 
   if (!(priv->rules->ruleset && priv->map->map)) {
@@ -187,7 +187,7 @@ memphis_renderer_draw_tile (MemphisRenderer *renderer,
   cfgRules *ruleset;
   coordinates crd;
 
-  if (!MEMPHIS_IS_RULESET (priv->rules)
+  if (!MEMPHIS_IS_RULE_SET (priv->rules)
       || !MEMPHIS_IS_MAP (priv->map)) {
     g_fprintf (stdout, " No map and/or rules data: Draw nothing\n");
     return;
@@ -279,7 +279,7 @@ memphis_renderer_set_rules_set (MemphisRenderer *self,
     MemphisRuleSet *rules)
 {
   g_return_if_fail (MEMPHIS_IS_RENDERER (self) &&
-      MEMPHIS_IS_RULESET (rules));
+      MEMPHIS_IS_RULE_SET (rules));
 
   MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
   if (priv->rules)
@@ -448,7 +448,7 @@ memphis_renderer_class_init (MemphisRendererClass *klass)
       g_param_spec_object ("rule-set",
         "A MemphisRuleSet",
         "Memphis rendering rules",
-        MEMPHIS_TYPE_RULESET,
+        MEMPHIS_TYPE_RULE_SET,
         G_PARAM_READWRITE));
 
   /**
