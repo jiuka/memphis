@@ -1,49 +1,49 @@
 /*
  * Memphis - Cairo Rederer for OSM in C
- * Copyright (C) 2008  <marius.rieder@durchmesser.ch>
+ * Copyright (C) 2008  Marius Rieder <marius.rieder@durchmesser.ch>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
+
 #include <glib.h>
 #include <glib/gstdio.h>
-
 #include <time.h>
 #include <expat.h>
-#include <stdio.h>
 #include <string.h>
 
 #include "list.h"
 #include "mlib.h"
-#include "main.h"
 #include "osm05.h"
+#include "memphis-data-pool.h"
 
 #define BUFFSIZE 1024
 
-// External Vars
-extern memphisOpt   *opts;
-extern GStringChunk *stringChunk;
-extern GTree        *stringTree;
-
-// Pointers to work with
-osmTag      *cTag = NULL;
-osmNode     *cNode = NULL;
-osmWay      *cWay = NULL;
-
-// Counts
-int     cntTag = 0;
-int     cntNd = 0;
+typedef struct mapUserData_ mapUserData;
+struct mapUserData_ {
+  // Pointers to work with
+  osmTag *cTag;
+  osmNode *cNode;
+  osmWay *cWay;
+  MemphisDataPool *pool;
+  // Collected Data
+  osmFile *osm;
+  // Counts (used for debugging only!)
+  int cntTag;
+  int cntNd;
+  gint8 debug_level;
+};
 
 /**
  * osmStartElement:
@@ -55,13 +55,18 @@ int     cntNd = 0;
  */
 static void XMLCALL
 osmStartElement(void *userData, const char *name, const char **atts) {
-    osmFile *osm = (osmFile *) userData;
-     if (opts->debug > 1)
-        fprintf(stdout,"osm05startElement\n");
+    mapUserData *data = (mapUserData *) userData;
+    osmFile *osm = data->osm;
+    GStringChunk *stringChunk = data->pool->stringChunk;
+    GTree *stringTree = data->pool->stringTree;
+    gint8 debug_level = data->debug_level;
+    
+    if (debug_level > 1)
+        g_fprintf (stdout, "osm05startElement\n");
     // Parsing Bounds
     if (strncmp((char *) name, "bounds", 6) == 0) {
-        if (opts->debug > 1)
-            fprintf(stdout,"Parsing Bounds\n");
+        if (debug_level > 1)
+            g_fprintf (stdout, "Parsing Bounds\n");
         while (*atts != NULL) {
             if(strcmp((char *) *(atts), "minlat" ) == 0) {
                 sscanf((char *) *(atts+1),"%f",&osm->minlat);
@@ -77,37 +82,38 @@ osmStartElement(void *userData, const char *name, const char **atts) {
     }
     // Parsing Node
     else if (strncmp((char *) name, "node", 4) == 0) {
-        if (opts->debug > 1)
-            fprintf(stdout,"Parsing Node\n");
-        cNode = g_new(osmNode, 1);
+        if (debug_level > 1)
+            g_fprintf (stdout, "Parsing Node\n");
+        data->cNode = g_new(osmNode, 1);
         while (*atts != NULL) {
             if(strcmp((char *) *(atts), "id") == 0) {
-                sscanf((char *) *(atts+1),"%i",&cNode->id);
+                sscanf((char *) *(atts+1),"%i",&data->cNode->id);
             } else if(strcmp((char *) *(atts), "lat") == 0) {
-                sscanf((char *) *(atts+1),"%f",&cNode->lat);
+                sscanf((char *) *(atts+1),"%f",&data->cNode->lat);
             } else if(strcmp((char *) *(atts), "lon") == 0) {
-                sscanf((char *) *(atts+1),"%f",&cNode->lon);
+                sscanf((char *) *(atts+1),"%f",&data->cNode->lon);
             }
             atts+=2;
         }
 
-        cNode->tag = NULL;
-        cNode->layer = 0;
+        data->cNode->tag = NULL;
+        data->cNode->layer = 0;
 
         // Insert Node
         osm->nodecnt++;
-        g_hash_table_insert(osm->nodeidx, &cNode->id, cNode);
-        LL_PREPEND(cNode,osm->nodes);
+        g_hash_table_insert(osm->nodeidx, &data->cNode->id, data->cNode);
+        LL_PREPEND(data->cNode, osm->nodes);
 
-        if (opts->debug > 1)
-            fprintf(stdout,"NODE: %i %f %f\n", cNode->id, cNode->lat, cNode->lon);
+        if (debug_level > 1)
+            g_fprintf (stdout, "NODE: %i %f %f\n", data->cNode->id,
+                    data->cNode->lat, data->cNode->lon);
     }
     // Parsing Tags
     else if (strncmp((char *) name, "tag", 4) == 0) {
-        if (opts->debug > 1)
-            fprintf(stdout,"Parsing Tag\n");
+        if (debug_level > 1)
+            g_fprintf (stdout, "Parsing Tag\n");
 
-        if (!cNode && !cWay) // End if ther is nothing to add the tag to
+        if (!data->cNode && !data->cWay) // End if there is nothing to add the tag to
             return;
             
         char *k=NULL, *v=NULL;
@@ -122,14 +128,14 @@ osmStartElement(void *userData, const char *name, const char **atts) {
                 k = (char *) *(atts+1);
             } else if(strncmp((char *) *(atts), "v", 1) == 0) {
                 if(strcmp(k, "layer") == 0) {
-                    if (cNode)
-                        sscanf((char *) *(atts+1),"%hi",& cNode->layer);
-                    else if (cWay)
-                        sscanf((char *) *(atts+1),"%hi",& cWay->layer);
+                    if (data->cNode)
+                        sscanf((char *) *(atts+1),"%hi",& data->cNode->layer);
+                    else if (data->cWay)
+                        sscanf((char *) *(atts+1),"%hi",& data->cWay->layer);
                     return;
                 } else if(strcmp(k, "name") == 0) {
-                    if (cWay) {
-                        cWay->name = m_string_chunk_get(stringChunk, stringTree, 
+                    if (data->cWay) {
+                        data->cWay->name = m_string_chunk_get(stringChunk, stringTree, 
                                                         (char *) *(atts+1));
                     }
                     return;
@@ -139,50 +145,50 @@ osmStartElement(void *userData, const char *name, const char **atts) {
             atts += 2;
         }
         
-        cTag = g_new(osmTag, 1);
-        cTag->key = m_string_chunk_get(stringChunk, stringTree, k);
-        cTag->value = m_string_chunk_get(stringChunk, stringTree, v);
+        data->cTag = g_new(osmTag, 1);
+        data->cTag->key = m_string_chunk_get(stringChunk, stringTree, k);
+        data->cTag->value = m_string_chunk_get(stringChunk, stringTree, v);
         
-        if (opts->debug > 1)
-            fprintf(stdout,"Tag: %s => %s\n", cTag->key, cTag->value);
+        if (debug_level > 1)
+            g_fprintf (stdout, "Tag: %s => %s\n", data->cTag->key, data->cTag->value);
 
-        cntTag++;
-        if (cNode)
-            LL_INSERT_KEY(cTag,cNode->tag);
-        else if (cWay)
-            LL_INSERT_KEY(cTag,cWay->tag);
+        data->cntTag++;
+        if (data->cNode)
+            LL_INSERT_KEY(data->cTag, data->cNode->tag);
+        else if (data->cWay)
+            LL_INSERT_KEY(data->cTag, data->cWay->tag);
 
-        cTag = NULL;
+        data->cTag = NULL;
     }
     // Parsing Way
     else if (strncmp((char *) name, "way", 3) == 0) {
-        if (opts->debug > 1)
-            fprintf(stdout,"Parsing Way\n");
-        cWay = g_new(osmWay, 1);
+        if (debug_level > 1)
+            g_fprintf (stdout, "Parsing Way\n");
+        data->cWay = g_new(osmWay, 1);
         while (*atts != NULL) {
             if(strncmp((char *) *(atts), "id", 2) == 0) {
-                sscanf((char *) *(atts+1),"%i",&cWay->id);
+                sscanf((char *) *(atts+1), "%i", &data->cWay->id);
                 break;
             }
             atts+=2;
         }
 
-        cWay->tag = NULL;
-        cWay->nd = NULL;
-        cWay->name = NULL;
-        cWay->layer = 0;
+        data->cWay->tag = NULL;
+        data->cWay->nd = NULL;
+        data->cWay->name = NULL;
+        data->cWay->layer = 0;
 
         // Insert Way
         osm->waycnt++;
-        LL_PREPEND(cWay,osm->ways);
+        LL_PREPEND(data->cWay, osm->ways);
 
-        if (opts->debug > 1)
-            fprintf(stdout,"WAY(%i)\n", cWay->id);
+        if (debug_level > 1)
+            g_fprintf (stdout, "WAY(%i)\n", data->cWay->id);
     }
     // Parsing WayNode
     else if (strncmp((char *) name, "nd", 2) == 0) {
-        if (opts->debug > 1)
-            fprintf(stdout,"Parsing Nd\n");
+        if (debug_level > 1)
+            g_fprintf (stdout, "Parsing Nd\n");
         int ref = 0;
         while (*atts != NULL) {
             if(strncmp((char *) *(atts), "ref", 2) == 0) {
@@ -193,7 +199,7 @@ osmStartElement(void *userData, const char *name, const char **atts) {
         }
 
         if (ref) {
-            cntNd++;
+            data->cntNd++;
             osmNode *n;
             
             n = g_hash_table_lookup(osm->nodeidx, &ref);
@@ -203,12 +209,12 @@ osmStartElement(void *userData, const char *name, const char **atts) {
             }
 
             // Insert WayNode
-            cWay->nd = g_slist_prepend(cWay->nd, n);
+            data->cWay->nd = g_slist_prepend(data->cWay->nd, n);
 
-            if (opts->debug > 1)
-                fprintf(stdout," ND( %f %f )\n", n->lat, n->lon);
+            if (debug_level > 1)
+                g_fprintf (stdout, " ND( %f %f )\n", n->lat, n->lon);
 
-            cNode=NULL;
+            data->cNode = NULL;
         }
     }
 }
@@ -223,27 +229,26 @@ osmStartElement(void *userData, const char *name, const char **atts) {
  */
 static void XMLCALL
 osmEndElement(void *userData, const char *name) {
-    if (opts->debug > 1)
-        fprintf(stdout,"osm05endElement\n");
+    mapUserData *data = (mapUserData *) userData;
+    gint8 debug_level = data->debug_level;
+    
+    if (debug_level > 1)
+        g_fprintf(stdout, "osm05endElement\n");
     if (strncmp((char *) name, "node", 4) == 0) {
-        cNode = NULL;
+        data->cNode = NULL;
     } else if (strncmp((char *) name, "way", 3) == 0) {
-        if (cWay->nd != NULL)
-            cWay->nd = g_slist_reverse(cWay->nd);
-        cWay = NULL;
+        if (data->cWay->nd != NULL)
+            data->cWay->nd = g_slist_reverse(data->cWay->nd);
+        data->cWay = NULL;
     }
 }
 
 /**
  * rulesetRead
  */
-osmFile* osmRead(char *filename) {
-    if (opts->debug > 1)
-        fprintf(stdout,"osmRead\n");
-
-    // Init vars
-    cntTag = 0;
-    cntNd = 0;
+osmFile* osmRead(const char *filename, gint8 debug_level) {
+    if (debug_level > 1)
+        g_fprintf (stdout, "osmRead\n");
 
     // Local Vars
     GTimer *tOsmRead = g_timer_new();
@@ -253,11 +258,12 @@ osmFile* osmRead(char *filename) {
     int len;
     int done;
     char *buf;
-    osmFile *osm = NULL;
+    osmFile *osm;
+    mapUserData *data;
     
     // Test file
     if (!g_file_test (filename, G_FILE_TEST_IS_REGULAR)) {
-        fprintf(stderr,"Error: \"%s\" is not a file.\n",filename);
+        g_critical ("Error: \"%s\" is not a file.\n", filename);
         return NULL;
     }
     
@@ -267,9 +273,19 @@ osmFile* osmRead(char *filename) {
     // Open file
     FILE *fd = fopen(filename,"r");
     if(fd == NULL) {
-        fprintf(stderr,"Error: Can't open file \"%s\"\n",filename);
+        g_critical ("Error: Can't open file \"%s\"\n", filename);
         return NULL;
     }
+
+    // Init vars
+    data = g_new(mapUserData, 1);
+    data->cTag = NULL;
+    data->cNode = NULL;
+    data->cWay = NULL;
+    data->pool = memphis_data_pool_new ();
+    data->cntTag = 0;
+    data->cntNd = 0;
+    data->debug_level = debug_level;
 
     osm = g_new(osmFile, 1);
     osm->nodes = NULL;
@@ -281,16 +297,17 @@ osmFile* osmRead(char *filename) {
     osm->minlat = -190;
     osm->maxlon = -190;
     osm->maxlat = -190;
+    data->osm = osm;
 
-    if (opts->debug > 0) {
-        fprintf(stdout," OSM parsing   0%%");
+    if (debug_level > 0) {
+        g_fprintf (stdout, " OSM parsing   0%%");
         fflush(stdout);
     }
 
     // Create XML Parser
     XML_Parser parser = XML_ParserCreate(NULL);
     XML_SetElementHandler(parser, osmStartElement, osmEndElement);
-    XML_SetUserData(parser, osm);
+    XML_SetUserData(parser, data);
 
     // Create Buffer
     buf = g_malloc(BUFFSIZE*sizeof(char));
@@ -299,17 +316,17 @@ osmFile* osmRead(char *filename) {
     while(!feof(fd)) {
         len = (int)fread(buf, 1, BUFFSIZE, fd);
         if (ferror(fd)) {
-            fprintf(stderr, "Read error\n");
-            return NULL;;
+            g_fprintf (stderr, "Read error\n");
+            return NULL;
         }
         read += len;
-        if (opts->debug > 0) {
-            fprintf(stdout,"\r OSM parsing % 3i%%", (int)((read*100)/size));
+        if (debug_level > 0) {
+            g_fprintf (stdout, "\r OSM parsing % 3i%%", (int)((read*100)/size));
             fflush(stdout);
         }
         done = len < sizeof(buf);
         if (XML_Parse(parser, buf, len, done) == XML_STATUS_ERROR) {
-            fprintf(stderr, "Parse error at line %iu:\n%s\n",
+            g_fprintf (stderr, "Parse error at line %iu:\n%s\n",
                 (int) XML_GetCurrentLineNumber(parser),
                 XML_ErrorString(XML_GetErrorCode(parser)));
             exit(-1);
@@ -344,16 +361,108 @@ osmFile* osmRead(char *filename) {
     }
 
     g_hash_table_destroy(osm->nodeidx);
-    osm->nodeidx=NULL;
+    osm->nodeidx = NULL;
     
-    if (opts->debug > 0)
+    if (debug_level > 0)
         fprintf(stdout,"\r OSM parsing done. (%i/%i/%i/%i) [%fs]\n",
-                osm->nodecnt, osm->waycnt, cntTag, cntNd,
+                osm->nodecnt, osm->waycnt, data->cntTag, data->cntNd,
+                g_timer_elapsed(tOsmRead,NULL));
+    
+    g_timer_destroy(tOsmRead);
+    g_free(data);
+
+    return(osm);
+}
+
+osmFile* osmRead_from_buffer (const char *buffer, guint size, gint8 debug_level) {
+    if (debug_level > 1)
+        g_fprintf (stdout, "osmRead\n");
+
+    g_assert (buffer != NULL && size > 0);
+
+    // Local Vars
+    GTimer *tOsmRead = g_timer_new();
+    int isDone = 0;
+    osmFile *osm;
+    mapUserData *data;
+
+    // Init vars
+    data = g_new(mapUserData, 1);
+    data->cTag = NULL;
+    data->cNode = NULL;
+    data->cWay = NULL;
+    data->pool = memphis_data_pool_new ();
+    data->cntTag = 0;
+    data->cntNd = 0;
+    data->debug_level = debug_level;
+
+    osm = g_new(osmFile, 1);
+    osm->nodes = NULL;
+    osm->nodeidx = g_hash_table_new(g_int_hash, g_int_equal);
+    osm->nodecnt = 0;
+    osm->ways = NULL;
+    osm->waycnt = 0;
+    osm->minlon = -190;
+    osm->minlat = -190;
+    osm->maxlon = -190;
+    osm->maxlat = -190;
+
+    data->osm = osm;
+
+    if (debug_level > 0) {
+        g_fprintf (stdout, " OSM parsing   0%%");
+        fflush(stdout);
+    }
+
+    // Create XML Parser
+    XML_Parser parser = XML_ParserCreate(NULL);
+    XML_SetElementHandler(parser, osmStartElement, osmEndElement);
+    XML_SetUserData(parser, data);
+
+    // Parse the buffer
+    if (XML_Parse (parser, buffer, size, isDone) == XML_STATUS_ERROR) {
+        g_fprintf (stderr, "Parse error at line %iu:\n%s\n",
+            (int) XML_GetCurrentLineNumber(parser),
+            XML_ErrorString(XML_GetErrorCode(parser)));
+        exit (-1);
+    }
+
+    // Cleaning Memory
+    XML_ParserFree(parser);
+
+    // No bounds set
+    if(osm->minlon == -190 || osm->minlat == -190 ||
+        osm->maxlon == -190 || osm->maxlat == -190) {
+
+        osm->minlon = 360.0;
+        osm->minlat = 180.0;
+        osm->maxlon = -360.0;
+        osm->maxlat = -180.0;
+
+        osmNode *node;
+        LIST_FOREACH(node, osm->nodes) {
+            if(node->lon < osm->minlon)
+                osm->minlon = node->lon;
+            if(node->lat < osm->minlat)
+                osm->minlat = node->lat;
+            if(node->lon > osm->maxlon)
+                osm->maxlon = node->lon;
+            if(node->lat > osm->maxlat)
+                osm->maxlat = node->lat;
+        }
+    }
+
+    g_hash_table_destroy(osm->nodeidx);
+    osm->nodeidx = NULL;
+    
+    if (debug_level > 0)
+        fprintf(stdout,"\r OSM parsing done. (%i/%i/%i/%i) [%fs]\n",
+                osm->nodecnt, osm->waycnt, data->cntTag, data->cntNd,
                 g_timer_elapsed(tOsmRead,NULL));
     
     g_timer_destroy(tOsmRead);
 
-    return(osm);
+    return osm;
 }
 
 void osmFree(osmFile *osm) {
@@ -397,7 +506,7 @@ void osmFree(osmFile *osm) {
     }
     g_free(lnode);
     g_free(osm);
-};
+}
 
 /*
  * vim: expandtab shiftwidth=4 tabstop=4:

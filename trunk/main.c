@@ -1,40 +1,29 @@
 /*
  * Memphis - Cairo Rederer for OSM in C
- * Copyright (C) 2008  <marius.rieder@durchmesser.ch>
+ * Copyright (C) 2008  Marius Rieder <marius.rieder@durchmesser.ch>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#include <glib.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <expat.h>
 
-#include <sys/resource.h>
+#include <glib.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
 
 #include "main.h"
-#include "osm05.h"
-#include "renderer.h"
-#include "ruleset.h"
-#include "list.h"
-#include "mlib.h"
-
-// Global Vars
-GStringChunk *stringChunk;
-GTree        *stringTree;
+#include "memphis.h"
 
 /* Renderer Options */
 static memphisOpt opts_storage = {
@@ -47,6 +36,22 @@ static memphisOpt opts_storage = {
     .outdir = MEMPHIS_DEFAULT_OUTPUT_DIRECTORY,
 };
 memphisOpt  *opts = &opts_storage;
+
+static int draw (MemphisRenderer *renderer) {
+  gint z, zoom;
+  gchar *filename;
+
+  // Initialize all layers 
+  for (z = 0; z <= (opts->maxlayer - opts->minlayer); z++) {
+    zoom = z + opts->minlayer;
+    // Save Images
+    filename = g_strdup_printf ("%s/%02i.png", opts->outdir, zoom);
+    memphis_renderer_draw_png (renderer, filename, zoom);
+    g_free (filename);
+  }
+
+  return 0;
+}
 
 static gboolean set_verbosity_level(const gchar *option_name,
                                     const gchar *value,
@@ -117,14 +122,16 @@ static GOptionEntry memphis_option_entries[] = {
 };
 
 static void banner() {
-    fprintf(stdout,"Memphis OSM Renderer " MEMPHIS_VERSION "\n");
+    g_print("Memphis OSM Renderer " MEMPHIS_VERSION "\n");
 }
 
 int main(int argc, char **argv) {
 
-    cfgRules *ruleset;
-    osmFile *osm;
+    g_type_init ();
 
+    MemphisRuleSet *ruleset;
+    MemphisMap *osm;
+    MemphisRenderer *renderer;
     GError *error = NULL;
     GOptionContext *optctx;
     GOptionGroup *grp;
@@ -151,32 +158,31 @@ int main(int argc, char **argv) {
     if (opts->cfgfn == NULL || opts->osmfn == NULL) {
         g_print("error: rules file or osm map file missing:\n\n%s\n",
                 g_option_context_get_summary(optctx));
-        exit(-1);
+        return(-1);
     }
 
     g_option_context_free(optctx);
 
-    stringChunk = g_string_chunk_new(265);
-    stringTree = g_tree_new(m_tree_strcmp);
-
     banner();
 
-    ruleset = (cfgRules *) rulesetRead(opts->cfgfn);
-    if(ruleset == NULL)
+    ruleset = memphis_rule_set_new ();
+    memphis_rule_set_load_from_file (ruleset, opts->cfgfn);
+    if (ruleset->ruleset == NULL)
         return(-1);
 
-    osm = (osmFile *) osmRead(opts->osmfn);
-    if(ruleset == NULL)
+    osm = memphis_map_new ();
+    memphis_map_load_from_file (osm, opts->osmfn);
+    if (osm->map == NULL)
         return(-1);
 
-    g_tree_destroy(stringTree);
+    renderer = memphis_renderer_new_full (ruleset, osm);
+    memphis_renderer_set_debug_level (renderer, opts->debug);
+    
+    draw (renderer);
 
-    renderCairo(ruleset, osm);
-
-    osmFree(osm);
-    rulesetFree(ruleset);
-
-    g_string_chunk_free(stringChunk);
+    memphis_map_free (osm);
+    memphis_rule_set_free (ruleset);
+    memphis_renderer_free (renderer);
 
     return(0);
 }

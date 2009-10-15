@@ -1,6 +1,6 @@
 /*
  * Memphis - Cairo Rederer for OSM in C
- * Copyright (C) 2008  Marius Rieder <marius.rieder@durchmesser.ch>
+ * Copyright (C) 2009  Simon Wenner <simon@wenner.ch>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,18 +17,10 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef TEXTPATH_H
-#define TEXTPATH_H
+#include <glib.h>
 
-#include "ruleset.h"
-
-typedef void (*trans_point_func_t) (cairo_path_t *path, double *lengths, double *x, double *y);
-
-void textPath(cairo_t *cr, char *text);
-void charPath(cairo_t *cr, char *text);
-
-#endif /* TEXTPATH_H */
-
-/*
- * vim: expandtab shiftwidth=4 tabstop=4:
- */
+#include "memphis-map.h"
+#include "memphis-rule-set.h"
+#include "memphis-rule.h"
+#include "memphis-renderer.h"
+#include "memphis-data-pool.h"
