@@ -34,6 +34,7 @@ typedef struct _MemphisMapPrivate MemphisMapPrivate;
 
 struct _MemphisMapPrivate {
   gint8 debug_level;
+  osmFile *map;
 };
 
 static void
@@ -71,9 +72,10 @@ static void
 memphis_map_finalize (GObject *object)
 {
   MemphisMap *self = MEMPHIS_MAP (object);
+  MemphisMapPrivate *priv = MEMPHIS_MAP_GET_PRIVATE (self);
 
-  if (self->map != NULL)
-    osmFree (self->map);
+  if (priv->map != NULL)
+    osmFree (priv->map);
   G_OBJECT_CLASS (memphis_map_parent_class)->finalize (object);
 }
 
@@ -110,7 +112,7 @@ static void
 memphis_map_init (MemphisMap *self)
 {
   MemphisMapPrivate *priv = MEMPHIS_MAP_GET_PRIVATE (self);
-  self->map = NULL;
+  priv->map = NULL;
   priv->debug_level = 1;
 }
 
@@ -126,10 +128,10 @@ memphis_map_load_from_file (MemphisMap *map, const gchar *filename)
   g_return_if_fail (MEMPHIS_IS_MAP (map) && filename != NULL);
 
   MemphisMapPrivate *priv = MEMPHIS_MAP_GET_PRIVATE (map);
-  if (map->map != NULL)
-    osmFree (map->map);
+  if (priv->map != NULL)
+    osmFree (priv->map);
 
-  map->map = osmRead (filename, priv->debug_level);
+  priv->map = osmRead (filename, priv->debug_level);
 }
 
 void
@@ -138,10 +140,10 @@ memphis_map_load_from_data (MemphisMap *map, const gchar *data, guint size)
   g_return_if_fail (MEMPHIS_IS_MAP (map) && data != NULL);
 
   MemphisMapPrivate *priv = MEMPHIS_MAP_GET_PRIVATE (map);
-  if (map->map != NULL)
-    osmFree (map->map);
+  if (priv->map != NULL)
+    osmFree (priv->map);
 
-  map->map = osmRead_from_buffer (data, size, priv->debug_level);
+  priv->map = osmRead_from_buffer (data, size, priv->debug_level);
 }
 
 void
@@ -176,8 +178,21 @@ memphis_map_get_bounding_box (MemphisMap *map,
     gdouble *maxlat,
     gdouble *maxlon)
 {
-  *minlat = map->map->minlat;
-  *minlon = map->map->minlon;
-  *maxlat = map->map->maxlat;
-  *maxlon = map->map->maxlon;
+  MemphisMapPrivate *priv = MEMPHIS_MAP_GET_PRIVATE (map);
+
+  *minlat = priv->map->minlat;
+  *minlon = priv->map->minlon;
+  *maxlat = priv->map->maxlat;
+  *maxlon = priv->map->maxlon;
+}
+
+/* private shared functions */
+
+osmFile *
+memphis_map_get_osmFile (MemphisMap *map)
+{
+  g_assert (map != NULL);
+
+  MemphisMapPrivate *priv = MEMPHIS_MAP_GET_PRIVATE (map);
+  return priv->map;
 }

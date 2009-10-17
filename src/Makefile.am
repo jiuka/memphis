@@ -21,6 +21,7 @@ libmemphis_headers = \
 	memphis-rule-set.h \
 	memphis-map.h \
 	memphis-renderer.h \
+	memphis-private.h \
 	libmercator.h \
 	ruleset.h \
 	list.h \
@@ -41,9 +42,11 @@ libmemphis_0_1_la_SOURCES = \
 	memphis-data-pool.c
 	
 noinst_HEADERS = \
+	memphis-private.h \
 	libmercator.h \
 	list.h \
 	textpath.h \
+	osm05.h \
 	mlib.h
 
 libmemphis_include_HEADERS = \
@@ -53,7 +56,6 @@ libmemphis_include_HEADERS = \
 	memphis-rule-set.h \
 	memphis-map.h \
 	memphis-renderer.h \
-	osm05.h \
 	ruleset.h
 
 libmemphis_0_1_la_LIBADD = $(DEPS_LIBS)

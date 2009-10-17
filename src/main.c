@@ -172,8 +172,9 @@ int main(int argc, char **argv) {
 
     osm = memphis_map_new ();
     memphis_map_load_from_file (osm, opts->osmfn);
-    if (osm->map == NULL)
-        return(-1);
+
+    //if (osm->map == NULL)
+    //    return(-1);
 
     renderer = memphis_renderer_new_full (ruleset, osm);
     memphis_renderer_set_debug_level (renderer, opts->debug);
