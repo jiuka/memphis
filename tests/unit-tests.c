@@ -19,11 +19,13 @@
 
 #include "../src/memphis.h"
 #include <string.h>
+#include <math.h>
 
 #define RESOLUTION 512
 #define RULES_PATH "../demos/rule.xml"
 #define MAP_PATH "../demos/map.osm"
 #define INVALID_XML_FILE "../README"
+#define EPS 0.0001
 
 /* MemphisMap */
 
@@ -157,7 +159,7 @@ rule_set_background ()
 }
 
 static void
-rule_set_set_get_rule ()
+rule_set_get_rule ()
 {
   MemphisRule *rule;
   MemphisRuleSet *rules;
@@ -190,17 +192,101 @@ rule_set_set_get_rule ()
   g_assert_cmpstr (rule->values[0], ==, "wood");
   g_assert_cmpstr (rule->values[1], ==, "forest");
 
-  g_assert (rule->polygon != NULL);
-  rule->polygon->color_red = 255;
-  rule->polygon->color_green = 0;
-  rule->polygon->color_blue = 0;
-  rule->polygon->color_alpha = 255;
-
-  memphis_rule_set_set_rule (rules, rule);
   memphis_rule_free (rule);
   memphis_rule_set_free (rules);
 }
 
+static void
+rule_set_set_and_get_line_w_border ()
+{
+  MemphisRule *rule;
+  MemphisRuleSet *rules;
+  rules = memphis_rule_set_new ();
+  memphis_rule_set_set_debug_level (rules, 0);
+  memphis_rule_set_load_from_file (rules, RULES_PATH); //FIXME
+
+  guint8 r, g, b, a, zmin, zmax;
+  gdouble size;
+  r = g_test_rand_int_range (0, 255);
+  g = g_test_rand_int_range (0, 255);
+  b = g_test_rand_int_range (0, 255);
+  a = g_test_rand_int_range (0, 255);
+  zmin = g_test_rand_int_range (0, 255);
+  zmax = g_test_rand_int_range (0, 255);
+  size = g_test_rand_double_range (0.0, 1000.0);
+
+  guint8 br, bg, bb, ba, bzmin, bzmax;
+  gdouble bsize;
+  br = g_test_rand_int_range (0, 255);
+  bg = g_test_rand_int_range (0, 255);
+  bb = g_test_rand_int_range (0, 255);
+  ba = g_test_rand_int_range (0, 255);
+  bzmin = g_test_rand_int_range (0, 255);
+  bzmax = g_test_rand_int_range (0, 255);
+  bsize = g_test_rand_double_range (0.0, 1000.0);
+
+  rule = memphis_rule_set_get_rule (rules,
+      "railway:rail");
+  g_assert (MEMPHIS_RULE (rule));
+  g_assert (rule->line != NULL);
+  rule->line->color_red = r;
+  rule->line->color_green = g;
+  rule->line->color_blue = b;
+  rule->line->color_alpha = a;
+  rule->line->size = size;
+  rule->line->z_min = zmin;
+  rule->line->z_max = zmax;
+
+  g_assert (rule->border != NULL);
+  rule->border->color_red = br;
+  rule->border->color_green = bg;
+  rule->border->color_blue = bb;
+  rule->border->color_alpha = ba;
+  rule->border->size = bsize;
+  rule->border->z_min = bzmin;
+  rule->border->z_max = bzmax;
+
+  memphis_rule_set_set_rule (rules, rule);
+  memphis_rule_free (rule);
+
+  rule = memphis_rule_set_get_rule (rules,
+      "railway:rail");
+
+  g_assert_cmpint (rule->line->color_red, ==, r);
+  g_assert_cmpint (rule->line->color_green, ==, g);
+  g_assert_cmpint (rule->line->color_blue, ==, b);
+  //g_assert_cmpint (rule->line->color_alpha, ==, a); //TODO: support alpha
+  g_assert_cmpint (rule->line->z_min, ==, zmin);
+  g_assert_cmpint (rule->line->z_max, ==, zmax);
+  g_assert (fabs (rule->line->size - size)  < EPS);
+
+  g_assert_cmpint (rule->border->color_red, ==, br);
+  g_assert_cmpint (rule->border->color_green, ==, bg);
+  g_assert_cmpint (rule->border->color_blue, ==, bb);
+  //g_assert_cmpint (rule->border->color_alpha, ==, ba);
+  g_assert_cmpint (rule->border->z_min, ==, bzmin);
+  g_assert_cmpint (rule->border->z_max, ==, bzmax);
+  g_assert (fabs (rule->border->size - bsize)  < EPS);
+
+  memphis_rule_free (rule);
+  memphis_rule_set_free (rules);
+}
+/*
+static void
+rule_set_set_and_get_polygon_w_border ()
+{
+  MemphisRule *rule;
+  MemphisRuleSet *rules;
+  rules = memphis_rule_set_new ();
+  memphis_rule_set_set_debug_level (rules, 0);
+  memphis_rule_set_load_from_file (rules, RULES_PATH); //FIXME
+
+  // TODO
+
+  memphis_rule_free (rule);
+  memphis_rule_set_free (rules);
+}
+*/
 static void
 rule_set_rm_rule ()
 {
@@ -358,7 +444,11 @@ main (int argc, char **argv)
   g_test_add_func ("/rule_set/load_file1", rule_set_load_file1);
   //g_test_add_func ("/rule_set/load_file2", rule_set_load_file2);
   g_test_add_func ("/rule_set/background", rule_set_background);
-  g_test_add_func ("/rule_set/set_get_rule", rule_set_set_get_rule);
+  g_test_add_func ("/rule_set/get_rule", rule_set_get_rule);
+  g_test_add_func ("/rule_set/set_and_get_line_w_border",
+      rule_set_set_and_get_line_w_border);
+  //g_test_add_func ("/rule_set/set_and_get_polygon_w_border",
+  //    rule_set_set_and_get_polygon_w_border);
   g_test_add_func ("/rule_set/add_rule", rule_set_add_rule);
   g_test_add_func ("/rule_set/rm_rule", rule_set_rm_rule);
 
