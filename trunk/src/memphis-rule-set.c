@@ -267,7 +267,16 @@ rule_new_from_cfgRule (cfgRule *curr)
       else if (drw->type == LINE)
         {
           if (line_seen) {
-            rule->line = g_slice_new0 (MemphisRuleAttr);
+            /* line with border */
+            rule->border = g_slice_new0 (MemphisRuleAttr);
+            rule->border->color_red = rule->line->color_red;
+            rule->border->color_green = rule->line->color_green;
+            rule->border->color_blue = rule->line->color_blue;
+            rule->border->color_alpha = rule->line->color_alpha;
+            rule->border->size = (rule->line->size - drw->width) * 0.5;
+            rule->border->z_min = rule->line->z_min;
+            rule->border->z_max = rule->line->z_max;
+
             rule->line->color_red = drw->color[0];
             rule->line->color_green = drw->color[1];
             rule->line->color_blue = drw->color[2];
@@ -276,14 +285,15 @@ rule_new_from_cfgRule (cfgRule *curr)
             rule->line->z_min = drw->minzoom;
             rule->line->z_max = drw->maxzoom;
           } else {
-            rule->border = g_slice_new0 (MemphisRuleAttr);
-            rule->border->color_red = drw->color[0];
-            rule->border->color_green = drw->color[1];
-            rule->border->color_blue = drw->color[2];
-            rule->border->color_alpha = 255;
-            rule->border->size = drw->width;
-            rule->border->z_min = drw->minzoom;
-            rule->border->z_max = drw->maxzoom;
+            /* only a single line */
+            rule->line = g_slice_new0 (MemphisRuleAttr);
+            rule->line->color_red = drw->color[0];
+            rule->line->color_green = drw->color[1];
+            rule->line->color_blue = drw->color[2];
+            rule->line->color_alpha = 255;
+            rule->line->size = drw->width;
+            rule->line->z_min = drw->minzoom;
+            rule->line->z_max = drw->maxzoom;
             line_seen = TRUE;
           }
         }
@@ -353,7 +363,10 @@ add_new_cfgDraws (cfgRule *out, MemphisRule *rule)
       tmp->color[0] = rule->border->color_red;
       tmp->color[1] = rule->border->color_green;
       tmp->color[2] = rule->border->color_blue;
-      tmp->width = rule->border->size;
+      if (rule->line != NULL)
+        tmp->width = 2.0 * rule->border->size + rule->line->size;
+      else
+        tmp->width = rule->border->size; /* polygon border */
       drw = tmp;
     }
   if (rule->text != NULL)
