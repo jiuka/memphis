@@ -19,11 +19,13 @@ AC_CONFIG_MACRO_DIR([m4])
 
 AM_INIT_AUTOMAKE
 AC_LIBTOOL_DLOPEN
-AM_PROG_LIBTOOL
+
+m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
 # Checks for programs.
 AC_PROG_CC
 AM_PROG_CC_C_O
+AM_PROG_LIBTOOL
 
 CPPFLAGS+="-Wall -Werror"
 
@@ -72,6 +74,7 @@ fi
 AC_CONFIG_FILES([Makefile
                  src/Makefile
                  demos/Makefile
+                 tests/Makefile
                  memphis.pc
                 ])
 AC_OUTPUT
