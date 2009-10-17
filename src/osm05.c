@@ -316,8 +316,14 @@ osmFile* osmRead(const char *filename, gint8 debug_level) {
     while(!feof(fd)) {
         len = (int)fread(buf, 1, BUFFSIZE, fd);
         if (ferror(fd)) {
-            g_fprintf (stderr, "Read error\n");
-            return NULL;
+          g_fprintf (stderr, "Read error\n");
+          // cleanup
+          XML_ParserFree(parser);
+          g_free(buf);
+          fclose(fd);
+          g_free(data);
+          osmFree(osm);
+          return NULL;
         }
         read += len;
         if (debug_level > 0) {
@@ -326,10 +332,16 @@ osmFile* osmRead(const char *filename, gint8 debug_level) {
         }
         done = len < sizeof(buf);
         if (XML_Parse(parser, buf, len, done) == XML_STATUS_ERROR) {
-            g_fprintf (stderr, "Parse error at line %iu:\n%s\n",
-                (int) XML_GetCurrentLineNumber(parser),
-                XML_ErrorString(XML_GetErrorCode(parser)));
-            exit(-1);
+          g_fprintf (stderr, "Parse error at line %i: %s\n",
+              (int) XML_GetCurrentLineNumber(parser),
+              XML_ErrorString(XML_GetErrorCode(parser)));
+          // cleanup
+          XML_ParserFree(parser);
+          g_free(buf);
+          fclose(fd);
+          g_free(data);
+          osmFree(osm);
+          return NULL;
         }
     }
 
@@ -371,7 +383,7 @@ osmFile* osmRead(const char *filename, gint8 debug_level) {
     g_timer_destroy(tOsmRead);
     g_free(data);
 
-    return(osm);
+    return osm;
 }
 
 osmFile* osmRead_from_buffer (const char *buffer, guint size, gint8 debug_level) {
@@ -421,14 +433,19 @@ osmFile* osmRead_from_buffer (const char *buffer, guint size, gint8 debug_level)
 
     // Parse the buffer
     if (XML_Parse (parser, buffer, size, isDone) == XML_STATUS_ERROR) {
-        g_fprintf (stderr, "Parse error at line %iu:\n%s\n",
-            (int) XML_GetCurrentLineNumber(parser),
-            XML_ErrorString(XML_GetErrorCode(parser)));
-        exit (-1);
+      g_fprintf (stderr, "Parse error at line %iu:\n%s\n",
+          (int) XML_GetCurrentLineNumber(parser),
+          XML_ErrorString(XML_GetErrorCode(parser)));
+      // cleanup
+      XML_ParserFree(parser);
+      g_free(data);
+      osmFree(osm);
+      return NULL;
     }
 
     // Cleaning Memory
     XML_ParserFree(parser);
+    g_free(data);
 
     // No bounds set
     if(osm->minlon == -190 || osm->minlat == -190 ||
