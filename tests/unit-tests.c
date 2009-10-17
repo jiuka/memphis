@@ -136,6 +136,16 @@ rule_set_load_file1 ()
 }
 
 static void
+rule_set_load_file2 ()
+{
+  MemphisRuleSet *rules;
+  rules = memphis_rule_set_new ();
+  memphis_rule_set_set_debug_level (rules, 0);
+  memphis_rule_set_load_from_file (rules, INVALID_XML_FILE);
+  memphis_rule_set_free (rules);
+}
+
+static void
 rule_set_background ()
 {
   MemphisRuleSet *rules;
@@ -156,7 +166,7 @@ rule_set_background ()
   g_assert_cmpuint(r1, ==, r2);
   g_assert_cmpuint(g1, ==, g2);
   g_assert_cmpuint(b1, ==, b2);
-  //TODO g_assert_cmpuint(a1, ==, a2);
+  //TODO g_assert_cmpuint(a1, ==, a2); //TODO: support alpha
   memphis_rule_set_free (rules);
 }
 
@@ -444,7 +454,7 @@ main (int argc, char **argv)
   g_test_add_func ("/rule_set/new", rule_set_new);
   g_test_add_func ("/rule_set/load_data", rule_set_load_data);
   g_test_add_func ("/rule_set/load_file1", rule_set_load_file1);
-  //g_test_add_func ("/rule_set/load_file2", rule_set_load_file2);
+  g_test_add_func ("/rule_set/load_file2", rule_set_load_file2);
   g_test_add_func ("/rule_set/background", rule_set_background);
   g_test_add_func ("/rule_set/get_rule", rule_set_get_rule);
   g_test_add_func ("/rule_set/set_and_get_line_w_border",

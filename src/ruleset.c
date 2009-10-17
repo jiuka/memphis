@@ -71,10 +71,10 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
 
         while (*atts != NULL) {
             if(strcmp((char *) *(atts), "background") == 0) {
-                sscanf((char *) *(atts+1),"#%2x%2x%2x",
-                                    (unsigned int *)&ruleset->background[0],
-                                    (unsigned int *)&ruleset->background[1],
-                                    (unsigned int *)&ruleset->background[2]);
+              sscanf((char *) *(atts+1),"#%2x%2x%2x",
+                  (unsigned int *)&ruleset->background[0],
+                  (unsigned int *)&ruleset->background[1],
+                  (unsigned int *)&ruleset->background[2]);
             }
             atts+=2;
         }
@@ -204,11 +204,11 @@ cfgEndElement(void *userData, const char *name) {
         g_fprintf (stdout, "cfgEndElement\n");
 
     if (strcmp(name, "rule") == 0) {
-        // Fetching Parrent from stack
+        // Fetching Parent from stack
         if(ruleset->depth > 0) {
             if (data->ruleStack[ruleset->depth-1]->parent == NULL) {
                 data->ruleStack[ruleset->depth]->parent = data->ruleStack[ruleset->depth-1];
-            } else {   // If parent allready closed we are else.
+            } else {   // If parent already closed we are else.
                 data->ruleStack[ruleset->depth]->nparent = data->ruleStack[ruleset->depth-1];
             }
         }
@@ -288,7 +288,13 @@ cfgRules* rulesetRead(const char *filename, gint8 debug_level) {
          len = (int)fread(buf, 1, BUFFSIZE, fd);
          if (ferror(fd)) {
             g_fprintf(stderr, "Read error\n");
-            return NULL;;
+            // cleanup
+            XML_ParserFree(parser);
+            g_free(buf);
+            fclose(fd);
+            g_free(data);
+            g_free(ruleset);
+            return NULL;
         }
         read += len;
         if (debug_level > 0) {
@@ -297,10 +303,17 @@ cfgRules* rulesetRead(const char *filename, gint8 debug_level) {
         }
         done = len < sizeof(buf);
         if (XML_Parse(parser, buf, len, done) == XML_STATUS_ERROR) {
-            g_fprintf(stderr, "Parse error at line %iu:\n%s\n",
-                (int) XML_GetCurrentLineNumber(parser),
-                XML_ErrorString(XML_GetErrorCode(parser)));
-            exit(-1);
+          g_fprintf(stderr, "Parse error at line %i: %s\n",
+              (int) XML_GetCurrentLineNumber(parser),
+              XML_ErrorString(XML_GetErrorCode(parser)));
+
+          // cleanup
+          XML_ParserFree(parser);
+          g_free(buf);
+          fclose(fd);
+          g_free(data);
+          g_free(ruleset);
+          return NULL;
         }
     }
 
@@ -317,7 +330,7 @@ cfgRules* rulesetRead(const char *filename, gint8 debug_level) {
     
     g_timer_destroy(tRulesetRead);
 
-    return(ruleset);
+    return ruleset;
 }
 
 /**
@@ -365,10 +378,14 @@ cfgRules* rulesetRead_from_buffer (const char *buffer, guint size, gint8 debug_l
 
     // Parse the buffer
     if (XML_Parse (parser, buffer, size, isDone) == XML_STATUS_ERROR) {
-        g_fprintf (stderr, "Parse error at line %iu:\n%s\n",
-            (int) XML_GetCurrentLineNumber(parser),
-            XML_ErrorString(XML_GetErrorCode(parser)));
-        exit (-1);
+      g_fprintf (stderr, "Parse error at line %i: %s\n",
+          (int) XML_GetCurrentLineNumber(parser),
+          XML_ErrorString(XML_GetErrorCode(parser)));
+      // cleanup
+      XML_ParserFree(parser);
+      g_free(data);
+      g_free(ruleset);
+      return NULL;
     }
 
     // Cleaning Memory
@@ -382,7 +399,7 @@ cfgRules* rulesetRead_from_buffer (const char *buffer, guint size, gint8 debug_l
 
     g_timer_destroy(tRulesetRead);
 
-    return(ruleset);
+    return ruleset;
 }
 
 void rulesetFree(cfgRules * ruleset) {
