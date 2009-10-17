@@ -32,26 +32,26 @@ typedef struct _MemphisRuleAttr MemphisRuleAttr;
  * MemphisRuleAttr:
  * @z_min: minimum visible zoom level
  * @z_max: maximum visible zoom level
- * @style: field for future use (line style, polygon pattern...)
- * @size: the size
  * @color_red: red component, between 0 and 255
  * @color_green: green component, between 0 and 255
  * @color_blue: blue component, between 0 and 255
  * @color_alpha: transparency component, between 0 and 255
+ * @style: field for future use (line style, polygon pattern...)
+ * @size: the size
  *
  * Defines the drawing attributes for a #MemphisRule.
  *
  * Since: 0.1
  */
 struct _MemphisRuleAttr {
-  gint8 z_min;
-  gint8 z_max;
-  gchar *style;
-  gdouble size;
+  guint8 z_min;
+  guint8 z_max;
   guint8 color_red;
   guint8 color_green;
   guint8 color_blue;
   guint8 color_alpha;
+  gchar *style;
+  gdouble size;
 };
 
 /**
