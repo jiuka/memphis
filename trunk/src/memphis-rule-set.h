@@ -21,7 +21,6 @@
 #define _MEMPHIS_RULE_SET
 
 #include <glib-object.h>
-#include "ruleset.h"
 #include "memphis-rule.h"
 
 G_BEGIN_DECLS
@@ -45,7 +44,6 @@ G_BEGIN_DECLS
 
 typedef struct {
   GObject parent;
-  cfgRules *ruleset;
 } MemphisRuleSet;
 
 typedef struct {

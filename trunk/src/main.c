@@ -167,8 +167,8 @@ int main(int argc, char **argv) {
 
     ruleset = memphis_rule_set_new ();
     memphis_rule_set_load_from_file (ruleset, opts->cfgfn);
-    if (ruleset->ruleset == NULL)
-        return(-1);
+    //if (ruleset->ruleset == NULL)
+    //    return(-1);
 
     osm = memphis_map_new ();
     memphis_map_load_from_file (osm, opts->osmfn);
