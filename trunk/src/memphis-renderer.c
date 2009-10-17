@@ -23,10 +23,10 @@
 #include <glib/gstdio.h>
 
 #include "memphis-renderer.h"
+#include "memphis-private.h"
 #include "list.h"
 #include "libmercator.h"
 #include "ruleset.h"
-#include "osm05.h"
 #include "textpath.h"
 
 G_DEFINE_TYPE (MemphisRenderer, memphis_renderer, G_TYPE_OBJECT)
@@ -122,7 +122,9 @@ memphis_renderer_draw_png (MemphisRenderer *renderer,
   g_return_if_fail (MEMPHIS_IS_RULE_SET (priv->rules)
       && MEMPHIS_IS_MAP (priv->map));
 
-  if (!(priv->rules->ruleset && priv->map->map)) {
+  osm = memphis_map_get_osmFile (priv->map);
+
+  if (!(priv->rules->ruleset && osm != NULL)) {
     if (priv->debug_level > 0)
       g_fprintf (stdout, " No map and/or rules data: Draw nothing\n");
     return;
@@ -135,7 +137,6 @@ memphis_renderer_draw_png (MemphisRenderer *renderer,
       MEMPHIS_RENDERER_MAX_ZOOM_LEVEL);
 
   ruleset = priv->rules->ruleset;
-  osm = priv->map->map;
   min = coord2xy (osm->minlat, osm->minlon, zoom_level, priv->resolution);
   max = coord2xy (osm->maxlat, osm->maxlon, zoom_level, priv->resolution);
   int w = (int) ceil (max.x - min.x);
@@ -187,20 +188,20 @@ memphis_renderer_draw_tile (MemphisRenderer *renderer,
   cfgRules *ruleset;
   coordinates crd;
 
-  if (!MEMPHIS_IS_RULE_SET (priv->rules)
-      || !MEMPHIS_IS_MAP (priv->map)) {
-    if (priv->debug_level > 0)
-      g_fprintf (stdout, " No map and/or rules data: Draw nothing\n");
-    return;
-  }
-  if (!(priv->rules->ruleset && priv->map->map)) {
+  if (!MEMPHIS_IS_RULE_SET (priv->rules) || !MEMPHIS_IS_MAP (priv->map)) {
     if (priv->debug_level > 0)
       g_fprintf (stdout, " No map and/or rules data: Draw nothing\n");
     return;
   }
 
+  osm = memphis_map_get_osmFile (priv->map);
   ruleset = priv->rules->ruleset;
-  osm = priv->map->map;
+
+  if (!(priv->rules->ruleset && osm)) {
+    if (priv->debug_level > 0)
+      g_fprintf (stdout, " No map and/or rules data: Draw nothing\n");
+    return;
+  }
 
   info = g_new (renderInfo, 1);
   info->cr = cr;
@@ -503,12 +504,16 @@ memphis_renderer_get_min_x_tile (MemphisRenderer *self, guint zoom_level)
   g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), -1);
 
   MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
+  osmFile *osm;
+
   if (!MEMPHIS_IS_MAP (priv->map))
     return -1;
-  if (priv->map->map == NULL)
+
+  osm = memphis_map_get_osmFile (priv->map);
+  if (osm == NULL)
     return -1;
 
-  return lon2tilex (priv->map->map->minlon, zoom_level);
+  return lon2tilex (osm->minlon, zoom_level);
 }
 
 gint
@@ -517,12 +522,16 @@ memphis_renderer_get_max_x_tile (MemphisRenderer *self, guint zoom_level)
   g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), -1);
   
   MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
+  osmFile *osm;
+
   if (!MEMPHIS_IS_MAP (priv->map))
     return -1;
-  if (priv->map->map == NULL)
+
+  osm = memphis_map_get_osmFile (priv->map);
+  if (osm == NULL)
     return -1;
 
-  return lon2tilex (priv->map->map->maxlon, zoom_level);
+  return lon2tilex (osm->maxlon, zoom_level);
 }
 
 gint
@@ -531,12 +540,16 @@ memphis_renderer_get_min_y_tile (MemphisRenderer *self, guint zoom_level)
   g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), -1);
   
   MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
+  osmFile *osm;
+
   if (!MEMPHIS_IS_MAP (priv->map))
     return -1;
-  if (priv->map->map == NULL)
+
+  osm = memphis_map_get_osmFile (priv->map);
+  if (osm == NULL)
     return -1;
 
-  return lat2tiley (priv->map->map->maxlat, zoom_level);
+  return lat2tiley (osm->maxlat, zoom_level);
 }
 
 gint
@@ -545,12 +558,16 @@ memphis_renderer_get_max_y_tile (MemphisRenderer *self, guint zoom_level)
   g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), -1);
   
   MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
+  osmFile *osm;
+
   if (!MEMPHIS_IS_MAP (priv->map))
     return -1;
-  if (priv->map->map == NULL)
+
+  osm = memphis_map_get_osmFile (priv->map);
+  if (osm == NULL)
     return -1;
 
-  return lat2tiley (priv->map->map->minlat, zoom_level);
+  return lat2tiley (osm->minlat, zoom_level);
 }
 
 gboolean
@@ -561,16 +578,19 @@ memphis_renderer_tile_has_data (MemphisRenderer *self, guint x, guint y,
 
   gint minx, miny, maxx, maxy;
   MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
+  osmFile *osm;
 
   if (!MEMPHIS_IS_MAP (priv->map))
     return FALSE;
-  if (priv->map->map == NULL)
+
+  osm = memphis_map_get_osmFile (priv->map);
+  if (osm == NULL)
     return FALSE;
 
-  minx = lon2tilex (priv->map->map->minlon, zoom_level);
-  miny = lat2tiley (priv->map->map->minlat, zoom_level);
-  maxx = lon2tilex (priv->map->map->maxlon, zoom_level);
-  maxy = lat2tiley (priv->map->map->maxlat, zoom_level);
+  minx = lon2tilex (osm->minlon, zoom_level);
+  miny = lat2tiley (osm->minlat, zoom_level);
+  maxx = lon2tilex (osm->maxlon, zoom_level);
+  maxy = lat2tiley (osm->maxlat, zoom_level);
 
   if (x < minx || x > maxx || y < miny || y > maxy)
     return FALSE;
@@ -812,7 +832,7 @@ static void renderPaths (renderInfo *info, int layer,
   int paths = 0;
   osmWay *way;
   MemphisRendererPrivate *p = info->priv;
-  osmFile *osm = p->map->map;
+  osmFile *osm = memphis_map_get_osmFile (p->map); // FIXME: speed
 
   // Loop through ways for
   LIST_FOREACH(way, osm->ways) {
@@ -850,7 +870,7 @@ static void renderText (renderInfo *info, int layer,
     cfgRule *rule, cfgDraw *draw) {
   osmWay *way;
   MemphisRendererPrivate *p = info->priv;
-  osmFile *osm = p->map->map;
+  osmFile *osm = memphis_map_get_osmFile (p->map); // FIXME: speed
 
   while (draw) {
       if (draw->type == TEXT) {
