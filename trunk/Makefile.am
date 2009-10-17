@@ -1,4 +1,4 @@
-SUBDIRS = src demos
+SUBDIRS = src demos tests
 
 ACLOCAL_AMFLAGS = -I m4
 
