@@ -365,6 +365,7 @@ main (int argc, char **argv)
   g_test_add_func ("/renderer/draw_nothing", renderer_draw_nothing);
   g_test_add_func ("/renderer/draw_empty_map_and_rules",
       renderer_draw_empty_map_and_rules);
+  // TODO: huge drawing test, performance tests
 
   return g_test_run ();
 }

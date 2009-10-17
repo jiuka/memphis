@@ -88,7 +88,7 @@ memphis_rule_init (MemphisRule *self)
 {
   self->keys = NULL;
   self->values = NULL;
-  self->type = 0;
+  self->type = MEMPHIS_RULE_TYPE_UNKNOWN;
 
   self->polygon_color[0] = -1;
   self->polygon_color[1] = -1;
