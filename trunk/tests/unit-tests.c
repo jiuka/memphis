@@ -88,7 +88,7 @@ rule_new ()
 {
   MemphisRule *rule = NULL;
   rule = memphis_rule_new ();
-  g_assert (MEMPHIS_IS_RULE (rule));
+  g_assert (MEMPHIS_RULE (rule));
   memphis_rule_free (rule);
 }
 
@@ -174,7 +174,7 @@ rule_set_set_get_rule ()
   rule = memphis_rule_set_get_rule (rules,
       "highway:motorway");
 
-  g_assert (MEMPHIS_IS_RULE (rule));
+  g_assert (MEMPHIS_RULE (rule));
   g_assert_cmpstr (rule->keys[0], ==, "highway");
   g_assert_cmpstr (rule->values[0], ==, "motorway");
 
@@ -184,19 +184,18 @@ rule_set_set_get_rule ()
   rule = memphis_rule_set_get_rule (rules,
       "landuse|natural:wood|forest");
 
-  g_assert (MEMPHIS_IS_RULE (rule));
+  g_assert (MEMPHIS_RULE (rule));
   g_assert_cmpstr (rule->keys[0], ==, "landuse");
   g_assert_cmpstr (rule->keys[1], ==, "natural");
   g_assert_cmpstr (rule->values[0], ==, "wood");
   g_assert_cmpstr (rule->values[1], ==, "forest");
 
-  rule->line_size = 10.0;
-  rule->line_color[0] = 255;
-  rule->line_color[1] = 0;
-  rule->line_color[2] = 0;
-  rule->border_size = 12.0;
-  rule->text_z[0] = 13;
-  rule->text_size = 9.0;
+  g_assert (rule->polygon != NULL);
+  rule->polygon->color_red = 255;
+  rule->polygon->color_green = 0;
+  rule->polygon->color_blue = 0;
+  rule->polygon->color_alpha = 255;
+
   memphis_rule_set_set_rule (rules, rule);
   memphis_rule_free (rule);
   memphis_rule_set_free (rules);
@@ -231,10 +230,13 @@ rule_set_add_rule ()
   a_rule = memphis_rule_new ();
   a_rule->keys = g_strsplit ("highway", "|", -1);
   a_rule->values = g_strsplit ("test|test2", "|", -1);
-  a_rule->line_size = 5.0;
-  a_rule->line_color[0] = 255;
-  a_rule->line_color[1] = 0;
-  a_rule->line_color[2] = 0;
+
+  g_assert (a_rule->line == NULL);
+  a_rule->line = g_new (MemphisRuleAttr, 1);
+  a_rule->line->size = 5.0;
+  a_rule->line->color_red = 255;
+  a_rule->line->color_green = 0;
+  a_rule->line->color_blue = 0;
   memphis_rule_set_set_rule (rules, a_rule);
 
   b_rule = memphis_rule_set_get_rule (rules, "highway:test|test2");

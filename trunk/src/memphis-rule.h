@@ -1,6 +1,5 @@
 /*
- * Memphis - Cairo Rederer for OSM in C
- * Copyright (C) 2009  Simon Wenner <simon@wenner.ch>
+ * Copyright (C) 2009 Simon Wenner <simon@wenner.ch>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,72 +16,85 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef _MEMPHIS_RULE
-#define _MEMPHIS_RULE
+#ifndef MEMPHIS_RULE_H
+#define MEMPHIS_RULE_H
 
 #include <glib-object.h>
 
 G_BEGIN_DECLS
 
-#define MEMPHIS_TYPE_RULE memphis_rule_get_type()
+typedef struct _MemphisRule MemphisRule;
+typedef struct _MemphisRuleAttr MemphisRuleAttr;
 
-#define MEMPHIS_RULE(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), MEMPHIS_TYPE_RULE, MemphisRule))
+#define MEMPHIS_RULE(obj)     ((MemphisRule *) (obj))
 
-#define MEMPHIS_RULE_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_CAST ((klass), MEMPHIS_TYPE_RULE, MemphisRuleClass))
+/**
+ * MemphisRuleAttr:
+ * @z_min: minimum visible zoom level
+ * @z_max: maximum visible zoom level
+ * @style: field for future use (line style, polygon pattern...)
+ * @size: the size
+ * @color_red: red component, between 0 and 255
+ * @color_green: green component, between 0 and 255
+ * @color_blue: blue component, between 0 and 255
+ * @color_alpha: transparency component, between 0 and 255
+ *
+ * Defines the drawing attributes for a #MemphisRule.
+ *
+ * Since: 0.1
+ */
+struct _MemphisRuleAttr {
+  gint8 z_min;
+  gint8 z_max;
+  gchar *style;
+  gdouble size;
+  guint8 color_red;
+  guint8 color_green;
+  guint8 color_blue;
+  guint8 color_alpha;
+};
 
-#define MEMPHIS_IS_RULE(obj) \
-  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), MEMPHIS_TYPE_RULE))
-
-#define MEMPHIS_IS_RULE_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_TYPE ((klass), MEMPHIS_TYPE_RULE))
-
-#define MEMPHIS_RULE_GET_CLASS(obj) \
-  (G_TYPE_INSTANCE_GET_CLASS ((obj), MEMPHIS_TYPE_RULE, MemphisRuleClass))
-
-typedef enum
-{
+/**
+ * MemphisRuleType:
+ *
+ * Defines a the data type of the rule. Only ways are supported in
+ * Memphis 0.1.x.
+ *
+ * Since: 0.1
+ */
+typedef enum {
   MEMPHIS_RULE_TYPE_UNKNOWN,
-  MEMPHIS_RULE_TYPE_WAY,
   MEMPHIS_RULE_TYPE_NODE,
+  MEMPHIS_RULE_TYPE_WAY,
   MEMPHIS_RULE_TYPE_RELATION
 } MemphisRuleType;
 
-typedef struct {
-  GObject parent;
-
+/**
+ * MemphisRule:
+ *
+ * Defines a drawing rule for the #MemphisRuleSet.
+ *
+ * Since: 0.1
+ */
+struct _MemphisRule {
   gchar **keys;
   gchar **values;
   MemphisRuleType type;
+  MemphisRuleAttr *polygon;
+  MemphisRuleAttr *line;
+  MemphisRuleAttr *border;
+  MemphisRuleAttr *text;
+};
 
-  gint16 polygon_color[3];
-  gint16 polygon_z[2];
+GType memphis_rule_get_type (void) G_GNUC_CONST;
+#define MEMPHIS_TYPE_RULE (memphis_rule_get_type ())
 
-  gint16 line_color[3];
-  gdouble line_size;
-  gint16 line_z[2];
+MemphisRule * memphis_rule_new (void);
 
-  gint16 border_color[3];
-  gdouble border_size;
-  gint16 border_z[2];
+MemphisRule * memphis_rule_copy (const MemphisRule *rule);
 
-  gint16 text_color[3];
-  gdouble text_size;
-  gint16 text_z[2];
-} MemphisRule;
-
-typedef struct {
-  GObjectClass parent_class;
-} MemphisRuleClass;
-
-GType memphis_rule_get_type (void);
-
-MemphisRule* memphis_rule_new (void);
-void memphis_rule_free (MemphisRule* rule);
+void memphis_rule_free (MemphisRule *rule);
 
 G_END_DECLS
 
-#endif /* _MEMPHIS_RULE */
-
-
+#endif
