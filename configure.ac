@@ -10,9 +10,9 @@ m4_define([api_version],
           [memphis_major_version.memphis_minor_version])
 
 AC_PREREQ(2.61)
-AC_INIT([libmempis],
+AC_INIT([mempis],
         [memphis_version],
-        marius.rieder@durchmesser.ch)
+        [http://trac.openstreetmap.ch/trac/memphis/])
 AC_CONFIG_SRCDIR([src/memphis.h])
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -77,7 +77,7 @@ AC_CONFIG_FILES([Makefile
 AC_OUTPUT
 
 echo ""
-echo " libmemphis $VERSION"
+echo " memphis $VERSION"
 echo ""
 echo "          Prefix: ${prefix}"
 echo "  Compiler flags: ${CPPFLAGS}"
