@@ -134,7 +134,7 @@ rule_set_load_file1 ()
 }
 
 static void
-rule_set_bg ()
+rule_set_background ()
 {
   MemphisRuleSet *rules;
   guint16 r1, g1, b1;
@@ -216,6 +216,38 @@ rule_set_rm_rule ()
 
   memphis_rule_set_free (rules);
 }
+
+static void
+rule_set_add_rule ()
+{
+  MemphisRuleSet *rules;
+  MemphisRule *a_rule;
+  MemphisRule *b_rule;
+
+  rules = memphis_rule_set_new ();
+  memphis_rule_set_set_debug_level (rules, 0);
+  memphis_rule_set_load_from_file (rules, RULES_PATH);
+
+  a_rule = memphis_rule_new ();
+  a_rule->keys = g_strsplit ("highway", "|", -1);
+  a_rule->values = g_strsplit ("test|test2", "|", -1);
+  a_rule->line_size = 5.0;
+  a_rule->line_color[0] = 255;
+  a_rule->line_color[1] = 0;
+  a_rule->line_color[2] = 0;
+  memphis_rule_set_set_rule (rules, a_rule);
+
+  b_rule = memphis_rule_set_get_rule (rules, "highway:test|test2");
+  g_assert (b_rule != NULL);
+
+  // TODO: compare keys and values
+
+  memphis_rule_free (a_rule);
+  memphis_rule_free (b_rule);
+  memphis_rule_set_free (rules);
+}
+
+// TODO: incomplete rules? conflicting rules? empty rule-set?
 
 /* MemphisRenderer */
 
@@ -323,8 +355,9 @@ main (int argc, char **argv)
   g_test_add_func ("/rule_set/load_data", rule_set_load_data);
   g_test_add_func ("/rule_set/load_file1", rule_set_load_file1);
   //g_test_add_func ("/rule_set/load_file2", rule_set_load_file2);
-  g_test_add_func ("/rule_set/bg", rule_set_bg);
+  g_test_add_func ("/rule_set/background", rule_set_background);
   g_test_add_func ("/rule_set/set_get_rule", rule_set_set_get_rule);
+  g_test_add_func ("/rule_set/add_rule", rule_set_add_rule);
   g_test_add_func ("/rule_set/rm_rule", rule_set_rm_rule);
 
   g_test_add_func ("/renderer/new", renderer_new);
