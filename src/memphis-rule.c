@@ -1,6 +1,8 @@
 /*
- * Memphis - Cairo Rederer for OSM in C
- * Copyright (C) 2009  Simon Wenner <simon@wenner.ch>
+ * Copyright (C) 2009 Simon Wenner <simon@wenner.ch>
+ *
+ * This file is inspired by clutter-color.c which is
+ * Copyright (C) 2006 OpenedHand, and has the same license.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,115 +19,143 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+/**
+ * SECTION:memphis-rule
+ * @short_description: A basic struct to describe a drawing rule for
+ * the #MemphisRuleSet.
+ */
+
 #include "memphis-rule.h"
 
-G_DEFINE_TYPE (MemphisRule, memphis_rule, G_TYPE_OBJECT)
-
-#define GET_PRIVATE(o) \
-  (G_TYPE_INSTANCE_GET_PRIVATE ((o), MEMPHIS_TYPE_RULE, MemphisRulePrivate))
-
-typedef struct _MemphisRulePrivate MemphisRulePrivate;
-
-/*
-struct _MemphisRulePrivate {
-    int dummy;
-};
-*/
-
 static void
-memphis_rule_get_property (GObject *object, guint property_id,
-                              GValue *value, GParamSpec *pspec)
+rule_attr_free (MemphisRuleAttr * attr)
 {
-  switch (property_id) {
-  default:
-    G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-  }
+  g_assert (attr != NULL);
+
+  if (attr->style)
+    g_free (attr->style);
+
+  g_slice_free (MemphisRuleAttr, attr);
 }
 
-static void
-memphis_rule_set_property (GObject *object, guint property_id,
-                              const GValue *value, GParamSpec *pspec)
+static MemphisRuleAttr *
+rule_attr_copy (MemphisRuleAttr * attr)
 {
-  switch (property_id) {
-  default:
-    G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-  }
+  g_assert (attr != NULL);
+
+  MemphisRuleAttr * new;
+  new = g_slice_dup (MemphisRuleAttr, attr);
+
+  if (attr->style)
+    new->style = g_strdup (attr->style);
+
+  return new;
 }
 
-static void
-memphis_rule_dispose (GObject *object)
+GType
+memphis_rule_get_type (void)
 {
-  G_OBJECT_CLASS (memphis_rule_parent_class)->dispose (object);
+  static GType type = 0;
+
+  if (G_UNLIKELY (type == 0))
+    {
+      type = g_boxed_type_register_static (
+          g_intern_static_string ("MemphisRule"),
+          (GBoxedCopyFunc) memphis_rule_copy,
+          (GBoxedFreeFunc) memphis_rule_free);
+    }
+
+  return type;
 }
 
-static void
-memphis_rule_finalize (GObject *object)
-{
-  MemphisRule *self = MEMPHIS_RULE (object);
-
-  if (self->keys != NULL)
-    g_strfreev (self->keys);
-  if (self->values != NULL)
-    g_strfreev (self->values);
-  G_OBJECT_CLASS (memphis_rule_parent_class)->finalize (object);
-}
-
-static void
-memphis_rule_class_init (MemphisRuleClass *klass)
-{
-  GObjectClass *object_class = G_OBJECT_CLASS (klass);
-
-  //g_type_class_add_private (klass, sizeof (MemphisRulePrivate));
-
-  object_class->get_property = memphis_rule_get_property;
-  object_class->set_property = memphis_rule_set_property;
-  object_class->dispose = memphis_rule_dispose;
-  object_class->finalize = memphis_rule_finalize;
-}
-
-static void
-memphis_rule_init (MemphisRule *self)
-{
-  self->keys = NULL;
-  self->values = NULL;
-  self->type = MEMPHIS_RULE_TYPE_UNKNOWN;
-
-  self->polygon_color[0] = -1;
-  self->polygon_color[1] = -1;
-  self->polygon_color[2] = -1;
-  self->polygon_z[0] = -1;
-  self->polygon_z[1] = -1;
-
-  self->line_color[0] = -1;
-  self->line_color[1] = -1;
-  self->line_color[2] = -1;
-  self->line_size = -1.0;
-  self->line_z[0] = -1;
-  self->line_z[1] = -1;
-
-  self->border_color[0] = -1;
-  self->border_color[1] = -1;
-  self->border_color[2] = -1;
-  self->border_size = -1.0;
-  self->border_z[0] = -1;
-  self->border_z[1] = -1;
-
-  self->text_color[0] = -1;
-  self->text_color[1] = -1;
-  self->text_color[2] = -1;
-  self->text_size = -1.0;
-  self->text_z[0] = -1;
-  self->text_z[1] = -1;
-}
-
-MemphisRule*
+/**
+ * memphis_rule_new:
+ *
+ * Creates a newly allocated #MemphisRule to be freed
+ * with memphis_rule_free().
+ *
+ * Returns: a #MemphisRule
+ *
+ * Since: 0.1
+ */
+MemphisRule *
 memphis_rule_new (void)
 {
-  return g_object_new (MEMPHIS_TYPE_RULE, NULL);
+  MemphisRule *rule = g_slice_new (MemphisRule);
+  rule->keys = NULL;
+  rule->values = NULL;
+  rule->type = MEMPHIS_RULE_TYPE_UNKNOWN;
+  rule->polygon = NULL;
+  rule->line = NULL;
+  rule->border = NULL;
+  rule->text = NULL;
+  return rule;
 }
 
-void
-memphis_rule_free (MemphisRule* rule)
+/**
+ * memphis_rule_copy:
+ * @bbox: a #MemphisRule
+ *
+ * Makes a copy of the bounding box structure. The result must be
+ * freed using memphis_rule_free().
+ *
+ * Returns: an allocated copy of @rule.
+ *
+ * Since: 0.1
+ */
+MemphisRule *
+memphis_rule_copy (const MemphisRule *rule)
 {
-  g_object_unref (rule);
+  if (G_UNLIKELY (rule == NULL))
+    return NULL;
+
+  MemphisRule *res;
+  res = g_slice_dup (MemphisRule, rule);
+
+  if (rule->keys)
+    res->keys = g_strdupv (rule->keys);
+  if (rule->values)
+    res->values = g_strdupv (rule->values);
+  if (rule->polygon)
+    res->polygon = rule_attr_copy (rule->polygon);
+  if (rule->line)
+    res->line = rule_attr_copy (rule->line);
+  if (rule->border)
+    res->border = rule_attr_copy (rule->border);
+  if (rule->text)
+    res->text = rule_attr_copy (rule->text);
+
+  return res;
+}
+
+/**
+ * memphis_rule_free:
+ * @bbox: a #MemphisRule
+ *
+ * Frees a bounding box structure created with memphis_rule_new() or
+ * memphis_rule_copy().
+ *
+ * Since: 0.6
+ */
+void
+memphis_rule_free (MemphisRule *rule)
+{
+
+  if (G_UNLIKELY (rule == NULL))
+    return;
+
+  if (rule->keys)
+    g_strfreev (rule->keys);
+  if (rule->values)
+    g_strfreev (rule->values);
+  if (rule->polygon)
+    rule_attr_free (rule->polygon);
+  if (rule->line)
+    rule_attr_free (rule->line);
+  if (rule->border)
+    rule_attr_free (rule->border);
+  if (rule->text)
+    rule_attr_free (rule->text);
+
+  g_slice_free (MemphisRule, rule);
 }
