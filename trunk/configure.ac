@@ -10,7 +10,7 @@ m4_define([api_version],
           [memphis_major_version.memphis_minor_version])
 
 AC_PREREQ(2.61)
-AC_INIT([mempis],
+AC_INIT([memphis],
         [memphis_version],
         [http://trac.openstreetmap.ch/trac/memphis/])
 AC_CONFIG_SRCDIR([src/memphis.h])
