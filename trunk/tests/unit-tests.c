@@ -77,9 +77,7 @@ map_load_file2 ()
   MemphisMap *map;
   map = memphis_map_new ();
   memphis_map_set_debug_level (map, 0);
-  //memphis_map_load_from_file (map, INVALID_XML_FILE);
-  // FIXME: syntax erros should not exit the lib but return a GError
-  g_test_message ("FIXME: XML syntax error exits libmemphis.");
+  memphis_map_load_from_file (map, INVALID_XML_FILE);
   memphis_map_free (map);
 }
 
