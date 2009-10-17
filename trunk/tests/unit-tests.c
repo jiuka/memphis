@@ -139,9 +139,9 @@ static void
 rule_set_background ()
 {
   MemphisRuleSet *rules;
-  guint16 r1, g1, b1;
-  guint16 r2, g2, b2;
-  r2 = g2 = b2 = 0;
+  guint8 r1, g1, b1, a1;
+  guint8 r2, g2, b2, a2;
+  r2 = g2 = b2 = a2 = 0;
   rules = memphis_rule_set_new ();
   memphis_rule_set_set_debug_level (rules, 0);
   memphis_rule_set_load_from_file (rules, RULES_PATH);
@@ -150,11 +150,13 @@ rule_set_background ()
   r1 = (guint16) g_test_rand_int ();
   g1 = (guint16) g_test_rand_int ();
   b1 = (guint16) g_test_rand_int ();
-  memphis_rule_set_set_bg_color (rules, r1, g1, b1);
-  memphis_rule_set_get_bg_color (rules, &r2, &g2, &b2);
+  a1 = (guint16) g_test_rand_int ();
+  memphis_rule_set_set_bg_color (rules, r1, g1, b1, a1);
+  memphis_rule_set_get_bg_color (rules, &r2, &g2, &b2, &a2);
   g_assert_cmpuint(r1, ==, r2);
   g_assert_cmpuint(g1, ==, g2);
   g_assert_cmpuint(b1, ==, b2);
+  //TODO g_assert_cmpuint(a1, ==, a2);
   memphis_rule_set_free (rules);
 }
 
