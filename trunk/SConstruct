@@ -33,19 +33,19 @@ if not conf.CheckLibWithHeader('glib-2.0','glib.h','C'):
 env = conf.Finish()
 
 SOURCES = [
-    'libmercator.c',
-    'osm05.c',
-    'ruleset.c',
-    'textpath.c',
-    'mlib.c',
-    'memphis-data-pool.c',
-    'memphis-map.c',
-    'memphis-rule.c',
-    'memphis-rule-set.c',
-    'memphis-renderer.c'
+    'src/libmercator.c',
+    'src/osm05.c',
+    'src/ruleset.c',
+    'src/textpath.c',
+    'src/mlib.c',
+    'src/memphis-data-pool.c',
+    'src/memphis-map.c',
+    'src/memphis-rule.c',
+    'src/memphis-rule-set.c',
+    'src/memphis-renderer.c'
 ]
 
-Default(env.Program('memphis', source = ['main.c', SOURCES]))
+Default(env.Program('memphis', source = ['src/main.c', SOURCES]))
 
 env.Program('testTextPath', source=['test/testTextPath.c','textpath.c'])
 env.Program('testSize', source=['test/testSize.c'])
@@ -55,4 +55,3 @@ env.Program('testRuleset', source=['test/testRuleset.c','ruleset.c','mlib.c'])
 #env.Program('testRuleset', source=['ruleset.c','testRuleset.c'])
 
 env.Program('tile-renderer', source = ['demos/tile-renderer.c', SOURCES])
-env.Program('testing', source = ['tests/tests.c', SOURCES])
