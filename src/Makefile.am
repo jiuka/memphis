@@ -47,6 +47,7 @@ noinst_HEADERS = \
 	list.h \
 	textpath.h \
 	osm05.h \
+	ruleset.h \
 	mlib.h
 
 libmemphis_include_HEADERS = \
@@ -55,8 +56,7 @@ libmemphis_include_HEADERS = \
 	memphis-rule.h \
 	memphis-rule-set.h \
 	memphis-map.h \
-	memphis-renderer.h \
-	ruleset.h
+	memphis-renderer.h
 
 libmemphis_0_1_la_LIBADD = $(DEPS_LIBS)
 

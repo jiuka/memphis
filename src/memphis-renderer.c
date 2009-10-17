@@ -123,8 +123,9 @@ memphis_renderer_draw_png (MemphisRenderer *renderer,
       && MEMPHIS_IS_MAP (priv->map));
 
   osm = memphis_map_get_osmFile (priv->map);
+  ruleset = memphis_rule_set_get_cfgRules (priv->rules);
 
-  if (!(priv->rules->ruleset && osm != NULL)) {
+  if (ruleset == NULL || osm == NULL) {
     if (priv->debug_level > 0)
       g_fprintf (stdout, " No map and/or rules data: Draw nothing\n");
     return;
@@ -136,7 +137,6 @@ memphis_renderer_draw_png (MemphisRenderer *renderer,
   zoom_level = CLAMP (zoom_level, MEMPHIS_RENDERER_MIN_ZOOM_LEVEL,
       MEMPHIS_RENDERER_MAX_ZOOM_LEVEL);
 
-  ruleset = priv->rules->ruleset;
   min = coord2xy (osm->minlat, osm->minlon, zoom_level, priv->resolution);
   max = coord2xy (osm->maxlat, osm->maxlon, zoom_level, priv->resolution);
   int w = (int) ceil (max.x - min.x);
@@ -195,9 +195,9 @@ memphis_renderer_draw_tile (MemphisRenderer *renderer,
   }
 
   osm = memphis_map_get_osmFile (priv->map);
-  ruleset = priv->rules->ruleset;
+  ruleset = memphis_rule_set_get_cfgRules (priv->rules);
 
-  if (!(priv->rules->ruleset && osm)) {
+  if (ruleset == NULL || osm == NULL) {
     if (priv->debug_level > 0)
       g_fprintf (stdout, " No map and/or rules data: Draw nothing\n");
     return;
@@ -900,7 +900,7 @@ static void renderText (renderInfo *info, int layer,
 static int renderCairo (renderInfo *info) {
   int layer;
   MemphisRendererPrivate *p = info->priv;
-  cfgRules *ruleset = p->rules->ruleset;
+  cfgRules *ruleset = memphis_rule_set_get_cfgRules (p->rules);
 
   if (p->debug_level > 1)
     g_fprintf (stdout, "renderCairoRun\n");
