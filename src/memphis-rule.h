@@ -41,12 +41,20 @@ G_BEGIN_DECLS
 #define MEMPHIS_RULE_GET_CLASS(obj) \
   (G_TYPE_INSTANCE_GET_CLASS ((obj), MEMPHIS_TYPE_RULE, MemphisRuleClass))
 
+typedef enum
+{
+  MEMPHIS_RULE_TYPE_UNKNOWN,
+  MEMPHIS_RULE_TYPE_WAY,
+  MEMPHIS_RULE_TYPE_NODE,
+  MEMPHIS_RULE_TYPE_RELATION
+} MemphisRuleType;
+
 typedef struct {
   GObject parent;
 
   gchar **keys;
   gchar **values;
-  gint16 type; /* Node, way or relation */
+  MemphisRuleType type;
 
   gint16 polygon_color[3];
   gint16 polygon_z[2];

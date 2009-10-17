@@ -234,7 +234,20 @@ rule_new_from_cfgRule (cfgRule *curr)
   rule = memphis_rule_new ();
   rule->keys = g_strdupv (curr->key);
   rule->values = g_strdupv (curr->value);
-  rule->type = curr->type;
+  switch (curr->type)
+    {
+      case (WAY):
+        rule->type = MEMPHIS_RULE_TYPE_WAY;
+        break;
+      case (NODE):
+        rule->type = MEMPHIS_RULE_TYPE_NODE;
+        break;
+      case (RELATION):
+        rule->type = MEMPHIS_RULE_TYPE_RELATION;
+        break;
+      default:
+        rule->type = MEMPHIS_RULE_TYPE_UNKNOWN;
+    }
 
   cfgDraw *drw = curr->draw;
   gboolean line_seen = FALSE;
@@ -358,7 +371,21 @@ cfgRule_new_from_rule (MemphisRule *rule)
   MemphisDataPool *pool = memphis_data_pool_new ();
   cfgRule *new = g_new (cfgRule, 1);
 
-  new->type = rule->type;
+  switch (rule->type)
+    {
+      case (MEMPHIS_RULE_TYPE_WAY):
+        new->type = WAY;
+        break;
+      case (MEMPHIS_RULE_TYPE_NODE):
+        new->type = NODE;
+        break;
+      case (MEMPHIS_RULE_TYPE_RELATION):
+        new->type = RELATION;
+        break;
+      default:
+        new->type = 0;
+    }
+
   new->value = g_strdupv (rule->values);
   len = g_strv_length (new->value);
   for(c = 0; c < len; c++)
