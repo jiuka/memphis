@@ -373,7 +373,6 @@ renderer_draw_nothing ()
   g_assert (cr != NULL);
 
   r = memphis_renderer_new ();
-  memphis_renderer_set_debug_level (r, 0);
   memphis_renderer_draw_tile (r, cr, 1, 1, 12);
 
   g_assert (memphis_renderer_tile_has_data (r, 1, 1, 12) == FALSE);
@@ -397,7 +396,6 @@ renderer_draw_empty_map_and_rules ()
   map = memphis_map_new ();
 
   r = memphis_renderer_new_full (rules, map);
-  memphis_renderer_set_debug_level (r, 0);
   g_assert (r != NULL);
 
   surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, RESOLUTION, RESOLUTION);

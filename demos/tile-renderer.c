@@ -56,7 +56,6 @@ int main (int argc, char **argv) {
 
   r = memphis_renderer_new_full (rules, map);
   memphis_renderer_set_resolution (r, RESOLUTION);
-  memphis_renderer_set_debug_level (r, 1);
   g_print ("Tile resolution: %u\n", memphis_renderer_get_resolution (r));
 
   maxx = memphis_renderer_get_max_x_tile (r, zoom_level);
