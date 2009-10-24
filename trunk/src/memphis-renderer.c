@@ -36,13 +36,14 @@ G_DEFINE_TYPE (MemphisRenderer, memphis_renderer, G_TYPE_OBJECT)
 #define MEMPHIS_RENDERER_MIN_ZOOM_LEVEL 12
 #define MEMPHIS_RENDERER_MAX_ZOOM_LEVEL 18
 
+#define MEMPHIS_DEFAULT_RESOLUTION 256
+
 enum
 {
   PROP_0,
   PROP_MAP,
   PROP_RULE_SET,
-  PROP_RESOLUTION,
-  PROP_DEBUG_LEVEL
+  PROP_RESOLUTION
 };
 
 typedef struct _MemphisRendererPrivate MemphisRendererPrivate;
@@ -51,7 +52,6 @@ struct _MemphisRendererPrivate
   MemphisMap *map;
   MemphisRuleSet *rules;
   guint resolution;
-  gint8 debug_level;
 };
 
 /*
@@ -126,13 +126,9 @@ memphis_renderer_draw_png (MemphisRenderer *renderer,
   ruleset = memphis_rule_set_get_cfgRules (priv->rules);
 
   if (ruleset == NULL || osm == NULL) {
-    if (priv->debug_level > 0)
-      g_fprintf (stdout, " No map and/or rules data: Draw nothing\n");
+    memphis_info ("No map and/or rules data: Draw nothing");
     return;
   }
-
-  if (priv->debug_level > 1)
-    g_fprintf (stdout, "renderCairo\n");
 
   zoom_level = CLAMP (zoom_level, MEMPHIS_RENDERER_MIN_ZOOM_LEVEL,
       MEMPHIS_RENDERER_MAX_ZOOM_LEVEL);
@@ -159,18 +155,13 @@ memphis_renderer_draw_png (MemphisRenderer *renderer,
 
   renderCairo (info);
 
-  if (priv->debug_level > 0) {
-    g_fprintf (stdout, " Cairo rendering Z%i to '%s'", info->zoom_level, filename);
-    fflush (stdout);
-  }
   cairo_surface_write_to_png (surface, filename);
   cairo_destroy (info->cr);
   cairo_surface_destroy (surface);
 
   g_free (info);
 
-  if (priv->debug_level > 0)
-    g_fprintf (stdout, " done.\n");
+  memphis_debug ("Rendering file '%s' done.", filename);
 }
 
 void
@@ -189,8 +180,7 @@ memphis_renderer_draw_tile (MemphisRenderer *renderer,
   coordinates crd;
 
   if (!MEMPHIS_IS_RULE_SET (priv->rules) || !MEMPHIS_IS_MAP (priv->map)) {
-    if (priv->debug_level > 0)
-      g_fprintf (stdout, " No map and/or rules data: Draw nothing\n");
+    memphis_info ("No map and/or rules data: Draw nothing");
     return;
   }
 
@@ -198,8 +188,7 @@ memphis_renderer_draw_tile (MemphisRenderer *renderer,
   ruleset = memphis_rule_set_get_cfgRules (priv->rules);
 
   if (ruleset == NULL || osm == NULL) {
-    if (priv->debug_level > 0)
-      g_fprintf (stdout, " No map and/or rules data: Draw nothing\n");
+    memphis_info ("No map and/or rules data: Draw nothing");
     return;
   }
 
@@ -212,8 +201,7 @@ memphis_renderer_draw_tile (MemphisRenderer *renderer,
   crd = tile2latlon (x, y, info->zoom_level);
   info->offset = coord2xy (crd.x, crd.y, info->zoom_level, priv->resolution);
 
-  if (priv->debug_level > 0)
-    g_fprintf (stdout, " Cairo rendering tile: (%i, %i, %i)\n", x, y, info->zoom_level);
+  memphis_debug (" Cairo rendering tile: (%i, %i, %i)", x, y, info->zoom_level);
 
   cairo_rectangle (info->cr, 0, 0, priv->resolution, priv->resolution);
   cairo_set_source_rgb (info->cr,
@@ -233,8 +221,7 @@ memphis_renderer_draw_tile (MemphisRenderer *renderer,
 
   g_free (info);
 
-  if (priv->debug_level > 0)
-    g_fprintf (stdout, " done.\n");
+  memphis_debug (" done.");
 }
 
 void
@@ -299,24 +286,6 @@ memphis_renderer_get_rule_set (MemphisRenderer *self)
   return priv->rules;
 }
 
-void
-memphis_renderer_set_debug_level (MemphisRenderer *self, gint8 debug_level)
-{
-  g_return_if_fail (MEMPHIS_IS_RENDERER (self));
-
-  MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
-  priv->debug_level = debug_level;
-}
-
-gint8
-memphis_renderer_get_debug_level (MemphisRenderer *self)
-{
-  g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), 0);
-
-  MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
-  return priv->debug_level;
-}
-
 static void
 memphis_renderer_dispose (GObject *object)
 {
@@ -356,9 +325,6 @@ memphis_renderer_get_property (GObject *object,
       case PROP_RULE_SET:
         g_value_set_object (value, priv->rules);
         break;
-      case PROP_DEBUG_LEVEL:
-        g_value_set_int (value, priv->debug_level);
-        break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
     }
@@ -381,9 +347,6 @@ memphis_renderer_set_property (GObject *object,
         break;
       case PROP_RULE_SET:
         memphis_renderer_set_rules_set (self, g_value_get_object (value));
-        break;
-      case PROP_DEBUG_LEVEL:
-        memphis_renderer_set_debug_level (self, g_value_get_int (value));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -416,7 +379,7 @@ memphis_renderer_class_init (MemphisRendererClass *klass)
         "The tile resolution in pixel",
         8,
         2048,
-        256,
+        MEMPHIS_DEFAULT_RESOLUTION,
         G_PARAM_READWRITE));
 
   /**
@@ -448,24 +411,6 @@ memphis_renderer_class_init (MemphisRendererClass *klass)
         "Memphis rendering rules",
         MEMPHIS_TYPE_RULE_SET,
         G_PARAM_READWRITE));
-
-  /**
-  * MemphisRenderer:debug-level:
-  *
-  * The debug level of the renderer.
-  *
-  * Since: 0.1
-  */
-  g_object_class_install_property (object_class,
-      PROP_DEBUG_LEVEL,
-      g_param_spec_int ("debug-level",
-        "Debug level",
-        "The renderer debug level",
-        0,
-        2,
-        1,
-        G_PARAM_READWRITE));
-
 }
 
 static void
@@ -474,8 +419,7 @@ memphis_renderer_init (MemphisRenderer *self)
   MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
   priv->map = NULL;
   priv->rules = NULL;
-  priv->resolution = 256;
-  priv->debug_level = 1;
+  priv->resolution = MEMPHIS_DEFAULT_RESOLUTION;
 }
 
 gint
@@ -601,14 +545,14 @@ memphis_renderer_tile_has_data (MemphisRenderer *self, guint x, guint y,
  *
  * This function is used to prepare a Path.
  */
-static void drawPath (renderInfo *info, GSList *nodes) {
+static void drawPath (renderInfo *info, GSList *nodes)
+{
   GSList *iter;
   osmNode *nd;
   coordinates xy;
   MemphisRendererPrivate *p = info->priv;
 
-  if (G_UNLIKELY (p->debug_level > 1))
-    g_fprintf (stdout, "drawPath\n");
+  memphis_debug ("drawPath");
 
   iter = nodes;
   nd = iter->data;
@@ -632,9 +576,9 @@ static void drawPath (renderInfo *info, GSList *nodes) {
  *
  * This function is stroke all current path without drawing anithing.
  */
-static void strokePath (renderInfo *info) {
-  if (G_UNLIKELY (info->priv->debug_level > 1))
-    g_fprintf (stdout,"strokePath\n");
+static void strokePath (renderInfo *info)
+{
+  memphis_debug ("strokePath");
 
   cairo_set_line_width (info->cr, 0);
   cairo_stroke (info->cr);
@@ -647,9 +591,9 @@ static void strokePath (renderInfo *info) {
  *
  * This function fill the prepared paths with the configured color.
  */
-static void drawPolygone (renderInfo *info, cfgDraw *draw) {
-  if (G_UNLIKELY (info->priv->debug_level > 1))
-    g_fprintf (stdout, "drawPolygone\n");
+static void drawPolygone (renderInfo *info, cfgDraw *draw)
+{
+  memphis_debug ("drawPolygone");
 
   cairo_surface_t *image = NULL;
   cairo_pattern_t *pattern = NULL;
@@ -662,7 +606,7 @@ static void drawPolygone (renderInfo *info, cfgDraw *draw) {
     filename = g_strdup_printf ("pattern/%s.png", draw->pattern);
     image = cairo_image_surface_create_from_png (filename);
     if (cairo_surface_status (image) != CAIRO_STATUS_SUCCESS) {
-      g_warning ("pattern '%s' not found\n", filename);
+      g_critical ("pattern '%s' not found", filename);
       g_free (filename);
       return;
     }
@@ -695,9 +639,9 @@ static void drawPolygone (renderInfo *info, cfgDraw *draw) {
  *
  * This function draw the prepared paths with the configured color.
  */
-static void drawLine (renderInfo *info, cfgDraw *draw) {
-  if (G_UNLIKELY (info->priv->debug_level > 1))
-    g_fprintf (stdout, "drawLine\n");
+static void drawLine (renderInfo *info, cfgDraw *draw)
+{
+  memphis_debug ("drawLine");
 
   cairo_set_line_cap (info->cr, CAIRO_LINE_CAP_ROUND);
   cairo_set_line_join (info->cr, CAIRO_LINE_JOIN_ROUND);
@@ -716,9 +660,9 @@ static void drawLine (renderInfo *info, cfgDraw *draw) {
  *
  * This function draw the given text along the current path.
  */
-static void drawText (renderInfo *info, char *text, cfgDraw *draw) {
-  if (G_UNLIKELY (info->priv->debug_level > 1))
-    g_fprintf(stdout, "drawText\n");
+static void drawText (renderInfo *info, char *text, cfgDraw *draw)
+{
+  memphis_debug ("drawText");
 
   cairo_select_font_face (info->cr, "sans-serif", CAIRO_FONT_SLANT_NORMAL,
                                             CAIRO_FONT_WEIGHT_NORMAL);
@@ -734,10 +678,10 @@ static void drawText (renderInfo *info, char *text, cfgDraw *draw) {
  *
  * Check if string is an strings.
  */
-static compare_result_e stringInStrings(char *string, char **strings,
-      gint8 debug_level) {
-  if (G_UNLIKELY (debug_level > 1))
-    g_fprintf(stdout, "stringInStrings\n");
+static compare_result_e stringInStrings(char *string, char **strings)
+{
+  memphis_debug ("stringInStrings");
+
   compare_result_e r = TAG_CMP_NOT_EQUAL;
   while (*strings != NULL) {
     if (string == *strings) {
@@ -758,15 +702,15 @@ static compare_result_e stringInStrings(char *string, char **strings,
  *
  * Check if a element matchs a rule.
  */
-static int matchRule (cfgRule *rule, osmTag *tag, gint8 debug_level) {
+static int matchRule (cfgRule *rule, osmTag *tag)
+{
   int k, v;
 
-  if (G_UNLIKELY (debug_level > 1))
-    g_fprintf(stdout, "matchRule\n");
+  memphis_debug ("matchRule");
 
   while(tag) {
-      k = stringInStrings (tag->key, rule->key, debug_level);
-      v = stringInStrings (tag->value, rule->value, debug_level);
+      k = stringInStrings (tag->key, rule->key);
+      v = stringInStrings (tag->value, rule->value);
 
       if (k == TAG_CMP_EQUAL && v == TAG_CMP_EQUAL)
         return TRUE;
@@ -785,10 +729,9 @@ static int matchRule (cfgRule *rule, osmTag *tag, gint8 debug_level) {
  *
  * Check if a element match to a rule and all it's parent.
  */
-static int checkRule (cfgRule *rule, osmTag *tag, short int type,
-    gint8 debug_level) {
-  if (G_UNLIKELY (debug_level > 1))
-    g_fprintf(stdout, "checkRule\n");
+static int checkRule (cfgRule *rule, osmTag *tag, short int type)
+{
+  memphis_debug ("checkRule");
 
   int not;
   cfgRule *iter;
@@ -803,7 +746,7 @@ static int checkRule (cfgRule *rule, osmTag *tag, short int type,
 
   while (iter) {
 
-      if (matchRule(iter, tag, debug_level) == not) {
+      if (matchRule(iter, tag) == not) {
         return 0;
       }
 
@@ -816,7 +759,7 @@ static int checkRule (cfgRule *rule, osmTag *tag, short int type,
       }
   }
 
-  if(matchRule(rule, tag, debug_level)) {
+  if(matchRule(rule, tag)) {
     return 1;
   } else {
     return -1;
@@ -824,7 +767,8 @@ static int checkRule (cfgRule *rule, osmTag *tag, short int type,
 }
 
 static void renderPaths (renderInfo *info, int layer,
-        cfgRule *rule, cfgDraw *draw) {
+        cfgRule *rule, cfgDraw *draw)
+{
   int paths = 0;
   osmWay *way;
   MemphisRendererPrivate *p = info->priv;
@@ -836,7 +780,7 @@ static void renderPaths (renderInfo *info, int layer,
     if (way->layer != layer)
       continue;
 
-    if ( checkRule(rule, way->tag, WAY, p->debug_level) == 1) {
+    if ( checkRule(rule, way->tag, WAY) == 1) {
       drawPath(info, way->nd);
       paths++;
     }
@@ -863,7 +807,8 @@ static void renderPaths (renderInfo *info, int layer,
 }
 
 static void renderText (renderInfo *info, int layer,
-    cfgRule *rule, cfgDraw *draw) {
+    cfgRule *rule, cfgDraw *draw)
+{
   osmWay *way;
   MemphisRendererPrivate *p = info->priv;
   osmFile *osm = memphis_map_get_osmFile (p->map); // FIXME: speed
@@ -876,7 +821,7 @@ static void renderText (renderInfo *info, int layer,
                   if (way->layer != layer || way->name == NULL)
                       continue;
 
-                  if (checkRule(rule, way->tag, WAY, p->debug_level) == 1) {
+                  if (checkRule(rule, way->tag, WAY) == 1) {
                       drawPath(info, way->nd);
                       drawText(info, way->name, draw);
                   }
@@ -893,13 +838,13 @@ static void renderText (renderInfo *info, int layer,
 /*
  * function: renderCairo
  */
-static int renderCairo (renderInfo *info) {
+static int renderCairo (renderInfo *info)
+{
   int layer;
   MemphisRendererPrivate *p = info->priv;
   cfgRules *ruleset = memphis_rule_set_get_cfgRules (p->rules);
 
-  if (p->debug_level > 1)
-    g_fprintf (stdout, "renderCairoRun\n");
+  memphis_debug ("renderCairo");
 
   // Vars used while looping through data
   cfgRule     *rule;
@@ -907,7 +852,7 @@ static int renderCairo (renderInfo *info) {
   // Start checking osm from bottom layer.
   for (layer = -5; layer <= 5; layer++) {
 
-      if (p->debug_level > 0) {
+      if (G_UNLIKELY (memphis_debug_get_print_progress ())) {
           g_fprintf(stdout,"\r Cairo drawing z%i Layer % 2i", info->zoom_level, layer);
           fflush(stdout);
       }
@@ -927,7 +872,7 @@ static int renderCairo (renderInfo *info) {
       }
   }
 
-  if (p->debug_level > 0)
+  if (G_UNLIKELY (memphis_debug_get_print_progress ()))
       g_fprintf (stdout, "\r Cairo drawing done\n");
 
   return 0;

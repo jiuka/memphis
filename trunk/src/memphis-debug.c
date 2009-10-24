@@ -20,16 +20,27 @@
 #include "memphis-debug.h"
 #include "config.h"
 
-gboolean memphis_print_progress_message = FALSE;
+gboolean memphis_print_progress_messages = FALSE;
 
 void memphis_debug_set_print_progress (gboolean show_progress)
 {
-    memphis_print_progress_message = show_progress;
+    memphis_print_progress_messages = show_progress;
 }
 
 gboolean memphis_debug_get_print_progress ()
 {
-    return memphis_print_progress_message;
+    return memphis_print_progress_messages;
+}
+
+void
+memphis_info (const gchar *format, ...)
+{
+    if (G_UNLIKELY (memphis_debug_get_print_progress ())) {
+        va_list args;
+        va_start (args, format);
+        g_logv (G_LOG_DOMAIN, G_LOG_LEVEL_INFO, format, args);
+        va_end (args);
+    }
 }
 
 #ifdef ENABLE_DEBUG
