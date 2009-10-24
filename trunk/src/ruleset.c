@@ -34,15 +34,15 @@
 
 typedef struct rulesUserData_ rulesUserData;
 struct rulesUserData_ {
-  // Pointers to work with
-  cfgRule *currentRule;
-  cfgRule *ruleStack[MAXSTACK];
-  char **stringStack;
-  MemphisDataPool *pool;
-  // Collected Data
-  cfgRules *ruleset;
-  // Debug
-  gint8 debug_level;
+    // Pointers to work with
+    cfgRule *currentRule;
+    cfgRule *ruleStack[MAXSTACK];
+    char **stringStack;
+    MemphisDataPool *pool;
+    // Collected Data
+    cfgRules *ruleset;
+    // Debug
+    gint8 debug_level;
 };
 
 /**
@@ -247,7 +247,7 @@ cfgRules* rulesetRead(const char *filename, gint8 debug_level) {
     
     // Test file
     if (!g_file_test (filename, G_FILE_TEST_IS_REGULAR)) {
-        g_critical ("Error: \"%s\" is not a file.\n", filename);
+        g_critical ("Error: \"%s\" is not a file.", filename);
         return NULL;
     }
     
@@ -285,9 +285,9 @@ cfgRules* rulesetRead(const char *filename, gint8 debug_level) {
 
     // Looping over XML
     while(!feof(fd)) {
-         len = (int)fread(buf, 1, BUFFSIZE, fd);
-         if (ferror(fd)) {
-            g_fprintf(stderr, "Read error\n");
+        len = (int)fread(buf, 1, BUFFSIZE, fd);
+        if (ferror(fd)) {
+            g_critical("Ruleset read error");
             // cleanup
             XML_ParserFree(parser);
             g_free(buf);
@@ -303,17 +303,16 @@ cfgRules* rulesetRead(const char *filename, gint8 debug_level) {
         }
         done = len < sizeof(buf);
         if (XML_Parse(parser, buf, len, done) == XML_STATUS_ERROR) {
-          g_fprintf(stderr, "Parse error at line %i: %s\n",
-              (int) XML_GetCurrentLineNumber(parser),
-              XML_ErrorString(XML_GetErrorCode(parser)));
-
-          // cleanup
-          XML_ParserFree(parser);
-          g_free(buf);
-          fclose(fd);
-          g_free(data);
-          g_free(ruleset);
-          return NULL;
+            g_critical ("Parse error at line %i: %s",
+                    (int) XML_GetCurrentLineNumber(parser),
+                    XML_ErrorString(XML_GetErrorCode(parser)));
+            // cleanup
+            XML_ParserFree(parser);
+            g_free(buf);
+            fclose(fd);
+            g_free(data);
+            g_free(ruleset);
+            return NULL;
         }
     }
 
@@ -378,14 +377,14 @@ cfgRules* rulesetRead_from_buffer (const char *buffer, guint size, gint8 debug_l
 
     // Parse the buffer
     if (XML_Parse (parser, buffer, size, isDone) == XML_STATUS_ERROR) {
-      g_fprintf (stderr, "Parse error at line %i: %s\n",
-          (int) XML_GetCurrentLineNumber(parser),
-          XML_ErrorString(XML_GetErrorCode(parser)));
-      // cleanup
-      XML_ParserFree(parser);
-      g_free(data);
-      g_free(ruleset);
-      return NULL;
+        g_critical ("Parse error at line %i: %s",
+                (int) XML_GetCurrentLineNumber(parser),
+                XML_ErrorString(XML_GetErrorCode(parser)));
+        // cleanup
+        XML_ParserFree(parser);
+        g_free(data);
+        g_free(ruleset);
+        return NULL;
     }
 
     // Cleaning Memory
@@ -441,19 +440,19 @@ void rulesetFree(cfgRules * ruleset) {
 
 void cfgRuleFree (cfgRule *rule)
 {
-  g_free (rule->key);
-  g_free (rule->value);
+    g_free (rule->key);
+    g_free (rule->value);
 
-  cfgDraw *tmp;
-  cfgDraw *drw = rule->draw;
-  while (drw != NULL)
+    cfgDraw *tmp;
+    cfgDraw *drw = rule->draw;
+    while (drw != NULL)
     {
-      tmp = drw;
-      drw = drw->next;
-      g_free (tmp);
+        tmp = drw;
+        drw = drw->next;
+        g_free (tmp);
     }
 
-  g_free (rule);
+    g_free (rule);
 }
 
 /*
