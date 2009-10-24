@@ -270,6 +270,7 @@ rule_new_from_cfgRule (cfgRule *curr)
           rule->polygon->color_alpha = 255;
           rule->polygon->z_min = drw->minzoom;
           rule->polygon->z_max = drw->maxzoom;
+          rule->polygon->style = NULL;
           // TODO support pattern
         }
       else if (drw->type == LINE)
@@ -284,6 +285,7 @@ rule_new_from_cfgRule (cfgRule *curr)
             rule->border->size = (rule->line->size - drw->width) * 0.5;
             rule->border->z_min = rule->line->z_min;
             rule->border->z_max = rule->line->z_max;
+            rule->border->style = NULL;
 
             rule->line->color_red = drw->color[0];
             rule->line->color_green = drw->color[1];
@@ -292,6 +294,8 @@ rule_new_from_cfgRule (cfgRule *curr)
             rule->line->size = drw->width;
             rule->line->z_min = drw->minzoom;
             rule->line->z_max = drw->maxzoom;
+            rule->line->style = NULL;
+            
           } else {
             /* only a single line */
             rule->line = g_slice_new0 (MemphisRuleAttr);
@@ -302,6 +306,7 @@ rule_new_from_cfgRule (cfgRule *curr)
             rule->line->size = drw->width;
             rule->line->z_min = drw->minzoom;
             rule->line->z_max = drw->maxzoom;
+            rule->line->style = NULL;
             line_seen = TRUE;
           }
         }
@@ -315,6 +320,7 @@ rule_new_from_cfgRule (cfgRule *curr)
           rule->text->size = drw->width;
           rule->text->z_min = drw->minzoom;
           rule->text->z_max = drw->maxzoom;
+          rule->text->style = NULL;
         }
       drw = drw->next;
     }
