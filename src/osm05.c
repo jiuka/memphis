@@ -32,17 +32,17 @@
 
 typedef struct mapUserData_ mapUserData;
 struct mapUserData_ {
-  // Pointers to work with
-  osmTag *cTag;
-  osmNode *cNode;
-  osmWay *cWay;
-  MemphisDataPool *pool;
-  // Collected Data
-  osmFile *osm;
-  // Counts (used for debugging only!)
-  int cntTag;
-  int cntNd;
-  gint8 debug_level;
+    // Pointers to work with
+    osmTag *cTag;
+    osmNode *cNode;
+    osmWay *cWay;
+    MemphisDataPool *pool;
+    // Collected Data
+    osmFile *osm;
+    // Counts (used for debugging only!)
+    int cntTag;
+    int cntNd;
+    gint8 debug_level;
 };
 
 /**
@@ -316,14 +316,14 @@ osmFile* osmRead(const char *filename, gint8 debug_level) {
     while(!feof(fd)) {
         len = (int)fread(buf, 1, BUFFSIZE, fd);
         if (ferror(fd)) {
-          g_fprintf (stderr, "Read error\n");
-          // cleanup
-          XML_ParserFree(parser);
-          g_free(buf);
-          fclose(fd);
-          g_free(data);
-          osmFree(osm);
-          return NULL;
+            g_critical ("OSM read error");
+            // cleanup
+            XML_ParserFree(parser);
+            g_free(buf);
+            fclose(fd);
+            g_free(data);
+            osmFree(osm);
+            return NULL;
         }
         read += len;
         if (debug_level > 0) {
@@ -332,16 +332,16 @@ osmFile* osmRead(const char *filename, gint8 debug_level) {
         }
         done = len < sizeof(buf);
         if (XML_Parse(parser, buf, len, done) == XML_STATUS_ERROR) {
-          g_fprintf (stderr, "Parse error at line %i: %s\n",
-              (int) XML_GetCurrentLineNumber(parser),
-              XML_ErrorString(XML_GetErrorCode(parser)));
-          // cleanup
-          XML_ParserFree(parser);
-          g_free(buf);
-          fclose(fd);
-          g_free(data);
-          osmFree(osm);
-          return NULL;
+            g_critical ("OSM parse error at line %i: %s",
+                    (int) XML_GetCurrentLineNumber(parser),
+                    XML_ErrorString(XML_GetErrorCode(parser)));
+            // cleanup
+            XML_ParserFree(parser);
+            g_free(buf);
+            fclose(fd);
+            g_free(data);
+            osmFree(osm);
+            return NULL;
         }
     }
 
@@ -433,9 +433,9 @@ osmFile* osmRead_from_buffer (const char *buffer, guint size, gint8 debug_level)
 
     // Parse the buffer
     if (XML_Parse (parser, buffer, size, isDone) == XML_STATUS_ERROR) {
-      g_fprintf (stderr, "Parse error at line %iu:\n%s\n",
-          (int) XML_GetCurrentLineNumber(parser),
-          XML_ErrorString(XML_GetErrorCode(parser)));
+      g_critical ("OSM parse error at line %iu:\n%s",
+              (int) XML_GetCurrentLineNumber(parser),
+              XML_ErrorString(XML_GetErrorCode(parser)));
       // cleanup
       XML_ParserFree(parser);
       g_free(data);
