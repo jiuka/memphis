@@ -306,8 +306,6 @@ memphis_renderer_set_debug_level (MemphisRenderer *self, gint8 debug_level)
 
   MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
   priv->debug_level = debug_level;
-  if (priv->rules)
-    memphis_rule_set_set_debug_level (priv->rules, debug_level);
 }
 
 gint8
