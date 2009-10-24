@@ -24,7 +24,6 @@
 #define RESOLUTION 512
 #define RULES_PATH "../demos/rule.xml"
 #define MAP_PATH "../demos/map.osm"
-#define INVALID_XML_FILE "../README"
 #define EPS 0.0001
 
 /* MemphisMap */
@@ -62,7 +61,7 @@ map_load_data ()
 }
 
 static void
-map_load_file1 ()
+map_load_file ()
 {
   MemphisMap *map;
   map = memphis_map_new ();
@@ -72,12 +71,10 @@ map_load_file1 ()
 }
 
 static void
-map_load_file2 ()
+map_free ()
 {
   MemphisMap *map;
   map = memphis_map_new ();
-  memphis_map_set_debug_level (map, 0);
-  memphis_map_load_from_file (map, INVALID_XML_FILE);
   memphis_map_free (map);
 }
 
@@ -123,7 +120,7 @@ rule_set_load_data ()
 }
 
 static void
-rule_set_load_file1 ()
+rule_set_load_file ()
 {
   MemphisRuleSet *rules;
   rules = memphis_rule_set_new ();
@@ -134,12 +131,10 @@ rule_set_load_file1 ()
 }
 
 static void
-rule_set_load_file2 ()
+rule_set_free ()
 {
   MemphisRuleSet *rules;
   rules = memphis_rule_set_new ();
-  memphis_rule_set_set_debug_level (rules, 0);
-  memphis_rule_set_load_from_file (rules, INVALID_XML_FILE);
   memphis_rule_set_free (rules);
 }
 
@@ -164,7 +159,7 @@ rule_set_background ()
   g_assert_cmpuint(r1, ==, r2);
   g_assert_cmpuint(g1, ==, g2);
   g_assert_cmpuint(b1, ==, b2);
-  //TODO g_assert_cmpuint(a1, ==, a2); //TODO: support alpha
+  //g_assert_cmpuint(a1, ==, a2); // TODO: support alpha
   memphis_rule_set_free (rules);
 }
 
@@ -265,7 +260,7 @@ rule_set_set_and_get_line_w_border ()
   g_assert_cmpint (rule->line->color_red, ==, r);
   g_assert_cmpint (rule->line->color_green, ==, g);
   g_assert_cmpint (rule->line->color_blue, ==, b);
-  //g_assert_cmpint (rule->line->color_alpha, ==, a); //TODO: support alpha
+  //g_assert_cmpint (rule->line->color_alpha, ==, a); // TODO: support alpha
   g_assert_cmpint (rule->line->z_min, ==, zmin);
   g_assert_cmpint (rule->line->z_max, ==, zmax);
   g_assert (fabs (rule->line->size - size)  < EPS);
@@ -333,6 +328,7 @@ rule_set_add_rule ()
   a_rule->line->color_red = 255;
   a_rule->line->color_green = 0;
   a_rule->line->color_blue = 0;
+  a_rule->line->style = NULL; // FIXME
   memphis_rule_set_set_rule (rules, a_rule);
 
   b_rule = memphis_rule_set_get_rule (rules, "highway:test|test2");
@@ -443,24 +439,24 @@ main (int argc, char **argv)
   g_test_bug_base ("https://trac.openstreetmap.ch/trac/memphis/ticket/");
 
   g_test_add_func ("/map/new", map_new);
+  g_test_add_func ("/map/free", map_free);
   g_test_add_func ("/map/load_data", map_load_data);
-  g_test_add_func ("/map/load_file1", map_load_file1);
-  g_test_add_func ("/map/load_file2", map_load_file2);
+  g_test_add_func ("/map/load_file", map_load_file);
 
   g_test_add_func ("/rule/new", rule_new);
 
   g_test_add_func ("/rule_set/new", rule_set_new);
+  g_test_add_func ("/rule_set/free", rule_set_free);
   g_test_add_func ("/rule_set/load_data", rule_set_load_data);
-  g_test_add_func ("/rule_set/load_file1", rule_set_load_file1);
-  g_test_add_func ("/rule_set/load_file2", rule_set_load_file2);
+  g_test_add_func ("/rule_set/load_file", rule_set_load_file);
   g_test_add_func ("/rule_set/background", rule_set_background);
   g_test_add_func ("/rule_set/get_rule", rule_set_get_rule);
   g_test_add_func ("/rule_set/set_and_get_line_w_border",
       rule_set_set_and_get_line_w_border);
   //g_test_add_func ("/rule_set/set_and_get_polygon_w_border",
   //    rule_set_set_and_get_polygon_w_border);
-  g_test_add_func ("/rule_set/add_rule", rule_set_add_rule);
   g_test_add_func ("/rule_set/rm_rule", rule_set_rm_rule);
+  g_test_add_func ("/rule_set/add_rule", rule_set_add_rule);
 
   g_test_add_func ("/renderer/new", renderer_new);
   g_test_add_func ("/renderer/resolution", renderer_resolution);
