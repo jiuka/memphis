@@ -62,10 +62,10 @@ AC_CHECK_HEADER([expat.h], [],
 # Enable debug
 # -----------------------------------------------------------
 
+AC_MSG_CHECKING([whether to do a debug build])
 AC_ARG_ENABLE(debug,
-  AC_HELP_STRING([--disable-debug],[compile without debug code]),
-    enable_debug=$enableval, enable_debug=yes )
-
+  AC_HELP_STRING([--enable-debug],
+    [turn on debugging [default=no]]),[],[enable_debug="no"])
 if test x$enable_debug = xyes; then
   AC_DEFINE(ENABLE_DEBUG, [], [Enable debug code])
 fi

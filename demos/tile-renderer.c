@@ -19,7 +19,6 @@
 
 #include "src/memphis.h"
 #include <stdlib.h>
-#include <glib.h>
 #include <glib/gstdio.h>
 
 #define RESOLUTION 256
@@ -47,6 +46,8 @@ int main (int argc, char **argv) {
     mapfile = "map.osm";
 
   g_mkdir ("tiles", 0755);
+
+  memphis_debug_set_print_progress (TRUE);
 
   rules = memphis_rule_set_new ();
   memphis_rule_set_load_from_file (rules, "rule.xml");

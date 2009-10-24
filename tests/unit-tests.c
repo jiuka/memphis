@@ -55,7 +55,6 @@ map_load_data ()
   </osm>";
 
   map = memphis_map_new ();
-  memphis_map_set_debug_level (map, 0);
   memphis_map_load_from_data (map, map_data, strlen (map_data));
   memphis_map_free (map);
 }
@@ -65,7 +64,6 @@ map_load_file ()
 {
   MemphisMap *map;
   map = memphis_map_new ();
-  memphis_map_set_debug_level (map, 0);
   memphis_map_load_from_file (map, MAP_PATH);
   memphis_map_free (map);
 }
@@ -433,7 +431,7 @@ renderer_draw_empty_map_and_rules ()
 
 int
 main (int argc, char **argv)
-{
+{    
   g_type_init ();
   g_test_init (&argc, &argv, NULL);
   g_test_bug_base ("https://trac.openstreetmap.ch/trac/memphis/ticket/");

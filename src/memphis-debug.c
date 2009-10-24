@@ -17,16 +17,37 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef __MEMPHIS_H__
-#define __MEMPHIS_H__
-
-#include <glib.h>
-
-#include "memphis-map.h"
-#include "memphis-rule-set.h"
-#include "memphis-rule.h"
-#include "memphis-renderer.h"
-#include "memphis-data-pool.h"
 #include "memphis-debug.h"
+#include "config.h"
 
-#endif /* __MEMPHIS_H__ */
+gboolean memphis_print_progress_message = FALSE;
+
+void memphis_debug_set_print_progress (gboolean show_progress)
+{
+    memphis_print_progress_message = show_progress;
+}
+
+gboolean memphis_debug_get_print_progress ()
+{
+    return memphis_print_progress_message;
+}
+
+#ifdef ENABLE_DEBUG
+
+void
+memphis_debug (const gchar *format, ...)
+{
+    va_list args;
+    va_start (args, format);
+    g_logv (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, format, args);
+    va_end (args);
+}
+
+#else
+
+void
+memphis_debug (const gchar *format, ...)
+{
+}
+
+#endif /* ENABLE_DEBUG */

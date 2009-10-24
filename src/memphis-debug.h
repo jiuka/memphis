@@ -17,16 +17,19 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef __MEMPHIS_H__
-#define __MEMPHIS_H__
+#ifndef __MEMPHIS_DEBUG_H__
+#define __MEMPHIS_DEBUG_H__
 
 #include <glib.h>
+#include <glib/gstdio.h>
 
-#include "memphis-map.h"
-#include "memphis-rule-set.h"
-#include "memphis-rule.h"
-#include "memphis-renderer.h"
-#include "memphis-data-pool.h"
-#include "memphis-debug.h"
+G_BEGIN_DECLS
 
-#endif /* __MEMPHIS_H__ */
+void memphis_debug (const gchar *format, ...) G_GNUC_PRINTF (1, 2);
+
+void memphis_debug_set_print_progress (gboolean show_progress);
+gboolean memphis_debug_get_print_progress ();
+
+G_END_DECLS
+
+#endif /* __MEMPHIS_DEBUG_H__ */
