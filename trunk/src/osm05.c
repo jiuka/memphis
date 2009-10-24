@@ -27,6 +27,7 @@
 #include "mlib.h"
 #include "osm05.h"
 #include "memphis-data-pool.h"
+#include "memphis-debug.h"
 
 #define BUFFSIZE 1024
 
@@ -42,7 +43,6 @@ struct mapUserData_ {
     // Counts (used for debugging only!)
     int cntTag;
     int cntNd;
-    gint8 debug_level;
 };
 
 /**
@@ -59,14 +59,11 @@ osmStartElement(void *userData, const char *name, const char **atts) {
     osmFile *osm = data->osm;
     GStringChunk *stringChunk = data->pool->stringChunk;
     GTree *stringTree = data->pool->stringTree;
-    gint8 debug_level = data->debug_level;
     
-    if (debug_level > 1)
-        g_fprintf (stdout, "osm05startElement\n");
+    memphis_debug ("osm05startElement");
     // Parsing Bounds
     if (strncmp((char *) name, "bounds", 6) == 0) {
-        if (debug_level > 1)
-            g_fprintf (stdout, "Parsing Bounds\n");
+        memphis_debug ("Parsing Bounds");
         while (*atts != NULL) {
             if(strcmp((char *) *(atts), "minlat" ) == 0) {
                 sscanf((char *) *(atts+1),"%f",&osm->minlat);
@@ -82,8 +79,7 @@ osmStartElement(void *userData, const char *name, const char **atts) {
     }
     // Parsing Node
     else if (strncmp((char *) name, "node", 4) == 0) {
-        if (debug_level > 1)
-            g_fprintf (stdout, "Parsing Node\n");
+        memphis_debug ("Parsing Node");
         data->cNode = g_new(osmNode, 1);
         while (*atts != NULL) {
             if(strcmp((char *) *(atts), "id") == 0) {
@@ -104,14 +100,12 @@ osmStartElement(void *userData, const char *name, const char **atts) {
         g_hash_table_insert(osm->nodeidx, &data->cNode->id, data->cNode);
         LL_PREPEND(data->cNode, osm->nodes);
 
-        if (debug_level > 1)
-            g_fprintf (stdout, "NODE: %i %f %f\n", data->cNode->id,
-                    data->cNode->lat, data->cNode->lon);
+        memphis_debug ("NODE: %i %f %f", data->cNode->id,
+                data->cNode->lat, data->cNode->lon);
     }
     // Parsing Tags
     else if (strncmp((char *) name, "tag", 4) == 0) {
-        if (debug_level > 1)
-            g_fprintf (stdout, "Parsing Tag\n");
+        memphis_debug ("Parsing Tag");
 
         if (!data->cNode && !data->cWay) // End if there is nothing to add the tag to
             return;
@@ -144,13 +138,12 @@ osmStartElement(void *userData, const char *name, const char **atts) {
             }
             atts += 2;
         }
-        
+
         data->cTag = g_new(osmTag, 1);
         data->cTag->key = m_string_chunk_get(stringChunk, stringTree, k);
         data->cTag->value = m_string_chunk_get(stringChunk, stringTree, v);
-        
-        if (debug_level > 1)
-            g_fprintf (stdout, "Tag: %s => %s\n", data->cTag->key, data->cTag->value);
+
+        memphis_debug ("Tag: %s => %s", data->cTag->key, data->cTag->value);
 
         data->cntTag++;
         if (data->cNode)
@@ -162,8 +155,7 @@ osmStartElement(void *userData, const char *name, const char **atts) {
     }
     // Parsing Way
     else if (strncmp((char *) name, "way", 3) == 0) {
-        if (debug_level > 1)
-            g_fprintf (stdout, "Parsing Way\n");
+        memphis_debug ("Parsing Way");
         data->cWay = g_new(osmWay, 1);
         while (*atts != NULL) {
             if(strncmp((char *) *(atts), "id", 2) == 0) {
@@ -182,13 +174,11 @@ osmStartElement(void *userData, const char *name, const char **atts) {
         osm->waycnt++;
         LL_PREPEND(data->cWay, osm->ways);
 
-        if (debug_level > 1)
-            g_fprintf (stdout, "WAY(%i)\n", data->cWay->id);
+        memphis_debug ("WAY(%i)", data->cWay->id);
     }
     // Parsing WayNode
     else if (strncmp((char *) name, "nd", 2) == 0) {
-        if (debug_level > 1)
-            g_fprintf (stdout, "Parsing Nd\n");
+        memphis_debug ("Parsing Nd");
         int ref = 0;
         while (*atts != NULL) {
             if(strncmp((char *) *(atts), "ref", 2) == 0) {
@@ -211,8 +201,7 @@ osmStartElement(void *userData, const char *name, const char **atts) {
             // Insert WayNode
             data->cWay->nd = g_slist_prepend(data->cWay->nd, n);
 
-            if (debug_level > 1)
-                g_fprintf (stdout, " ND( %f %f )\n", n->lat, n->lon);
+            memphis_debug (" ND( %f %f )", n->lat, n->lon);
 
             data->cNode = NULL;
         }
@@ -230,10 +219,8 @@ osmStartElement(void *userData, const char *name, const char **atts) {
 static void XMLCALL
 osmEndElement(void *userData, const char *name) {
     mapUserData *data = (mapUserData *) userData;
-    gint8 debug_level = data->debug_level;
     
-    if (debug_level > 1)
-        g_fprintf(stdout, "osm05endElement\n");
+    memphis_debug ("osm05endElement");
     if (strncmp((char *) name, "node", 4) == 0) {
         data->cNode = NULL;
     } else if (strncmp((char *) name, "way", 3) == 0) {
@@ -246,9 +233,8 @@ osmEndElement(void *userData, const char *name) {
 /**
  * rulesetRead
  */
-osmFile* osmRead(const char *filename, gint8 debug_level) {
-    if (debug_level > 1)
-        g_fprintf (stdout, "osmRead\n");
+osmFile* osmRead(const char *filename) {
+    memphis_debug ("osmRead");
 
     // Local Vars
     GTimer *tOsmRead = g_timer_new();
@@ -285,7 +271,6 @@ osmFile* osmRead(const char *filename, gint8 debug_level) {
     data->pool = memphis_data_pool_new ();
     data->cntTag = 0;
     data->cntNd = 0;
-    data->debug_level = debug_level;
 
     osm = g_new(osmFile, 1);
     osm->nodes = NULL;
@@ -299,10 +284,11 @@ osmFile* osmRead(const char *filename, gint8 debug_level) {
     osm->maxlat = -190;
     data->osm = osm;
 
-    if (debug_level > 0) {
+    if (G_UNLIKELY (memphis_debug_get_print_progress ())) {
         g_fprintf (stdout, " OSM parsing   0%%");
         fflush(stdout);
     }
+    int progress = 0;
 
     // Create XML Parser
     XML_Parser parser = XML_ParserCreate(NULL);
@@ -326,10 +312,15 @@ osmFile* osmRead(const char *filename, gint8 debug_level) {
             return NULL;
         }
         read += len;
-        if (debug_level > 0) {
-            g_fprintf (stdout, "\r OSM parsing % 3i%%", (int)((read*100)/size));
-            fflush(stdout);
+        if (G_UNLIKELY (memphis_debug_get_print_progress ())) {
+            int new_progress = (int)((read * 100.0) / size);
+            if (new_progress > progress) {
+                g_fprintf (stdout, "\r OSM parsing % 3i%%", new_progress);
+                fflush(stdout);
+                progress = new_progress;
+            }
         }
+
         done = len < sizeof(buf);
         if (XML_Parse(parser, buf, len, done) == XML_STATUS_ERROR) {
             g_critical ("OSM parse error at line %i: %s",
@@ -374,11 +365,11 @@ osmFile* osmRead(const char *filename, gint8 debug_level) {
 
     g_hash_table_destroy(osm->nodeidx);
     osm->nodeidx = NULL;
-    
-    if (debug_level > 0)
-        fprintf(stdout,"\r OSM parsing done. (%i/%i/%i/%i) [%fs]\n",
-                osm->nodecnt, osm->waycnt, data->cntTag, data->cntNd,
-                g_timer_elapsed(tOsmRead,NULL));
+
+    if (G_UNLIKELY (memphis_debug_get_print_progress ()))
+        g_fprintf (stdout, "\r OSM parsing done. (%i/%i/%i/%i) [%fs]\n",
+                    osm->nodecnt, osm->waycnt, data->cntTag, data->cntNd,
+                    g_timer_elapsed(tOsmRead, NULL));
     
     g_timer_destroy(tOsmRead);
     g_free(data);
@@ -386,9 +377,8 @@ osmFile* osmRead(const char *filename, gint8 debug_level) {
     return osm;
 }
 
-osmFile* osmRead_from_buffer (const char *buffer, guint size, gint8 debug_level) {
-    if (debug_level > 1)
-        g_fprintf (stdout, "osmRead\n");
+osmFile* osmRead_from_buffer (const char *buffer, guint size) {
+    memphis_debug ("osmRead");
 
     g_assert (buffer != NULL && size > 0);
 
@@ -406,7 +396,6 @@ osmFile* osmRead_from_buffer (const char *buffer, guint size, gint8 debug_level)
     data->pool = memphis_data_pool_new ();
     data->cntTag = 0;
     data->cntNd = 0;
-    data->debug_level = debug_level;
 
     osm = g_new(osmFile, 1);
     osm->nodes = NULL;
@@ -421,8 +410,8 @@ osmFile* osmRead_from_buffer (const char *buffer, guint size, gint8 debug_level)
 
     data->osm = osm;
 
-    if (debug_level > 0) {
-        g_fprintf (stdout, " OSM parsing   0%%");
+    if (G_UNLIKELY (memphis_debug_get_print_progress ())) {
+        g_fprintf (stdout, " OSM parsing ...");
         fflush(stdout);
     }
 
@@ -471,12 +460,12 @@ osmFile* osmRead_from_buffer (const char *buffer, guint size, gint8 debug_level)
 
     g_hash_table_destroy(osm->nodeidx);
     osm->nodeidx = NULL;
-    
-    if (debug_level > 0)
-        fprintf(stdout,"\r OSM parsing done. (%i/%i/%i/%i) [%fs]\n",
+
+    if (G_UNLIKELY (memphis_debug_get_print_progress ()))
+        g_fprintf (stdout, "\r OSM parsing done. (%i/%i/%i/%i) [%fs]\n",
                 osm->nodecnt, osm->waycnt, data->cntTag, data->cntNd,
-                g_timer_elapsed(tOsmRead,NULL));
-    
+                g_timer_elapsed(tOsmRead, NULL));
+
     g_timer_destroy(tOsmRead);
 
     return osm;
