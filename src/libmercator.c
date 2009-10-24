@@ -36,7 +36,7 @@ coordinates latlon2relativeXY(double lat, double lon) {
     result.x = (lon + 180) / 360;
     result.y = (1 - log(tan(radians(lat)) + sec(radians(lat))) / G_PI) / 2;
 
-    return(result);
+    return result;
 }
 
 
@@ -46,7 +46,7 @@ coordinates latlon2xy(double lat, double lon, int z) {
     result.y = numTiles(z) * (1 - log(tan(radians(lat))
             + sec(radians(lat))) / G_PI) / 2;
 
-    return(result);
+    return result;
 }
 
 coordinates latEdges(int y, int z) {
@@ -56,7 +56,7 @@ coordinates latEdges(int y, int z) {
     result.x = mercatorToLat(G_PI * (1 - 2 * (y * unit)));
     result.y = mercatorToLat(G_PI * (1 - 2 * (y * unit + unit)));
 
-    return(result);
+    return result;
 }
 
 coordinates lonEdges(int x, int z) {
@@ -66,7 +66,7 @@ coordinates lonEdges(int x, int z) {
     result.x = -180 + (x * unit);
     result.y = -180 + (x * unit) + unit;
 
-    return(result);
+    return result;
 }
 
 edges tile2edges(int x, int y, int z) {
@@ -81,7 +81,7 @@ edges tile2edges(int x, int y, int z) {
     result.W = ret.x;
     result.E = ret.y;
 
-    return(result);
+    return result;
 }
 
 /* converts 'slippy maps' tile number to lat & lon in degrees */
