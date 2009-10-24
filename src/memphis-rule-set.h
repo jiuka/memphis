@@ -61,11 +61,6 @@ void memphis_rule_set_load_from_data (MemphisRuleSet *rules,
     const gchar *data,
     guint size);
 
-void memphis_rule_set_set_debug_level (MemphisRuleSet *rules,
-    gint8 debug_level);
-
-gint8 memphis_rule_set_get_debug_level (MemphisRuleSet *rules);
-
 void memphis_rule_set_set_bg_color (MemphisRuleSet *rules,
     guint8 r, guint8 g, guint8 b, guint8 a);
 void memphis_rule_set_get_bg_color (MemphisRuleSet *self,

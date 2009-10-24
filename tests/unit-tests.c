@@ -112,7 +112,6 @@ rule_set_load_data ()
   </rules>";
 
   rules = memphis_rule_set_new ();
-  memphis_rule_set_set_debug_level (rules, 0);
   memphis_rule_set_load_from_data (rules, rules_data, strlen (rules_data));
   memphis_rule_set_free (rules);
 }
@@ -122,7 +121,6 @@ rule_set_load_file ()
 {
   MemphisRuleSet *rules;
   rules = memphis_rule_set_new ();
-  memphis_rule_set_set_debug_level (rules, 0);
   memphis_rule_set_load_from_file (rules, RULES_PATH);
   memphis_rule_set_load_from_file (rules, RULES_PATH);
   memphis_rule_set_free (rules);
@@ -144,7 +142,6 @@ rule_set_background ()
   guint8 r2, g2, b2, a2;
   r2 = g2 = b2 = a2 = 0;
   rules = memphis_rule_set_new ();
-  memphis_rule_set_set_debug_level (rules, 0);
   memphis_rule_set_load_from_file (rules, RULES_PATH);
   // FIXME: should work without a file!
   g_test_message ("FIXME: should work without a file!");
@@ -167,7 +164,6 @@ rule_set_get_rule ()
   MemphisRule *rule;
   MemphisRuleSet *rules;
   rules = memphis_rule_set_new ();
-  memphis_rule_set_set_debug_level (rules, 0);
   memphis_rule_set_load_from_file (rules, RULES_PATH);
 
   // one
@@ -205,7 +201,6 @@ rule_set_set_and_get_line_w_border ()
   MemphisRule *rule;
   MemphisRuleSet *rules;
   rules = memphis_rule_set_new ();
-  memphis_rule_set_set_debug_level (rules, 0);
   memphis_rule_set_load_from_file (rules, RULES_PATH); //FIXME
 
   guint8 r, g, b, a, zmin, zmax;
@@ -281,7 +276,6 @@ rule_set_set_and_get_polygon_w_border ()
   MemphisRule *rule;
   MemphisRuleSet *rules;
   rules = memphis_rule_set_new ();
-  memphis_rule_set_set_debug_level (rules, 0);
   memphis_rule_set_load_from_file (rules, RULES_PATH); //FIXME
 
   // TODO
@@ -295,7 +289,6 @@ rule_set_rm_rule ()
 {
   MemphisRuleSet *rules;
   rules = memphis_rule_set_new ();
-  memphis_rule_set_set_debug_level (rules, 0);
   memphis_rule_set_load_from_file (rules, RULES_PATH);
 
   g_assert (memphis_rule_set_remove_rule (rules, "highway:motorway"));
@@ -313,7 +306,6 @@ rule_set_add_rule ()
   MemphisRule *b_rule;
 
   rules = memphis_rule_set_new ();
-  memphis_rule_set_set_debug_level (rules, 0);
   memphis_rule_set_load_from_file (rules, RULES_PATH);
 
   a_rule = memphis_rule_new ();
@@ -431,7 +423,7 @@ renderer_draw_empty_map_and_rules ()
 
 int
 main (int argc, char **argv)
-{    
+{
   g_type_init ();
   g_test_init (&argc, &argv, NULL);
   g_test_bug_base ("https://trac.openstreetmap.ch/trac/memphis/ticket/");

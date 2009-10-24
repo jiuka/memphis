@@ -62,7 +62,6 @@ AC_CHECK_HEADER([expat.h], [],
 # Enable debug
 # -----------------------------------------------------------
 
-AC_MSG_CHECKING([whether to do a debug build])
 AC_ARG_ENABLE(debug,
   AC_HELP_STRING([--enable-debug],
     [turn on debugging [default=no]]),[],[enable_debug="no"])
