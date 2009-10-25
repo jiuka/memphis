@@ -165,6 +165,8 @@ int main(int argc, char **argv) {
 
     banner();
 
+    memphis_debug_set_print_progress (TRUE);
+
     ruleset = memphis_rule_set_new ();
     memphis_rule_set_load_from_file (ruleset, opts->cfgfn);
     //if (ruleset->ruleset == NULL)
@@ -176,6 +178,8 @@ int main(int argc, char **argv) {
     //    return(-1);
 
     renderer = memphis_renderer_new_full (ruleset, osm);
+
+    g_mkdir (opts->outdir, 0755);
     
     draw (renderer);
 
