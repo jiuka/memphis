@@ -1,0 +1,19 @@
+0.1.0  25 October 2009
+
+    The first release of Memphis and libmemphis.
+
+    Memphis draws a single PNG image of your map data.
+    Libmemphis additionally implements the 'Slippy Map Tilename'
+    specification, like Mapnik and Osmarender. Memphis and libmemphis
+    support zoom level 12 to 18, projected with the Mercator
+    projection.
+
+    Key features:
+     * Parsing of nodes and ways from a OSM XML export file.
+     * XML file format to define rendering style rules.
+     * Dynamic adaptable drawing rules.
+     * Cairo rendering engine.
+     * GObject based API.
+
+	Known Bugs:
+	 * Conditional drawing rules are broken and should not be used.
