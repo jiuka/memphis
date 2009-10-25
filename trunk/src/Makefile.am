@@ -1,8 +1,11 @@
-AM_CPPFLAGS =		\
-	$(DEPS_CFLAGS)		\
-	-DDATADIR=\""$(datadir)"\"	\
-	-I$(top_srcdir) \
+INCLUDES = -I$(top_srcdir)
+
+AM_CPPFLAGS = \
+	$(DEPS_CFLAGS) \
+	-DDATADIR=\""$(datadir)"\" \
 	-std=c99
+
+AM_LDFLAGS = $(DEPS_LIBS)
 
 # memphis cli tool:
 # switch to bin_PROGRAMS when mature
@@ -65,6 +68,7 @@ libmemphis_0_1_la_LIBADD = $(DEPS_LIBS)
 
 libmemphis_includedir = $(includedir)/libmemphis-0.1/memphis
 
-libmemphis_0_1_la_LDFLAGS = -version-info $(LIBRARY_VERSION) \
-	-export-symbols-regex		\
+libmemphis_0_1_la_LDFLAGS = \
+	-version-info $(LIBRARY_VERSION) \
+	-export-symbols-regex \
 	^memphis_.*

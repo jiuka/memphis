@@ -158,7 +158,7 @@ int main(int argc, char **argv) {
     if (opts->cfgfn == NULL || opts->osmfn == NULL) {
         g_print("error: rules file or osm map file missing:\n\n%s\n",
                 g_option_context_get_summary(optctx));
-        return(-1);
+        return -1;
     }
 
     g_option_context_free(optctx);
@@ -183,7 +183,7 @@ int main(int argc, char **argv) {
     memphis_rule_set_free (ruleset);
     memphis_renderer_free (renderer);
 
-    return(0);
+    return 0;
 }
 
 /*

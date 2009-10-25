@@ -39,6 +39,7 @@ SOURCES = [
     'src/textpath.c',
     'src/mlib.c',
     'src/memphis-data-pool.c',
+    'src/memphis-debug.c',
     'src/memphis-map.c',
     'src/memphis-rule.c',
     'src/memphis-rule-set.c',
@@ -47,11 +48,9 @@ SOURCES = [
 
 Default(env.Program('memphis', source = ['src/main.c', SOURCES]))
 
-env.Program('testTextPath', source=['test/testTextPath.c','textpath.c'])
+env.Program('testTextPath', source=['test/testTextPath.c','src/textpath.c'])
 env.Program('testSize', source=['test/testSize.c'])
-env.Program('testOSM', source=['test/testOSM.c','osm05.c','mlib.c'])
-env.Program('testRuleset', source=['test/testRuleset.c','ruleset.c','mlib.c'])
-
-#env.Program('testRuleset', source=['ruleset.c','testRuleset.c'])
+env.Program('testOSM', source=['test/testOSM.c','osm05.c','src/mlib.c'])
+env.Program('testRuleset', source=['test/testRuleset.c','src/ruleset.c','src/mlib.c'])
 
 env.Program('tile-renderer', source = ['demos/tile-renderer.c', SOURCES])
