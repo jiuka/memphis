@@ -147,10 +147,11 @@ memphis_renderer_draw_png (MemphisRenderer *renderer,
   info->priv = priv;
 
   cairo_rectangle (info->cr, 0, 0, w, h);
-  cairo_set_source_rgb (info->cr,
+  cairo_set_source_rgba (info->cr,
       (double)ruleset->background[0] / 255.0,
       (double)ruleset->background[1] / 255.0,
-      (double)ruleset->background[2] / 255.0);
+      (double)ruleset->background[2] / 255.0,
+      (double)ruleset->background[3] / 255.0);
   cairo_fill (info->cr);
 
   renderCairo (info);
@@ -204,10 +205,11 @@ memphis_renderer_draw_tile (MemphisRenderer *renderer,
   memphis_debug (" Cairo rendering tile: (%i, %i, %i)", x, y, info->zoom_level);
 
   cairo_rectangle (info->cr, 0, 0, priv->resolution, priv->resolution);
-  cairo_set_source_rgb (info->cr,
+  cairo_set_source_rgba (info->cr,
       (double) ruleset->background[0] / 255.0,
       (double) ruleset->background[1] / 255.0,
-      (double) ruleset->background[2] / 255.0);
+      (double) ruleset->background[2] / 255.0,
+      (double) ruleset->background[3] / 255.0);
   cairo_fill (info->cr);
 
   // TODO: Is this a good cut-off to draw background tiles only?

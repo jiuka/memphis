@@ -144,10 +144,10 @@ memphis_rule_set_set_bg_color (MemphisRuleSet *self,
 {
   MemphisRuleSetPrivate *priv = MEMPHIS_RULE_SET_GET_PRIVATE (self);
 
-  priv->ruleset->background[0] = (gint16) r;
-  priv->ruleset->background[1] = (gint16) g;
-  priv->ruleset->background[2] = (gint16) b;
-  // TODO: alpha support
+  priv->ruleset->background[0] = r;
+  priv->ruleset->background[1] = g;
+  priv->ruleset->background[2] = b;
+  priv->ruleset->background[3] = a;
 }
 
 void
@@ -159,10 +159,10 @@ memphis_rule_set_get_bg_color (MemphisRuleSet *self,
 {
   MemphisRuleSetPrivate *priv = MEMPHIS_RULE_SET_GET_PRIVATE (self);
 
-  *r = (guint16) priv->ruleset->background[0];
-  *g = (guint16) priv->ruleset->background[1];
-  *b = (guint16) priv->ruleset->background[2];
-  // TODO: alpha support
+  *r = priv->ruleset->background[0];
+  *g = priv->ruleset->background[1];
+  *b = priv->ruleset->background[2];
+  *a = priv->ruleset->background[3];
 }
 
 GList *
