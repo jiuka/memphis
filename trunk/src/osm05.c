@@ -1,6 +1,7 @@
 /*
  * Memphis - Cairo Rederer for OSM in C
  * Copyright (C) 2008  Marius Rieder <marius.rieder@durchmesser.ch>
+ * Copyright (C) 2009  Simon Wenner <simon@wenner.ch>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,7 +24,6 @@
 #include <expat.h>
 #include <string.h>
 
-#include "list.h"
 #include "mlib.h"
 #include "osm05.h"
 #include "memphis-data-pool.h"
@@ -44,6 +44,37 @@ struct mapUserData_ {
     int cntTag;
     int cntNd;
 };
+
+static void
+way_list_prepend(osmWay *way, osmWay **list)
+{
+    way->next = *list;
+    *list = way;
+}
+
+static void
+node_list_prepend(osmNode *node, osmNode **list)
+{
+    node->next = *list;
+    *list = node;
+}
+
+static void
+tag_list_insert_key(osmTag *tag, osmTag **list)
+{
+    osmTag *curr, *prev;
+
+    for (curr = *list, prev = NULL; curr != NULL;
+            prev = curr, curr = curr->next) {
+        if (strcmp(curr->key, tag->key) > 0)
+            break;
+    }
+    tag->next = curr;
+    if (prev)
+        prev->next = tag;
+    else
+        *list = tag;
+}
 
 /**
  * osmStartElement:
@@ -98,7 +129,7 @@ osmStartElement(void *userData, const char *name, const char **atts) {
         // Insert Node
         osm->nodecnt++;
         g_hash_table_insert(osm->nodeidx, &data->cNode->id, data->cNode);
-        LL_PREPEND(data->cNode, osm->nodes);
+        node_list_prepend(data->cNode, &osm->nodes);
 
         memphis_debug ("NODE: %i %f %f", data->cNode->id,
                 data->cNode->lat, data->cNode->lon);
@@ -147,9 +178,9 @@ osmStartElement(void *userData, const char *name, const char **atts) {
 
         data->cntTag++;
         if (data->cNode)
-            LL_INSERT_KEY(data->cTag, data->cNode->tag);
+            tag_list_insert_key(data->cTag, &data->cNode->tag);
         else if (data->cWay)
-            LL_INSERT_KEY(data->cTag, data->cWay->tag);
+            tag_list_insert_key(data->cTag, &data->cWay->tag);
 
         data->cTag = NULL;
     }
@@ -172,7 +203,7 @@ osmStartElement(void *userData, const char *name, const char **atts) {
 
         // Insert Way
         osm->waycnt++;
-        LL_PREPEND(data->cWay, osm->ways);
+        way_list_prepend(data->cWay, &osm->ways);
 
         memphis_debug ("WAY(%i)", data->cWay->id);
     }
@@ -351,7 +382,7 @@ osmFile* osmRead(const char *filename) {
         osm->maxlat = -180.0;
 
         osmNode *node;
-        LIST_FOREACH(node, osm->nodes) {
+        for(node = osm->nodes; node != NULL; node = node->next) {
             if(node->lon < osm->minlon)
                 osm->minlon = node->lon;
             if(node->lat < osm->minlat)
@@ -446,7 +477,7 @@ osmFile* osmRead_from_buffer (const char *buffer, guint size) {
         osm->maxlat = -180.0;
 
         osmNode *node;
-        LIST_FOREACH(node, osm->nodes) {
+        for (node = osm->nodes; node != NULL; node = node->next) {
             if(node->lon < osm->minlon)
                 osm->minlon = node->lon;
             if(node->lat < osm->minlat)

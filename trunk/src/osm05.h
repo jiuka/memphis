@@ -1,6 +1,7 @@
 /*
  * Memphis - Cairo Rederer for OSM in C
  * Copyright (C) 2008  Marius Rieder <marius.rieder@durchmesser.ch>
+ * Copyright (C) 2009  Simon Wenner <simon@wenner.ch>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -35,7 +36,7 @@ struct osmNode_ {
         float lat;
         float lon;
         short int layer;
-        osmTag *tag;
+        osmTag *tag; // FIXME: this is a list! -> tags
         osmNode *next;
     };
 
@@ -44,7 +45,7 @@ struct osmWay_ {
         int id;
         short int layer;
         char    *name;
-        osmTag  *tag;
+        osmTag  *tag; // FIXME: this is a list! -> tags
         GSList  *nd;
         osmWay  *next;
     };
@@ -68,18 +69,15 @@ typedef struct osmFile_ osmFile;
 struct osmFile_ {
         osmNode         *nodes;     // Node List
         GHashTable      *nodeidx;   // Node Hash
-        unsigned int    nodecnt;    // Node Count
+        guint           nodecnt;    // Node Count
         osmWay          *ways;
-        unsigned int    waycnt;
-        float           minlat;
-        float           minlon;
-        float           maxlat;
-        float           maxlon;
+        guint           waycnt;
+        gfloat          minlat;
+        gfloat          minlon;
+        gfloat          maxlat;
+        gfloat          maxlon;
     };
 
-/*
- * Prototypes
- */
 osmFile* osmRead (const char *filename);
 osmFile* osmRead_from_buffer (const char *buffer, guint size);
 void osmFree(osmFile *osm);
