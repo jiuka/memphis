@@ -62,10 +62,13 @@ node_list_prepend(osmNode *node, osmNode **list)
 static void
 tag_list_insert_key(osmTag *tag, osmTag **list)
 {
+    g_assert (tag != NULL);
+
     osmTag *curr, *prev;
 
     for (curr = *list, prev = NULL; curr != NULL;
-            prev = curr, curr = curr->next) {
+            prev = curr, curr = curr->next)
+    {
         if (strcmp(curr->key, tag->key) > 0)
             break;
     }
