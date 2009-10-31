@@ -68,10 +68,16 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
 
         while (*atts != NULL) {
             if(strcmp((char *) *(atts), "background") == 0) {
-              sscanf((char *) *(atts+1),"#%2x%2x%2x",
-                  (unsigned int *)&ruleset->background[0],
-                  (unsigned int *)&ruleset->background[1],
-                  (unsigned int *)&ruleset->background[2]);
+                if(sscanf((char *) *(atts+1),"#%2x%2x%2x%2x",
+                        (unsigned int *)&ruleset->background[0],
+                        (unsigned int *)&ruleset->background[1],
+                        (unsigned int *)&ruleset->background[2],
+                        (unsigned int *)&ruleset->background[3])
+                        < 4)
+                {
+                    // Default background alpha value
+                    ruleset->background[3] = 255;
+                }
             }
             atts+=2;
         }

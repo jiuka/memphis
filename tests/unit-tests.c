@@ -114,6 +114,16 @@ rule_set_load_data ()
   rules = memphis_rule_set_new ();
   memphis_rule_set_load_from_data (rules, rules_data, strlen (rules_data));
   memphis_rule_set_free (rules);
+
+  const gchar rules_data2[] =
+  "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\
+  <rules version=\"0.1\" autor=\"MariusRieder\" background=\"#f0f0f000\">\
+        <!-- no rules and an invisible background -->\
+  </rules>";
+
+  rules = memphis_rule_set_new ();
+  memphis_rule_set_load_from_data (rules, rules_data2, strlen (rules_data2));
+  memphis_rule_set_free (rules);
 }
 
 static void
@@ -154,7 +164,7 @@ rule_set_background ()
   g_assert_cmpuint(r1, ==, r2);
   g_assert_cmpuint(g1, ==, g2);
   g_assert_cmpuint(b1, ==, b2);
-  //g_assert_cmpuint(a1, ==, a2); // TODO: support alpha
+  g_assert_cmpuint(a1, ==, a2);
   memphis_rule_set_free (rules);
 }
 

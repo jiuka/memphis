@@ -82,7 +82,7 @@ struct cfgRules_ {
         int         cntRule;
         int         cntElse;
         int         depth;
-        short int   background[3];
+        guint8      background[4];
         cfgRule     *rule;
     };
 
