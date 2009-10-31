@@ -24,7 +24,7 @@
 
 #include "memphis-renderer.h"
 #include "memphis-private.h"
-#include "list.h"
+
 #include "libmercator.h"
 #include "ruleset.h"
 #include "textpath.h"
@@ -37,6 +37,9 @@ G_DEFINE_TYPE (MemphisRenderer, memphis_renderer, G_TYPE_OBJECT)
 #define MEMPHIS_RENDERER_MAX_ZOOM_LEVEL 18
 
 #define MEMPHIS_DEFAULT_RESOLUTION 256
+
+#define LIST_FOREACH(iter, list) \
+        for ((iter) = (list); (iter); (iter) = (iter)->next)
 
 enum
 {
@@ -782,7 +785,7 @@ static void renderPaths (renderInfo *info, int layer,
     if (way->layer != layer)
       continue;
 
-    if ( checkRule(rule, way->tag, WAY) == 1) {
+    if (checkRule(rule, way->tag, WAY) == 1) {
       drawPath(info, way->nd);
       paths++;
     }

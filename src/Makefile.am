@@ -28,7 +28,6 @@ libmemphis_headers = \
 	memphis-debug.h \
 	libmercator.h \
 	ruleset.h \
-	list.h \
 	textpath.h \
 	mlib.h \
 	osm05.h
@@ -49,7 +48,6 @@ libmemphis_0_1_la_SOURCES = \
 noinst_HEADERS = \
 	memphis-private.h \
 	libmercator.h \
-	list.h \
 	textpath.h \
 	osm05.h \
 	ruleset.h \

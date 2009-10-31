@@ -31,6 +31,8 @@
 #define MEMPHIS_IS_RENDERER_CLASS(klass)       (G_TYPE_CHECK_CLASS_TYPE ((klass), MEMPHIS_TYPE_RENDERER))
 #define MEMPHIS_RENDERER_GET_CLASS(obj)        (G_TYPE_INSTANCE_GET_CLASS ((obj), MEMPHIS_TYPE_RENDERER, MemphisRendererClass))
 
+G_BEGIN_DECLS
+
 typedef struct _MemphisRenderer        MemphisRenderer;
 typedef struct _MemphisRendererClass   MemphisRendererClass;
 
@@ -91,5 +93,7 @@ gboolean memphis_renderer_tile_has_data (MemphisRenderer *renderer,
     guint x,
     guint y,
     guint zoom_level);
+
+G_END_DECLS
 
 #endif /* __MEMPHIS_RENDERER_H__ */
