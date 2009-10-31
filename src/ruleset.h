@@ -60,6 +60,7 @@ struct cfgElse_ {
         int         d;
 #endif
     };
+
 struct cfgRule_ {
         short int   type;
         char        **key;
@@ -79,16 +80,13 @@ struct cfgRule_ {
  */
 typedef struct cfgRules_ cfgRules;
 struct cfgRules_ {
-        int         cntRule;
-        int         cntElse;
-        int         depth;
+        guint       cntRule;
+        guint       cntElse;
+        gint        depth;
         guint8      background[4];
         cfgRule     *rule;
     };
 
-/*
- * Prototypes
- */
 cfgRules* rulesetRead(const char *filename);
 cfgRules* rulesetRead_from_buffer (const char *buffer, guint size);
 void rulesetFree(cfgRules * ruleset);

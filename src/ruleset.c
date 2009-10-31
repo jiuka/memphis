@@ -23,7 +23,6 @@
 #include <expat.h>
 #include <string.h>
 
-#include "list.h"
 #include "ruleset.h"
 #include "mlib.h"
 #include "memphis-data-pool.h"
@@ -43,6 +42,26 @@ struct rulesUserData_ {
     // Collected Data
     cfgRules *ruleset;
 };
+
+static void
+cfgDraw_list_append(cfgDraw *draw, cfgDraw **list)
+{
+    g_assert (draw != NULL);
+
+    cfgDraw *curr = *list;
+    cfgDraw *prev = NULL;
+
+    while (curr != NULL) {
+        prev = curr;
+        curr = curr->next;
+    }
+    if (prev != NULL)
+        prev->next = draw;
+    else
+        *list = draw;
+
+    draw->next = NULL;
+}
 
 /**
  * cfgStartElement:
@@ -184,9 +203,9 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
 
         // Insert Draw
         if(data->currentRule->parent == 0)
-            LL_APPEND(new, data->ruleStack[ruleset->depth]->draw);
+            cfgDraw_list_append(new, &(data->ruleStack[ruleset->depth]->draw));
         else
-            LL_APPEND(new, data->ruleStack[ruleset->depth]->ndraw);
+            cfgDraw_list_append(new, &(data->ruleStack[ruleset->depth]->ndraw));
     }
 }
 
