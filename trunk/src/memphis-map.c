@@ -146,7 +146,7 @@ memphis_map_get_bounding_box (MemphisMap *map,
 osmFile *
 memphis_map_get_osmFile (MemphisMap *map)
 {
-  g_assert (map != NULL);
+  g_assert (MEMPHIS_IS_MAP (map));
 
   MemphisMapPrivate *priv = MEMPHIS_MAP_GET_PRIVATE (map);
   return priv->map;

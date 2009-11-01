@@ -371,6 +371,66 @@ renderer_resolution ()
 }
 
 static void
+renderer_set_map ()
+{
+  MemphisMap *map, *map2;
+  map = memphis_map_new ();
+  g_assert (MEMPHIS_IS_MAP(map));
+    
+  MemphisRenderer *r = NULL;
+  r = memphis_renderer_new ();
+  memphis_renderer_set_map (r, map);
+  map2 = memphis_renderer_get_map (r);
+  g_assert (MEMPHIS_IS_MAP(map2));
+  g_assert (map == map2);
+
+  memphis_renderer_free (r);
+
+  // full constructor
+  r = memphis_renderer_new_full (NULL, map);
+  g_assert (MEMPHIS_IS_RENDERER(r));
+  map2 = memphis_renderer_get_map (r);
+  g_assert (MEMPHIS_IS_MAP(map2));
+  g_assert (map == map2);
+
+  memphis_map_free (map);
+  memphis_renderer_free (r);
+}
+
+static void
+renderer_tile_numbers ()
+{
+  const gchar map_data[] = "<?xml version='1.0' encoding='UTF-8'?>\
+  <osm version='0.5' generator='JOSM'>\
+  <bounds minlat=\"51.4540069101\" minlon=\"-0.17578125\" maxlat=\"51.5634123287\" maxlon=\"-0.0\"/>\
+  </osm>";
+
+  MemphisMap *map;
+  map = memphis_map_new ();
+  memphis_map_load_from_data (map, map_data, strlen (map_data));
+  g_assert (MEMPHIS_IS_MAP(map));
+  g_assert (map != NULL);
+
+  MemphisRenderer *r = NULL;
+  r = memphis_renderer_new_full (NULL, map);
+  g_assert (MEMPHIS_IS_RENDERER(r));
+
+  gint x1, x2, y1, y2;
+  x1 = memphis_renderer_get_min_x_tile (r, 14);
+  x2 = memphis_renderer_get_max_x_tile (r, 14);
+  y1 = memphis_renderer_get_min_y_tile (r, 14);
+  y2 = memphis_renderer_get_max_y_tile (r, 14);
+
+  g_assert (x1 == 8184);
+  g_assert (x2 == 8192);
+  g_assert (y1 == 5444);
+  g_assert (y2 == 5452);
+
+  memphis_renderer_free (r);
+  memphis_map_free (map);
+}
+
+static void
 renderer_draw_nothing ()
 {
   MemphisRenderer *r;
@@ -457,7 +517,9 @@ main (int argc, char **argv)
   g_test_add_func ("/rule_set/add_rule", rule_set_add_rule);
 
   g_test_add_func ("/renderer/new", renderer_new);
+  g_test_add_func ("/renderer/set_map", renderer_set_map);
   g_test_add_func ("/renderer/resolution", renderer_resolution);
+  g_test_add_func ("/renderer/tile_numbers", renderer_tile_numbers);
   g_test_add_func ("/renderer/draw_nothing", renderer_draw_nothing);
   g_test_add_func ("/renderer/draw_empty_map_and_rules",
       renderer_draw_empty_map_and_rules);

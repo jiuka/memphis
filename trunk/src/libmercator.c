@@ -102,7 +102,7 @@ coordinates tile2latlon (int x, int y, int z) {
 int lon2tilex (double lon_deg, int z) {
     double ret;
     ret = ((lon_deg + 180.0) / 360.0) * numTiles (z);
-    
+
     return floor (ret);
 }
 
@@ -115,7 +115,7 @@ int lat2tiley (double lat_deg, int z) {
     lat_rad = lat_deg * G_PI / 180.0;
     ret = (1.0 - (log (tan (lat_rad) + sec (lat_rad)) / G_PI))
             / 2.0 * n;
-    
+
     return floor (ret);
 }
 
