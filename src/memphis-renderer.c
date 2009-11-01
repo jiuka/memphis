@@ -90,6 +90,7 @@ MemphisRenderer*
 memphis_renderer_new_full (MemphisRuleSet *rules, MemphisMap *map)
 {
   MemphisRenderer* r = g_object_new (MEMPHIS_TYPE_RENDERER, NULL);
+
   if (map)
     memphis_renderer_set_map (r, map);
   if (rules)
@@ -373,7 +374,7 @@ memphis_renderer_class_init (MemphisRendererClass *klass)
   /**
   * MemphisRenderer:resolution:
   *
-  * The tile resolution in pixel.
+  * The tile resolution in pixels.
   *
   * Since: 0.1
   */
@@ -381,7 +382,7 @@ memphis_renderer_class_init (MemphisRendererClass *klass)
       PROP_RESOLUTION,
       g_param_spec_uint ("resolution",
         "Tile resolution",
-        "The tile resolution in pixel",
+        "The tile resolution in pixels",
         8,
         2048,
         MEMPHIS_DEFAULT_RESOLUTION,
@@ -681,7 +682,7 @@ static void drawText (renderInfo *info, char *text, cfgDraw *draw)
 /*
  * function: stringInStrings
  *
- * Check if string is an strings.
+ * Check if string is in strings.
  */
 static compare_result_e stringInStrings(char *string, char **strings)
 {
@@ -705,7 +706,7 @@ static compare_result_e stringInStrings(char *string, char **strings)
 /*
  * function: matchRule
  *
- * Check if a element matchs a rule.
+ * Check if an element matches a rule.
  */
 static int matchRule (cfgRule *rule, osmTag *tag)
 {
@@ -732,7 +733,7 @@ static int matchRule (cfgRule *rule, osmTag *tag)
 /*
  * function: checkRule
  *
- * Check if a element match to a rule and all it's parent.
+ * Check if an element matches to a rule and to all it's parents.
  */
 static int checkRule (cfgRule *rule, osmTag *tag, short int type)
 {
