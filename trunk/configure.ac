@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 #
 m4_define([memphis_major_version], [0])
-m4_define([memphis_minor_version], [1])
+m4_define([memphis_minor_version], [2])
 m4_define([memphis_micro_version], [0])
 m4_define([memphis_version],
           [memphis_major_version.memphis_minor_version.memphis_micro_version])
