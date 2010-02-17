@@ -97,7 +97,8 @@ memphis_map_new ()
 }
 
 void
-memphis_map_load_from_file (MemphisMap *map, const gchar *filename)
+memphis_map_load_from_file (MemphisMap *map, const gchar *filename,
+    GError **error)
 {
   g_return_if_fail (MEMPHIS_IS_MAP (map) && filename != NULL);
 
@@ -105,11 +106,12 @@ memphis_map_load_from_file (MemphisMap *map, const gchar *filename)
   if (priv->map != NULL)
     osmFree (priv->map);
 
-  priv->map = osmRead (filename);
+  priv->map = osmRead (filename, error);
 }
 
 void
-memphis_map_load_from_data (MemphisMap *map, const gchar *data, guint size)
+memphis_map_load_from_data (MemphisMap *map, const gchar *data,
+    guint size, GError **error)
 {
   g_return_if_fail (MEMPHIS_IS_MAP (map) && data != NULL);
 
@@ -117,7 +119,7 @@ memphis_map_load_from_data (MemphisMap *map, const gchar *data, guint size)
   if (priv->map != NULL)
     osmFree (priv->map);
 
-  priv->map = osmRead_from_buffer (data, size);
+  priv->map = osmRead_from_buffer (data, size, error);
 }
 
 void

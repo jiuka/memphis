@@ -78,8 +78,8 @@ struct osmFile_ {
         gfloat          maxlon;
     };
 
-osmFile* osmRead (const char *filename);
-osmFile* osmRead_from_buffer (const char *buffer, guint size);
+osmFile* osmRead (const char *filename, GError **error);
+osmFile* osmRead_from_buffer (const char *buffer, guint size, GError **error);
 void osmFree(osmFile *osm);
 
 #endif /* OSM05_H */

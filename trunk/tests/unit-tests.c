@@ -57,7 +57,9 @@ map_load_data ()
   </osm>";
 
   map = memphis_map_new ();
-  memphis_map_load_from_data (map, map_data, strlen (map_data));
+  GError *err = NULL;
+  memphis_map_load_from_data (map, map_data, strlen (map_data), &err);
+  g_assert (err == NULL);
   memphis_map_free (map);
 }
 
@@ -66,7 +68,9 @@ map_load_file ()
 {
   MemphisMap *map;
   map = memphis_map_new ();
-  memphis_map_load_from_file (map, MAP_PATH);
+  GError *err = NULL;
+  memphis_map_load_from_file (map, MAP_PATH, &err);
+  g_assert (err == NULL);
   memphis_map_free (map);
 }
 
@@ -409,7 +413,9 @@ renderer_tile_numbers ()
 
   MemphisMap *map;
   map = memphis_map_new ();
-  memphis_map_load_from_data (map, map_data, strlen (map_data));
+  GError *err = NULL;
+  memphis_map_load_from_data (map, map_data, strlen (map_data), &err);
+  g_assert (err == NULL);
   g_assert (MEMPHIS_IS_MAP(map));
 
   MemphisRenderer *r = NULL;
