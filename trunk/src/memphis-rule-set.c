@@ -98,7 +98,10 @@ memphis_rule_set_init (MemphisRuleSet *self)
 MemphisRuleSet*
 memphis_rule_set_new ()
 {
-  return g_object_new (MEMPHIS_TYPE_RULE_SET, NULL);
+  MemphisRuleSet* self = g_object_new (MEMPHIS_TYPE_RULE_SET, NULL);
+  MemphisRuleSetPrivate *priv = MEMPHIS_RULE_SET_GET_PRIVATE (self);
+  priv->ruleset = rulesetNew ();
+  return self;
 }
 
 void

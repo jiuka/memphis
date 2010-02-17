@@ -42,6 +42,8 @@ map_load_data ()
 {
   MemphisMap *map;
 
+  //const gchar map_data[] ="sdsd"; // FIXME: no parse error?
+
   const gchar map_data[] =
   "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\
   <osm version=\"0.6\" generator=\"OpenStreetMap server\">\
@@ -152,9 +154,6 @@ rule_set_background ()
   guint8 r2, g2, b2, a2;
   r2 = g2 = b2 = a2 = 0;
   rules = memphis_rule_set_new ();
-  memphis_rule_set_load_from_file (rules, RULES_PATH);
-  // FIXME: should work without a file!
-  g_test_message ("FIXME: should work without a file!");
   r1 = (guint16) g_test_rand_int ();
   g1 = (guint16) g_test_rand_int ();
   b1 = (guint16) g_test_rand_int ();
@@ -211,7 +210,8 @@ rule_set_set_and_get_line_w_border ()
   MemphisRule *rule;
   MemphisRuleSet *rules;
   rules = memphis_rule_set_new ();
-  memphis_rule_set_load_from_file (rules, RULES_PATH); //FIXME
+  memphis_rule_set_load_from_file (rules, RULES_PATH);
+  //FIXME: we need a real handy rules creation function, this is horrible
 
   guint8 r, g, b, a, zmin, zmax;
   gdouble size;
@@ -400,16 +400,17 @@ renderer_set_map ()
 static void
 renderer_tile_numbers ()
 {
-  const gchar map_data[] = "<?xml version='1.0' encoding='UTF-8'?>\
+  const gchar map_data[] =
+  "<?xml version='1.0' encoding='UTF-8'?>\
   <osm version='0.5' generator='JOSM'>\
-  <bounds minlat=\"51.4540069101\" minlon=\"-0.17578125\" maxlat=\"51.5634123287\" maxlon=\"-0.0\"/>\
+    <bounds minlat=\"51.4540069101\" minlon=\"-0.17578125\" \
+            maxlat=\"51.5634123287\" maxlon=\"-0.0\"/>\
   </osm>";
 
   MemphisMap *map;
   map = memphis_map_new ();
   memphis_map_load_from_data (map, map_data, strlen (map_data));
   g_assert (MEMPHIS_IS_MAP(map));
-  g_assert (map != NULL);
 
   MemphisRenderer *r = NULL;
   r = memphis_renderer_new_full (NULL, map);

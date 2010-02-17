@@ -19,7 +19,6 @@
 
 #include <glib.h>
 #include <glib/gstdio.h>
-#include <time.h>
 #include <expat.h>
 #include <string.h>
 
@@ -282,10 +281,7 @@ cfgRules* rulesetRead(const char *filename) {
         return NULL;
     }
 
-    ruleset = g_new(cfgRules, 1);
-    ruleset->depth = -1;
-    ruleset->cntRule = 0;
-    ruleset->cntElse = 0;
+    ruleset = rulesetNew ();
     data->ruleset = ruleset;
     data->pool = memphis_data_pool_new ();
 
@@ -381,10 +377,7 @@ cfgRules* rulesetRead_from_buffer (const char *buffer, guint size) {
         data->ruleStack[len] = NULL;
     }
 
-    ruleset = g_new(cfgRules, 1);
-    ruleset->depth = -1;
-    ruleset->cntRule = 0;
-    ruleset->cntElse = 0;
+    ruleset = rulesetNew ();
     data->ruleset = ruleset;
     data->pool = memphis_data_pool_new ();
 
@@ -459,6 +452,22 @@ void rulesetFree(cfgRules * ruleset) {
     }
     g_free(lrule);
     g_free(ruleset);
+}
+
+cfgRules* rulesetNew ()
+{
+    cfgRules* ruleset = g_new (cfgRules, 1);
+    ruleset->depth = -1;
+    ruleset->cntRule = 0;
+    ruleset->cntElse = 0;
+    // default background color: white
+    ruleset->background[0] = 255;
+    ruleset->background[1] = 255;
+    ruleset->background[2] = 255;
+    ruleset->background[3] = 255;
+    ruleset->rule = NULL;
+
+    return ruleset;
 }
 
 void cfgRuleFree (cfgRule *rule)
