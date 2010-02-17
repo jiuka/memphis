@@ -45,6 +45,8 @@ struct mapUserData_ {
     int cntNd;
 };
 
+osmFile * osmNew();
+
 static void
 way_list_prepend(osmWay *way, osmWay **list)
 {
@@ -310,17 +312,7 @@ osmFile* osmRead(const char *filename, GError **error) {
     data->cntTag = 0;
     data->cntNd = 0;
 
-    osm = g_new(osmFile, 1);
-    osm->nodes = NULL;
-    osm->nodeidx = g_hash_table_new(g_int_hash, g_int_equal);
-    osm->nodecnt = 0;
-    osm->ways = NULL;
-    osm->waycnt = 0;
-    osm->minlon = -190;
-    osm->minlat = -190;
-    osm->maxlon = -190;
-    osm->maxlat = -190;
-    data->osm = osm;
+    data->osm = osm = osmNew ();
 
     if (G_UNLIKELY (memphis_debug_get_print_progress ())) {
         g_fprintf (stdout, " OSM parsing   0%%");
@@ -442,18 +434,7 @@ osmFile* osmRead_from_buffer (const char *buffer, guint size,
     data->cntTag = 0;
     data->cntNd = 0;
 
-    osm = g_new(osmFile, 1);
-    osm->nodes = NULL;
-    osm->nodeidx = g_hash_table_new(g_int_hash, g_int_equal);
-    osm->nodecnt = 0;
-    osm->ways = NULL;
-    osm->waycnt = 0;
-    osm->minlon = -190;
-    osm->minlat = -190;
-    osm->maxlon = -190;
-    osm->maxlat = -190;
-
-    data->osm = osm;
+    data->osm = osm = osmNew ();
 
     if (G_UNLIKELY (memphis_debug_get_print_progress ())) {
         g_fprintf (stdout, " OSM parsing ...");
@@ -516,6 +497,21 @@ osmFile* osmRead_from_buffer (const char *buffer, guint size,
 
     g_timer_destroy(tOsmRead);
 
+    return osm;
+}
+
+osmFile * osmNew()
+{
+    osmFile * osm = g_new(osmFile, 1);
+    osm->nodes = NULL;
+    osm->nodeidx = g_hash_table_new(g_int_hash, g_int_equal);
+    osm->nodecnt = 0;
+    osm->ways = NULL;
+    osm->waycnt = 0;
+    osm->minlon = -190;
+    osm->minlat = -190;
+    osm->maxlon = -190;
+    osm->maxlat = -190;
     return osm;
 }
 
