@@ -54,8 +54,13 @@ GType memphis_map_get_type (void);
 MemphisMap* memphis_map_new ();
 void memphis_map_free (MemphisMap *map);
 
-void memphis_map_load_from_file (MemphisMap *map, const gchar *filename);
-void memphis_map_load_from_data (MemphisMap *map, const gchar *data, guint size);
+void memphis_map_load_from_file (MemphisMap *map,
+    const gchar *filename,
+    GError **error);
+void memphis_map_load_from_data (MemphisMap *map,
+    const gchar *data,
+    guint size,
+    GError **error);
 
 void memphis_map_get_bounding_box (MemphisMap *map,
     gdouble *minlat,

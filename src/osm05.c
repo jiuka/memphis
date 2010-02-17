@@ -267,7 +267,7 @@ osmEndElement(void *userData, const char *name) {
 /**
  * rulesetRead
  */
-osmFile* osmRead(const char *filename) {
+osmFile* osmRead(const char *filename, GError **error) {
     memphis_debug ("osmRead");
 
     // Local Vars
@@ -283,7 +283,9 @@ osmFile* osmRead(const char *filename) {
     
     // Test file
     if (!g_file_test (filename, G_FILE_TEST_IS_REGULAR)) {
-        g_critical ("Error: \"%s\" is not a file.\n", filename);
+        g_critical ("Error: \"%s\" is not a file.", filename);
+        g_set_error (error, G_FILE_ERROR, G_FILE_ERROR_NOENT,
+                "Failed to open file: %s", filename);
         return NULL;
     }
     
@@ -291,9 +293,11 @@ osmFile* osmRead(const char *filename) {
     size = (int) filestat.st_size;
 
     // Open file
-    FILE *fd = fopen(filename,"r");
+    FILE *fd = fopen(filename, "r");
     if(fd == NULL) {
-        g_critical ("Error: Can't open file \"%s\"\n", filename);
+        g_critical ("Error: Can't open file \"%s\"", filename);
+        g_set_error (error, G_FILE_ERROR, G_FILE_ERROR_ACCES,
+                "Failed to open file: %s", filename);
         return NULL;
     }
 
@@ -337,6 +341,8 @@ osmFile* osmRead(const char *filename) {
         len = (int)fread(buf, 1, BUFFSIZE, fd);
         if (ferror(fd)) {
             g_critical ("OSM read error");
+            g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_PARSE,
+                "Failed to parse file: %s", filename);
             // cleanup
             XML_ParserFree(parser);
             g_free(buf);
@@ -360,6 +366,9 @@ osmFile* osmRead(const char *filename) {
             g_critical ("OSM parse error at line %i: %s",
                     (int) XML_GetCurrentLineNumber(parser),
                     XML_ErrorString(XML_GetErrorCode(parser)));
+            g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_PARSE,
+                "OSM parse error at line %i: %s",
+                (int) XML_GetCurrentLineNumber(parser), filename);
             // cleanup
             XML_ParserFree(parser);
             g_free(buf);
@@ -411,7 +420,9 @@ osmFile* osmRead(const char *filename) {
     return osm;
 }
 
-osmFile* osmRead_from_buffer (const char *buffer, guint size) {
+osmFile* osmRead_from_buffer (const char *buffer, guint size,
+        GError **error)
+{
     memphis_debug ("osmRead");
 
     g_assert (buffer != NULL && size > 0);
@@ -456,14 +467,17 @@ osmFile* osmRead_from_buffer (const char *buffer, guint size) {
 
     // Parse the buffer
     if (XML_Parse (parser, buffer, size, isDone) == XML_STATUS_ERROR) {
-      g_critical ("OSM parse error at line %iu:\n%s",
-              (int) XML_GetCurrentLineNumber(parser),
-              XML_ErrorString(XML_GetErrorCode(parser)));
-      // cleanup
-      XML_ParserFree(parser);
-      g_free(data);
-      osmFree(osm);
-      return NULL;
+        g_critical ("OSM parse error at line %iu:\n%s",
+                (int) XML_GetCurrentLineNumber(parser),
+                XML_ErrorString(XML_GetErrorCode(parser)));
+        g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_PARSE,
+                "OSM parse error at line %i",
+                (int) XML_GetCurrentLineNumber(parser));
+        // cleanup
+        XML_ParserFree(parser);
+        g_free(data);
+        osmFree(osm);
+        return NULL;
     }
 
     // Cleaning Memory

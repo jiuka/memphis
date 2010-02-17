@@ -51,8 +51,14 @@ int main (int argc, char **argv) {
 
   rules = memphis_rule_set_new ();
   memphis_rule_set_load_from_file (rules, "rule.xml");
+
   map = memphis_map_new ();
-  memphis_map_load_from_file (map, mapfile);
+  GError *err = NULL;
+  memphis_map_load_from_file (map, mapfile, &err);
+  if (err != NULL) {
+    g_print ("Error: %s\n", err->message);
+    return -1;
+  }
 
   r = memphis_renderer_new_full (rules, map);
   memphis_renderer_set_resolution (r, RESOLUTION);
