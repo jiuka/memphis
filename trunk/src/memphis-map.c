@@ -96,6 +96,16 @@ memphis_map_new ()
   return g_object_new (MEMPHIS_TYPE_MAP, NULL);
 }
 
+/**
+ * memphis_map_load_from_file:
+ * @map: a #MemphisMap
+ * @filename: a path to a OSM map file
+ * @error: a pointer to a GError or NULL
+ *
+ * Load map data from an OSM XML file.
+ *
+ * Since: 0.2
+ */
 void
 memphis_map_load_from_file (MemphisMap *map, const gchar *filename,
     GError **error)
@@ -109,6 +119,17 @@ memphis_map_load_from_file (MemphisMap *map, const gchar *filename,
   priv->map = osmRead (filename, error);
 }
 
+/**
+ * memphis_map_load_from_data:
+ * @map: a #MemphisMap
+ * @data: a character array with OSM data
+ * @size: the size of the array
+ * @error: a pointer to a GError or NULL
+ *
+ * Load map data from an OSM XML file.
+ *
+ * Since: 0.2
+ */
 void
 memphis_map_load_from_data (MemphisMap *map, const gchar *data,
     guint size, GError **error)
@@ -122,12 +143,32 @@ memphis_map_load_from_data (MemphisMap *map, const gchar *data,
   priv->map = osmRead_from_buffer (data, size, error);
 }
 
+/**
+ * memphis_map_free:
+ * @map: a #MemphisMap
+ *
+ * Frees the memory of a #MemphisMap.
+ *
+ * Since: 0.1
+ */
 void
 memphis_map_free (MemphisMap *map)
 {
   g_object_unref (G_OBJECT (map));
 }
 
+/**
+ * memphis_map_get_bounding_box:
+ * @map: a #MemphisMap
+ * @minlat: the minimum latitude
+ * @minlon: the minimum longitude
+ * @maxlat: the maximum latitude
+ * @maxlon: the maximum longitude
+ *
+ * Get the exent of the bounding box that contains all map data.
+ *
+ * Since: 0.1
+ */
 void
 memphis_map_get_bounding_box (MemphisMap *map,
     gdouble *minlat,
