@@ -56,7 +56,7 @@ AC_CHECK_HEADER([expat.h], [],
   [AC_MSG_ERROR([cannot find expat.h header])])
 
 # check for gtk-doc
-#GTK_DOC_CHECK(1.9)
+GTK_DOC_CHECK(1.9)
 
 # -----------------------------------------------------------
 # Enable debug
@@ -74,6 +74,7 @@ AC_CONFIG_FILES([Makefile
                  src/Makefile
                  demos/Makefile
                  tests/Makefile
+                 docs/reference/Makefile
                  memphis.pc
                 ])
 AC_OUTPUT
@@ -84,6 +85,6 @@ echo ""
 echo "          Prefix: ${prefix}"
 echo "  Compiler flags: ${CPPFLAGS}"
 echo "           Debug: ${enable_debug}"
-#echo "   Documentation: ${enable_gtk_doc}"
+echo "   Documentation: ${enable_gtk_doc}"
 echo ""
 
