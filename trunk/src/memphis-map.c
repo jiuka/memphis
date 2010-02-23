@@ -17,6 +17,16 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+/**
+ * SECTION:memphis-map
+ * @short_description: OpenStreetMap map data object.
+ *
+ * Stores an area with OSM map data. The data can be loaded from an OSM
+ * XML file or a character array with XML data.
+ *
+ * Reference: http://wiki.openstreetmap.org/wiki/.osm
+ */
+
 #include "memphis-map.h"
 #include "osm05.h"
 
@@ -90,6 +100,13 @@ memphis_map_init (MemphisMap *self)
   priv->map = NULL;
 }
 
+/**
+ * memphis_map_new:
+ *
+ * Returns a new #MemphisMap without any data.
+ *
+ * Since: 0.1
+ */
 MemphisMap*
 memphis_map_new ()
 {
