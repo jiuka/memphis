@@ -18,7 +18,7 @@
  */
 
 /**
- * SECTION:memphis-rules-set
+ * SECTION:memphis-rule-set
  * @short_description: Defines drawing rules for the renderer.
  *
  * This Object defines drawing rules for a #MemphisRenderer. The rules
@@ -587,7 +587,7 @@ memphis_rule_set_get_rule (MemphisRuleSet *self, const gchar *id)
 /**
  * memphis_rule_set_set_rule:
  * @rules: a #MemphisRuleSet
- * @rule: a #MempisRule
+ * @rule: a #MemphisRule
  *
  * Adds the given rule to the rule set.
  * 
