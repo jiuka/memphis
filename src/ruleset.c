@@ -244,7 +244,8 @@ cfgEndElement(void *userData, const char *name) {
  *
  * Called to parse rules in the rulefile. Returns a cfgRules struct.
  */
-cfgRules* rulesetRead(const char *filename) {
+cfgRules* rulesetRead(const char *filename, GError **error)
+{
     memphis_debug ("rulesetRead");
 
     // Local Vars
@@ -265,7 +266,9 @@ cfgRules* rulesetRead(const char *filename) {
     
     // Test file
     if (!g_file_test (filename, G_FILE_TEST_IS_REGULAR)) {
-        g_critical ("Error: \"%s\" is not a file.", filename);
+        g_set_error (error, G_FILE_ERROR, G_FILE_ERROR_NOENT,
+                "Failed to open file: %s", filename);
+        g_warning ("Warning: \"%s\" is not a file.", filename);
         g_free (data);
         return NULL;
     }
@@ -274,9 +277,11 @@ cfgRules* rulesetRead(const char *filename) {
     size = (int) filestat.st_size;
 
     // Open file
-    FILE *fd = fopen(filename,"r");
+    FILE *fd = fopen (filename, "r");
     if(fd == NULL) {
-        g_critical ("Error: Can't open file \"%s\"\n", filename);
+        g_set_error (error, G_FILE_ERROR, G_FILE_ERROR_ACCES,
+                "Failed to open file: %s", filename);
+        g_warning ("Warning: Can't open file \"%s\"", filename);
         g_free (data);
         return NULL;
     }
@@ -304,7 +309,9 @@ cfgRules* rulesetRead(const char *filename) {
     while(!feof(fd)) {
         len = (int)fread(buf, 1, BUFFSIZE, fd);
         if (ferror(fd)) {
-            g_critical("Ruleset read error");
+            g_warning ("Ruleset read error");
+            g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_PARSE,
+                    "Failed to parse file: %s", filename);
             // cleanup
             XML_ParserFree(parser);
             g_free(buf);
@@ -324,9 +331,12 @@ cfgRules* rulesetRead(const char *filename) {
         }
         done = len < sizeof(buf);
         if (XML_Parse(parser, buf, len, done) == XML_STATUS_ERROR) {
-            g_critical ("Parse error at line %i: %s",
+            g_warning ("Parse error at line %i: %s",
                     (int) XML_GetCurrentLineNumber(parser),
                     XML_ErrorString(XML_GetErrorCode(parser)));
+            g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_PARSE,
+                    "Rules parse error at line %i: %s",
+                    (int) XML_GetCurrentLineNumber(parser), filename);
             // cleanup
             XML_ParserFree(parser);
             g_free(buf);
@@ -360,7 +370,9 @@ cfgRules* rulesetRead(const char *filename) {
  *
  * Called to parse rules in a buffer. Returns a cfgRules struct.
  */
-cfgRules* rulesetRead_from_buffer (const char *buffer, guint size) {
+cfgRules* rulesetRead_from_buffer (const char *buffer, guint size,
+        GError **error)
+{
     memphis_debug ("rulesetRead");
 
     g_assert (buffer != NULL && size > 0);
@@ -393,9 +405,12 @@ cfgRules* rulesetRead_from_buffer (const char *buffer, guint size) {
 
     // Parse the buffer
     if (XML_Parse (parser, buffer, size, isDone) == XML_STATUS_ERROR) {
-        g_critical ("Parse error at line %i: %s",
+        g_warning ("Parse error at line %i: %s",
                 (int) XML_GetCurrentLineNumber(parser),
                 XML_ErrorString(XML_GetErrorCode(parser)));
+        g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_PARSE,
+                "Rules parse error at line %i",
+                (int) XML_GetCurrentLineNumber(parser));
         // cleanup
         XML_ParserFree(parser);
         g_free(data);

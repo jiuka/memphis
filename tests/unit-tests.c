@@ -118,7 +118,9 @@ rule_set_load_data ()
   </rules>";
 
   rules = memphis_rule_set_new ();
-  memphis_rule_set_load_from_data (rules, rules_data, strlen (rules_data));
+  GError *err = NULL;
+  memphis_rule_set_load_from_data (rules, rules_data, strlen (rules_data), &err);
+  g_assert (err == NULL);
   memphis_rule_set_free (rules);
 
   const gchar rules_data2[] =
@@ -128,7 +130,9 @@ rule_set_load_data ()
   </rules>";
 
   rules = memphis_rule_set_new ();
-  memphis_rule_set_load_from_data (rules, rules_data2, strlen (rules_data2));
+  err = NULL;
+  memphis_rule_set_load_from_data (rules, rules_data2, strlen (rules_data2), &err);
+  g_assert (err == NULL);
   memphis_rule_set_free (rules);
 }
 
@@ -137,8 +141,11 @@ rule_set_load_file ()
 {
   MemphisRuleSet *rules;
   rules = memphis_rule_set_new ();
-  memphis_rule_set_load_from_file (rules, RULES_PATH);
-  memphis_rule_set_load_from_file (rules, RULES_PATH);
+  GError *err = NULL;
+  memphis_rule_set_load_from_file (rules, RULES_PATH, &err);
+  g_assert (err == NULL);
+  memphis_rule_set_load_from_file (rules, RULES_PATH, &err);
+  g_assert (err == NULL);
   memphis_rule_set_free (rules);
 }
 
@@ -177,7 +184,7 @@ rule_set_get_rule ()
   MemphisRule *rule;
   MemphisRuleSet *rules;
   rules = memphis_rule_set_new ();
-  memphis_rule_set_load_from_file (rules, RULES_PATH);
+  memphis_rule_set_load_from_file (rules, RULES_PATH, NULL);
 
   // one
   rule = memphis_rule_set_get_rule (rules,
@@ -214,7 +221,7 @@ rule_set_set_and_get_line_w_border ()
   MemphisRule *rule;
   MemphisRuleSet *rules;
   rules = memphis_rule_set_new ();
-  memphis_rule_set_load_from_file (rules, RULES_PATH);
+  memphis_rule_set_load_from_file (rules, RULES_PATH, NULL);
   //FIXME: we need a real handy rules creation function, this is horrible
 
   guint8 r, g, b, a, zmin, zmax;
@@ -290,7 +297,7 @@ rule_set_set_and_get_polygon_w_border ()
   MemphisRule *rule;
   MemphisRuleSet *rules;
   rules = memphis_rule_set_new ();
-  memphis_rule_set_load_from_file (rules, RULES_PATH); //FIXME
+  memphis_rule_set_load_from_file (rules, RULES_PATH, NULL); //FIXME
 
   // TODO
 
@@ -303,7 +310,7 @@ rule_set_rm_rule ()
 {
   MemphisRuleSet *rules;
   rules = memphis_rule_set_new ();
-  memphis_rule_set_load_from_file (rules, RULES_PATH);
+  memphis_rule_set_load_from_file (rules, RULES_PATH, NULL);
 
   g_assert (memphis_rule_set_remove_rule (rules, "highway:motorway"));
   g_assert (memphis_rule_set_remove_rule (rules, "highway:primary"));
@@ -320,7 +327,7 @@ rule_set_add_rule ()
   MemphisRule *b_rule;
 
   rules = memphis_rule_set_new ();
-  memphis_rule_set_load_from_file (rules, RULES_PATH);
+  memphis_rule_set_load_from_file (rules, RULES_PATH, NULL);
 
   a_rule = memphis_rule_new ();
   a_rule->keys = g_strsplit ("highway", "|", -1);
