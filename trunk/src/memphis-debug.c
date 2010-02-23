@@ -17,6 +17,13 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+/**
+ * SECTION:memphis-debug
+ * @short_description: Debugging helper functions.
+ *
+ * These debug messages can be enabled with ./configure --enable-debug.
+ */
+
 #include "memphis-debug.h"
 #include "config.h"
 

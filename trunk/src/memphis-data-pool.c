@@ -17,6 +17,14 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+/**
+ * SECTION:memphis-data-pool
+ * @short_description: The Memphis data pool.
+ *
+ * A singleton that provides a shared pool of efficient memory.
+ * (i.e. a GStringChunk and a GTree for strings).
+ */
+
 #include "memphis-data-pool.h"
 #include "mlib.h"
 
@@ -71,6 +79,13 @@ memphis_data_pool_init (MemphisDataPool *self)
   self->stringTree = g_tree_new (m_tree_strcmp);
 }
 
+/**
+* memphis_data_pool_new:
+*
+* Returns a reference to the #MemphisDataPool.
+*
+* Since: 0.1
+*/
 MemphisDataPool*
 memphis_data_pool_new (void)
 {

@@ -96,7 +96,7 @@ memphis_rule_new (void)
  * memphis_rule_copy:
  * @bbox: a #MemphisRule
  *
- * Makes a copy of the bounding box structure. The result must be
+ * Makes a copy of the memphis rule structure. The result must be
  * freed using memphis_rule_free().
  *
  * Returns: an allocated copy of @rule.
@@ -132,10 +132,10 @@ memphis_rule_copy (const MemphisRule *rule)
  * memphis_rule_free:
  * @bbox: a #MemphisRule
  *
- * Frees a bounding box structure created with memphis_rule_new() or
+ * Frees a memphis rule structure created with memphis_rule_new() or
  * memphis_rule_copy().
  *
- * Since: 0.6
+ * Since: 0.1
  */
 void
 memphis_rule_free (MemphisRule *rule)
