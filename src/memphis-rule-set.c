@@ -17,6 +17,15 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+/**
+ * SECTION:memphis-rules-set
+ * @short_description: Defines drawing rules for the renderer.
+ *
+ * This Object defines drawing rules for a #MemphisRenderer. The rules
+ * can be loaded from an XML file or can they be defined during
+ * execution time.
+ */
+
 #include <string.h>
 #include "mlib.h"
 #include "ruleset.h"
@@ -95,6 +104,13 @@ memphis_rule_set_init (MemphisRuleSet *self)
   priv->ruleset = NULL;
 }
 
+/**
+ * memphis_rule_set_new:
+ *
+ * Returns a new #MemphisRuleSet whithout any rules.
+ *
+ * Since: 0.1
+ */
 MemphisRuleSet*
 memphis_rule_set_new ()
 {
@@ -104,6 +120,16 @@ memphis_rule_set_new ()
   return self;
 }
 
+/**
+ * memphis_rule_set_load_from_file:
+ * @rules: a #MemphisRuleSet
+ * @filename: a path to a rules file
+ * @error: a pointer to a GError or NULL
+ *
+ * Load rules from an XML file.
+ *
+ * Since: 0.2
+ */
 void
 memphis_rule_set_load_from_file (MemphisRuleSet *rules,
     const gchar *filename,
@@ -118,6 +144,17 @@ memphis_rule_set_load_from_file (MemphisRuleSet *rules,
   priv->ruleset = rulesetRead (filename, error);
 }
 
+/**
+ * memphis_rule_set_load_from_data:
+ * @rules: a #MemphisRuleSet
+ * @data: a character array with rules XML data
+ * @size: the size of the array
+ * @error: a pointer to a GError or NULL
+ *
+ * Load rules data from an XML file.
+ *
+ * Since: 0.2
+ */
 void
 memphis_rule_set_load_from_data (MemphisRuleSet *rules,
     const gchar *data,
@@ -133,6 +170,14 @@ memphis_rule_set_load_from_data (MemphisRuleSet *rules,
   priv->ruleset = rulesetRead_from_buffer (data, size, error);
 }
 
+/**
+ * memphis_rule_set_free:
+ * @rules: a #MemphisRuleSet
+ *
+ * Frees the memory of a #MemphisRuleSet.
+ *
+ * Since: 0.1
+ */
 void
 memphis_rule_set_free (MemphisRuleSet *rules)
 {
@@ -141,6 +186,18 @@ memphis_rule_set_free (MemphisRuleSet *rules)
   g_object_unref (G_OBJECT (rules));
 }
 
+/**
+ * memphis_rule_set_set_bg_color:
+ * @rules: a #MemphisRuleSet
+ * @r: red color component
+ * @g: green color component
+ * @b: blue color component
+ * @a: transparency
+ *
+ * Sets the background color and transparency rule.
+ *
+ * Since: 0.1
+ */
 void
 memphis_rule_set_set_bg_color (MemphisRuleSet *self,
     guint8 r,
@@ -156,6 +213,18 @@ memphis_rule_set_set_bg_color (MemphisRuleSet *self,
   priv->ruleset->background[3] = a;
 }
 
+/**
+ * memphis_rule_set_get_bg_color:
+ * @rules: a #MemphisRuleSet
+ * @r: red color component
+ * @g: green color component
+ * @b: blue color component
+ * @a: transparency
+ *
+ * Retuns the background color and the transparency of the background.
+ *
+ * Since: 0.1
+ */
 void
 memphis_rule_set_get_bg_color (MemphisRuleSet *self,
     guint8 *r,
@@ -171,6 +240,19 @@ memphis_rule_set_get_bg_color (MemphisRuleSet *self,
   *a = priv->ruleset->background[3];
 }
 
+/**
+ * memphis_rule_set_get_rule_id:
+ * @rules: a #MemphisRuleSet
+ *
+ * Retuns a list of rule id strings.
+ *
+ * These strings have the following form:
+ * key1|key2|...|keyN:value1|value2|...|valueM
+ * 
+ * Example: "waterway:river|stream|canal"
+ * 
+ * Since: 0.1
+ */
 GList *
 memphis_rule_set_get_rule_ids (MemphisRuleSet *self)
 {
@@ -470,6 +552,15 @@ search_rule (cfgRule *rules, gchar **keys, gchar **values)
   return curr;
 }
 
+/**
+ * memphis_rule_set_get_rule:
+ * @rules: a #MemphisRuleSet
+ * @id: an id string
+ *
+ * Retuns a #MemphisRule that has the given id string or NULL otherwise.
+ * 
+ * Since: 0.1
+ */
 MemphisRule *
 memphis_rule_set_get_rule (MemphisRuleSet *self, const gchar *id)
 {
@@ -493,6 +584,15 @@ memphis_rule_set_get_rule (MemphisRuleSet *self, const gchar *id)
   return NULL;
 }
 
+/**
+ * memphis_rule_set_set_rule:
+ * @rules: a #MemphisRuleSet
+ * @rule: a #MempisRule
+ *
+ * Adds the given rule to the rule set.
+ * 
+ * Since: 0.1
+ */
 void
 memphis_rule_set_set_rule (MemphisRuleSet *self, MemphisRule *rule)
 {
@@ -530,6 +630,15 @@ memphis_rule_set_set_rule (MemphisRuleSet *self, MemphisRule *rule)
     }
 }
 
+/**
+ * memphis_rule_set_remove_rule:
+ * @rules: a #MemphisRuleSet
+ * @id: an id string
+ *
+ * Removes the rule with the given id from the rules set.
+ * 
+ * Since: 0.1
+ */
 gboolean
 memphis_rule_set_remove_rule (MemphisRuleSet *self, const gchar *id)
 {
