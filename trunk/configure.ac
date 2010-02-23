@@ -35,7 +35,7 @@ AC_SUBST(API_VERSION)
 
 # used for -version-info current[:revision[:age]]
 # see http://www.gnu.org/software/libtool/manual/html_node/Link-mode.html
-LIBRARY_VERSION=0:1:0
+LIBRARY_VERSION=0:2:0
 AC_SUBST(LIBRARY_VERSION)
 
 AC_SUBST(DEPS_CFLAGS)

@@ -42,8 +42,6 @@ map_load_data ()
 {
   MemphisMap *map;
 
-  //const gchar map_data[] ="sdsd"; // FIXME: no parse error?
-
   const gchar map_data[] =
   "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\
   <osm version=\"0.6\" generator=\"OpenStreetMap server\">\
