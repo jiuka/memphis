@@ -12,10 +12,10 @@ AM_LDFLAGS = $(DEPS_LIBS)
 noinst_PROGRAMS = memphis
 
 memphis_SOURCES = main.c main.h
-memphis_LDADD = $(DEPS_LIBS) ./libmemphis-0.1.la
+memphis_LDADD = $(DEPS_LIBS) ./libmemphis-0.2.la
 
 # libmemphis:
-lib_LTLIBRARIES = libmemphis-0.1.la
+lib_LTLIBRARIES = libmemphis-0.2.la
 
 libmemphis_headers = \
 	memphis.h \
@@ -32,7 +32,7 @@ libmemphis_headers = \
 	mlib.h \
 	osm05.h
 
-libmemphis_0_1_la_SOURCES = \
+libmemphis_0_2_la_SOURCES = \
 	libmercator.c \
 	mlib.c \
 	ruleset.c \
@@ -62,11 +62,11 @@ libmemphis_include_HEADERS = \
 	memphis-map.h \
 	memphis-renderer.h
 
-libmemphis_0_1_la_LIBADD = $(DEPS_LIBS)
+libmemphis_0_2_la_LIBADD = $(DEPS_LIBS)
 
-libmemphis_includedir = $(includedir)/libmemphis-0.1/memphis
+libmemphis_includedir = $(includedir)/libmemphis-0.2/memphis
 
-libmemphis_0_1_la_LDFLAGS = \
+libmemphis_0_2_la_LDFLAGS = \
 	-version-info $(LIBRARY_VERSION) \
 	-export-symbols-regex \
 	^memphis_.*
