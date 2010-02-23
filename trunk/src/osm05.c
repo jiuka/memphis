@@ -230,7 +230,7 @@ osmStartElement(void *userData, const char *name, const char **atts) {
             
             n = g_hash_table_lookup(osm->nodeidx, &ref);
             if (!n) {
-                g_warning("No node with reference %d found!\n", ref);
+                g_warning ("No node with reference %d found!", ref);
                 return;
             }
 
@@ -285,7 +285,7 @@ osmFile* osmRead(const char *filename, GError **error) {
     
     // Test file
     if (!g_file_test (filename, G_FILE_TEST_IS_REGULAR)) {
-        g_critical ("Error: \"%s\" is not a file.", filename);
+        g_warning ("Error: \"%s\" is not a file.", filename);
         g_set_error (error, G_FILE_ERROR, G_FILE_ERROR_NOENT,
                 "Failed to open file: %s", filename);
         return NULL;
@@ -297,7 +297,7 @@ osmFile* osmRead(const char *filename, GError **error) {
     // Open file
     FILE *fd = fopen(filename, "r");
     if(fd == NULL) {
-        g_critical ("Error: Can't open file \"%s\"", filename);
+        g_warning ("Error: Can't open file \"%s\"", filename);
         g_set_error (error, G_FILE_ERROR, G_FILE_ERROR_ACCES,
                 "Failed to open file: %s", filename);
         return NULL;
@@ -332,7 +332,7 @@ osmFile* osmRead(const char *filename, GError **error) {
     while(!feof(fd)) {
         len = (int)fread(buf, 1, BUFFSIZE, fd);
         if (ferror(fd)) {
-            g_critical ("OSM read error");
+            g_warning ("OSM read error");
             g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_PARSE,
                     "Failed to parse file: %s", filename);
             // cleanup
@@ -355,7 +355,7 @@ osmFile* osmRead(const char *filename, GError **error) {
 
         done = len < sizeof(buf);
         if (XML_Parse(parser, buf, len, done) == XML_STATUS_ERROR) {
-            g_critical ("OSM parse error at line %i: %s",
+            g_warning ("OSM parse error at line %i: %s",
                     (int) XML_GetCurrentLineNumber(parser),
                     XML_ErrorString(XML_GetErrorCode(parser)));
             g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_PARSE,
@@ -448,7 +448,7 @@ osmFile* osmRead_from_buffer (const char *buffer, guint size,
 
     // Parse the buffer
     if (XML_Parse (parser, buffer, size, isDone) == XML_STATUS_ERROR) {
-        g_critical ("OSM parse error at line %iu:\n%s",
+        g_warning ("OSM parse error at line %iu:\n%s",
                 (int) XML_GetCurrentLineNumber(parser),
                 XML_ErrorString(XML_GetErrorCode(parser)));
         g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_PARSE,
