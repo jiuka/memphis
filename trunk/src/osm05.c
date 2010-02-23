@@ -334,7 +334,7 @@ osmFile* osmRead(const char *filename, GError **error) {
         if (ferror(fd)) {
             g_critical ("OSM read error");
             g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_PARSE,
-                "Failed to parse file: %s", filename);
+                    "Failed to parse file: %s", filename);
             // cleanup
             XML_ParserFree(parser);
             g_free(buf);
@@ -359,8 +359,8 @@ osmFile* osmRead(const char *filename, GError **error) {
                     (int) XML_GetCurrentLineNumber(parser),
                     XML_ErrorString(XML_GetErrorCode(parser)));
             g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_PARSE,
-                "OSM parse error at line %i: %s",
-                (int) XML_GetCurrentLineNumber(parser), filename);
+                    "OSM parse error at line %i: %s",
+                    (int) XML_GetCurrentLineNumber(parser), filename);
             // cleanup
             XML_ParserFree(parser);
             g_free(buf);
@@ -403,8 +403,8 @@ osmFile* osmRead(const char *filename, GError **error) {
 
     if (G_UNLIKELY (memphis_debug_get_print_progress ()))
         g_fprintf (stdout, "\r OSM parsing done. (%i/%i/%i/%i) [%fs]\n",
-                    osm->nodecnt, osm->waycnt, data->cntTag, data->cntNd,
-                    g_timer_elapsed(tOsmRead, NULL));
+                osm->nodecnt, osm->waycnt, data->cntTag, data->cntNd,
+                g_timer_elapsed(tOsmRead, NULL));
     
     g_timer_destroy(tOsmRead);
     g_free(data);

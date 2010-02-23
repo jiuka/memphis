@@ -105,7 +105,9 @@ memphis_rule_set_new ()
 }
 
 void
-memphis_rule_set_load_from_file (MemphisRuleSet *rules, const gchar *filename)
+memphis_rule_set_load_from_file (MemphisRuleSet *rules,
+    const gchar *filename,
+    GError **error)
 {
   g_return_if_fail (MEMPHIS_IS_RULE_SET (rules) && filename != NULL);
 
@@ -113,13 +115,14 @@ memphis_rule_set_load_from_file (MemphisRuleSet *rules, const gchar *filename)
   if (priv->ruleset != NULL)
     rulesetFree (priv->ruleset);
 
-  priv->ruleset = rulesetRead (filename);
+  priv->ruleset = rulesetRead (filename, error);
 }
 
 void
 memphis_rule_set_load_from_data (MemphisRuleSet *rules,
     const gchar *data,
-    guint size)
+    guint size,
+    GError **error)
 {
   g_return_if_fail (MEMPHIS_IS_RULE_SET (rules) && data != NULL);
 
@@ -127,7 +130,7 @@ memphis_rule_set_load_from_data (MemphisRuleSet *rules,
   if (priv->ruleset != NULL)
     rulesetFree (priv->ruleset);
 
-  priv->ruleset = rulesetRead_from_buffer (data, size);
+  priv->ruleset = rulesetRead_from_buffer (data, size, error);
 }
 
 void

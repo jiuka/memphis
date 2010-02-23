@@ -56,10 +56,12 @@ MemphisRuleSet* memphis_rule_set_new ();
 void memphis_rule_set_free (MemphisRuleSet *rules);
 
 void memphis_rule_set_load_from_file (MemphisRuleSet *rules,
-    const gchar *filename);
+    const gchar *filename,
+    GError **error);
 void memphis_rule_set_load_from_data (MemphisRuleSet *rules,
     const gchar *data,
-    guint size);
+    guint size,
+    GError **error);
 
 void memphis_rule_set_set_bg_color (MemphisRuleSet *rules,
     guint8 r, guint8 g, guint8 b, guint8 a);

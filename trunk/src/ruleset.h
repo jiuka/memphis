@@ -88,8 +88,10 @@ struct cfgRules_ {
     };
 
 cfgRules* rulesetNew ();
-cfgRules* rulesetRead (const char *filename);
-cfgRules* rulesetRead_from_buffer (const char *buffer, guint size);
+cfgRules* rulesetRead (const char *filename, GError **error);
+cfgRules* rulesetRead_from_buffer (const char *buffer,
+        guint size,
+        GError **error);
 void rulesetFree (cfgRules * ruleset);
 
 void cfgRuleFree (cfgRule *rule);
