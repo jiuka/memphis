@@ -241,10 +241,10 @@ memphis_rule_set_get_bg_color (MemphisRuleSet *self,
 }
 
 /**
- * memphis_rule_set_get_rule_id:
+ * memphis_rule_set_get_rule_ids:
  * @rules: a #MemphisRuleSet
  *
- * Retuns: a list of rule id strings.
+ * Returns: a list of rule id strings.
  *
  * These strings have the following form:
  * key1|key2|...|keyN:value1|value2|...|valueM

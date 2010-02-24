@@ -31,7 +31,7 @@ gboolean memphis_print_progress_messages = FALSE;
 
 /**
  * memphis_debug_set_print_progress:
- * @show_progress: a boolean
+ * @show_progress: progress
  *
  * Define if progress messages should be printed.
  *
@@ -42,6 +42,13 @@ void memphis_debug_set_print_progress (gboolean show_progress)
     memphis_print_progress_messages = show_progress;
 }
 
+/**
+ * memphis_debug_get_print_progress:
+ *
+ * Returns: if progress messages should be shown.
+ *
+ * Since: 0.1
+ */
 gboolean memphis_debug_get_print_progress ()
 {
     return memphis_print_progress_messages;

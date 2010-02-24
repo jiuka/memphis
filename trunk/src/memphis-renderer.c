@@ -531,7 +531,7 @@ memphis_renderer_init (MemphisRenderer *self)
 /**
 * memphis_renderer_get_row_count:
 * @renderer: a #MemphisRenderer
-* @zoom_level: the zoom_level
+* @zoom_level: the zoom level
 *
 * Returns: the total number of tile rows for this zoom level.
 *
@@ -548,7 +548,7 @@ memphis_renderer_get_row_count (MemphisRenderer *self, guint zoom_level)
 /**
 * memphis_renderer_get_column_count:
 * @renderer: a #MemphisRenderer
-* @zoom_level: the zoom_level
+* @zoom_level: the zoom level
 *
 * Returns: the total number of tile columns for this zoom level.
 *
@@ -565,7 +565,7 @@ memphis_renderer_get_column_count (MemphisRenderer *self, guint zoom_level)
 /**
 * memphis_renderer_get_min_x_tile:
 * @renderer: a #MemphisRenderer
-* @zoom_level: the zoom_level
+* @zoom_level: the zoom level
 *
 * Returns: the smallest tile x coordinate with data for this zoom level.
 *
@@ -592,7 +592,7 @@ memphis_renderer_get_min_x_tile (MemphisRenderer *self, guint zoom_level)
 /**
 * memphis_renderer_get_max_x_tile:
 * @renderer: a #MemphisRenderer
-* @zoom_level: the zoom_level
+* @zoom_level: the zoom level
 *
 * Returns: the biggest tile x coordinate with data for this zoom level.
 *
@@ -619,7 +619,7 @@ memphis_renderer_get_max_x_tile (MemphisRenderer *self, guint zoom_level)
 /**
 * memphis_renderer_get_min_y_tile:
 * @renderer: a #MemphisRenderer
-* @zoom_level: the zoom_level
+* @zoom_level: the zoom level
 *
 * Returns: the smallest tile y coordinate with data for this zoom level.
 *
@@ -646,7 +646,7 @@ memphis_renderer_get_min_y_tile (MemphisRenderer *self, guint zoom_level)
 /**
 * memphis_renderer_get_max_y_tile:
 * @renderer: a #MemphisRenderer
-* @zoom_level: the zoom_level
+* @zoom_level: the zoom level
 *
 * Returns: the biggest tile y coordinate with data for this zoom level.
 *
@@ -673,7 +673,9 @@ memphis_renderer_get_max_y_tile (MemphisRenderer *self, guint zoom_level)
 /**
 * memphis_renderer_tile_has_data:
 * @renderer: a #MemphisRenderer
-* @zoom_level: the zoom_level
+* @x: x coordinates
+* @y: y coordinates
+* @zoom_level: the zoom level
 *
 * Returns: true if the renderer has map data for this zoom level and tile
 * number.
