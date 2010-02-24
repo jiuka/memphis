@@ -21,8 +21,9 @@
 
 /**
  * SECTION:memphis-rule
- * @short_description: A boxed struct to describe a drawing rule for
- * the #MemphisRuleSet.
+ * @short_description: describes a drawing rule
+ *
+ * A boxed struct to describe a drawing rule for the #MemphisRuleSet.
  */
 
 #include "memphis-rule.h"
@@ -74,7 +75,7 @@ memphis_rule_get_type (void)
  * Creates a newly allocated #MemphisRule to be freed
  * with memphis_rule_free().
  *
- * Returns: a #MemphisRule
+ * Returns: a #MemphisRule.
  *
  * Since: 0.1
  */
@@ -94,7 +95,7 @@ memphis_rule_new (void)
 
 /**
  * memphis_rule_copy:
- * @bbox: a #MemphisRule
+ * @rule: a #MemphisRule
  *
  * Makes a copy of the memphis rule structure. The result must be
  * freed using memphis_rule_free().
@@ -130,7 +131,7 @@ memphis_rule_copy (const MemphisRule *rule)
 
 /**
  * memphis_rule_free:
- * @bbox: a #MemphisRule
+ * @rule: a #MemphisRule
  *
  * Frees a memphis rule structure created with memphis_rule_new() or
  * memphis_rule_copy().

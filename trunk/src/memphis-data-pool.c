@@ -82,7 +82,7 @@ memphis_data_pool_init (MemphisDataPool *self)
 /**
 * memphis_data_pool_new:
 *
-* Returns a reference to the #MemphisDataPool.
+* Returns: a reference to the #MemphisDataPool.
 *
 * Since: 0.1
 */

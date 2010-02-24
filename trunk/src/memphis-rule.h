@@ -56,6 +56,10 @@ struct _MemphisRuleAttr {
 
 /**
  * MemphisRuleType:
+ * @MEMPHIS_RULE_TYPE_UNKNOWN: unknown
+ * @MEMPHIS_RULE_TYPE_NODE: a node
+ * @MEMPHIS_RULE_TYPE_WAY: a way
+ * @MEMPHIS_RULE_TYPE_RELATION: a realtion
  *
  * Defines a the data type of the rule. Only ways are supported in
  * Memphis 0.1.x.
@@ -71,6 +75,13 @@ typedef enum {
 
 /**
  * MemphisRule:
+ * @keys: an array of key strings
+ * @values: an array of value strings
+ * @type: the type of the rule
+ * @polygon: a pointer to the polygon or NULL
+ * @line: a pointer to the line or NULL
+ * @border: a pointer to the border or NULL
+ * @text: a pointer to the text or NULL
  *
  * Defines a drawing rule for the #MemphisRuleSet.
  *
@@ -89,10 +100,33 @@ struct _MemphisRule {
 GType memphis_rule_get_type (void) G_GNUC_CONST;
 #define MEMPHIS_TYPE_RULE (memphis_rule_get_type ())
 
+/**
+ * memphis_rule_new:
+ *
+ * Returns: a new #MemphisRule.
+ *
+ * Since: 0.1
+ */
 MemphisRule * memphis_rule_new (void);
 
+/**
+ * memphis_rule_copy:
+ * @rule: a #MemphisRule
+ *
+ * Returns: a copy of the rule.
+ *
+ * Since: 0.1
+ */
 MemphisRule * memphis_rule_copy (const MemphisRule *rule);
 
+/**
+ * memphis_rule_free:
+ * @rule: a #MemphisRule
+ *
+ * Frees the memory of a #MemphisRule.
+ *
+ * Since: 0.1
+ */
 void memphis_rule_free (MemphisRule *rule);
 
 G_END_DECLS

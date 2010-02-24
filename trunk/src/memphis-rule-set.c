@@ -107,7 +107,7 @@ memphis_rule_set_init (MemphisRuleSet *self)
 /**
  * memphis_rule_set_new:
  *
- * Returns a new #MemphisRuleSet whithout any rules.
+ * Returns: a new #MemphisRuleSet whithout any rules.
  *
  * Since: 0.1
  */
@@ -244,7 +244,7 @@ memphis_rule_set_get_bg_color (MemphisRuleSet *self,
  * memphis_rule_set_get_rule_id:
  * @rules: a #MemphisRuleSet
  *
- * Retuns a list of rule id strings.
+ * Retuns: a list of rule id strings.
  *
  * These strings have the following form:
  * key1|key2|...|keyN:value1|value2|...|valueM
@@ -557,7 +557,7 @@ search_rule (cfgRule *rules, gchar **keys, gchar **values)
  * @rules: a #MemphisRuleSet
  * @id: an id string
  *
- * Retuns a #MemphisRule that has the given id string or NULL otherwise.
+ * Returns: a #MemphisRule that has the given id string or NULL otherwise.
  * 
  * Since: 0.1
  */
@@ -636,6 +636,8 @@ memphis_rule_set_set_rule (MemphisRuleSet *self, MemphisRule *rule)
  * @id: an id string
  *
  * Removes the rule with the given id from the rules set.
+ *
+ * Returns: true if the rule could be found and removed.
  * 
  * Since: 0.1
  */

@@ -96,7 +96,7 @@ static int renderCairo (renderInfo *info);
 /**
 * memphis_renderer_new:
 *
-* Returns a fresh #MemphisRenderer.
+* Returns: a fresh #MemphisRenderer.
 *
 * Since: 0.1
 */
@@ -111,7 +111,7 @@ memphis_renderer_new ()
 * @rules: a #MemphisRuleSet
 * @map: a #MemphisMap
 *
-* Returns a fresh #MemphisRenderer with the given rules and map.
+* Returns: a fresh #MemphisRenderer with the given rules and map.
 *
 * Since: 0.1
 */
@@ -281,7 +281,7 @@ memphis_renderer_draw_tile (MemphisRenderer *renderer,
 
 /**
 * memphis_renderer_set_resolution:
-* @self: a #MemphisRenderer
+* @renderer: a #MemphisRenderer
 * @resolution: the resolution of a tile
 *
 * Set the resoltion of a tile.
@@ -298,10 +298,10 @@ memphis_renderer_set_resolution (MemphisRenderer *self, guint resolution)
 }
 
 /**
-* memphis_renderer_set_resolution:
-* @self: a #MemphisRenderer
+* memphis_renderer_get_resolution:
+* @renderer: a #MemphisRenderer
 *
-* Returns the resoltion of a tile.
+* Returns: the resoltion of a tile.
 *
 * Since: 0.1
 */
@@ -315,10 +315,11 @@ memphis_renderer_get_resolution (MemphisRenderer *self)
 }
 
 /**
-* memphis_renderer_set_resolution:
-* @self: a #MemphisRenderer
+* memphis_renderer_set_map:
+* @renderer: a #MemphisRenderer
+* @map: a #MemphisMap
 *
-* Returns the resoltion of a tile.
+* Assigns a #MemphisMap to the renderer.
 *
 * Since: 0.1
 */
@@ -336,9 +337,9 @@ memphis_renderer_set_map (MemphisRenderer *self, MemphisMap *map)
 
 /**
 * memphis_renderer_get_map:
-* @self: a #MemphisRenderer
+* @renderer: a #MemphisRenderer
 *
-* Returns the #MemphisMap of this renderer.
+* Returns: the #MemphisMap of this renderer.
 *
 * Since: 0.1
 */
@@ -353,7 +354,7 @@ memphis_renderer_get_map (MemphisRenderer *self)
 
 /**
 * memphis_renderer_set_rules_set:
-* @self: a #MemphisRenderer
+* @renderer: a #MemphisRenderer
 * @rules: a #MemphisRuleSet
 *
 * Sets the drawing rules for the renderer.
@@ -376,9 +377,9 @@ memphis_renderer_set_rules_set (MemphisRenderer *self,
 
 /**
 * memphis_renderer_get_rule_set:
-* @self: a #MemphisRenderer
+* @renderer: a #MemphisRenderer
 *
-* Returns the #MemphisRuleSet of the renderer.
+* Returns: the #MemphisRuleSet of the renderer.
 *
 * Since: 0.1
 */
@@ -529,10 +530,10 @@ memphis_renderer_init (MemphisRenderer *self)
 
 /**
 * memphis_renderer_get_row_count:
-* @self: a #MemphisRenderer
-* @guint zoom_level: the zoom_level
+* @renderer: a #MemphisRenderer
+* @zoom_level: the zoom_level
 *
-* Returns the total number of tile rows for this zoom level.
+* Returns: the total number of tile rows for this zoom level.
 *
 * Since: 0.1
 */
@@ -546,10 +547,10 @@ memphis_renderer_get_row_count (MemphisRenderer *self, guint zoom_level)
 
 /**
 * memphis_renderer_get_column_count:
-* @self: a #MemphisRenderer
-* @guint zoom_level: the zoom_level
+* @renderer: a #MemphisRenderer
+* @zoom_level: the zoom_level
 *
-* Returns the total number of tile columns for this zoom level.
+* Returns: the total number of tile columns for this zoom level.
 *
 * Since: 0.1
 */
@@ -563,10 +564,10 @@ memphis_renderer_get_column_count (MemphisRenderer *self, guint zoom_level)
 
 /**
 * memphis_renderer_get_min_x_tile:
-* @self: a #MemphisRenderer
-* @guint zoom_level: the zoom_level
+* @renderer: a #MemphisRenderer
+* @zoom_level: the zoom_level
 *
-* Returns the smallest tile x coordinate with data for this zoom level.
+* Returns: the smallest tile x coordinate with data for this zoom level.
 *
 * Since: 0.1
 */
@@ -590,10 +591,10 @@ memphis_renderer_get_min_x_tile (MemphisRenderer *self, guint zoom_level)
 
 /**
 * memphis_renderer_get_max_x_tile:
-* @self: a #MemphisRenderer
-* @guint zoom_level: the zoom_level
+* @renderer: a #MemphisRenderer
+* @zoom_level: the zoom_level
 *
-* Returns the biggest tile x coordinate with data for this zoom level.
+* Returns: the biggest tile x coordinate with data for this zoom level.
 *
 * Since: 0.1
 */
@@ -617,10 +618,10 @@ memphis_renderer_get_max_x_tile (MemphisRenderer *self, guint zoom_level)
 
 /**
 * memphis_renderer_get_min_y_tile:
-* @self: a #MemphisRenderer
-* @guint zoom_level: the zoom_level
+* @renderer: a #MemphisRenderer
+* @zoom_level: the zoom_level
 *
-* Returns the smallest tile y coordinate with data for this zoom level.
+* Returns: the smallest tile y coordinate with data for this zoom level.
 *
 * Since: 0.1
 */
@@ -644,10 +645,10 @@ memphis_renderer_get_min_y_tile (MemphisRenderer *self, guint zoom_level)
 
 /**
 * memphis_renderer_get_max_y_tile:
-* @self: a #MemphisRenderer
-* @guint zoom_level: the zoom_level
+* @renderer: a #MemphisRenderer
+* @zoom_level: the zoom_level
 *
-* Returns the biggest tile y coordinate with data for this zoom level.
+* Returns: the biggest tile y coordinate with data for this zoom level.
 *
 * Since: 0.1
 */
@@ -671,10 +672,10 @@ memphis_renderer_get_max_y_tile (MemphisRenderer *self, guint zoom_level)
 
 /**
 * memphis_renderer_tile_has_data:
-* @self: a #MemphisRenderer
-* @guint zoom_level: the zoom_level
+* @renderer: a #MemphisRenderer
+* @zoom_level: the zoom_level
 *
-* Returns true if the renderer has map data for this zoom level and tile
+* Returns: true if the renderer has map data for this zoom level and tile
 * number.
 *
 * If no data is available an empty tile with background color will be

@@ -29,6 +29,14 @@
 
 gboolean memphis_print_progress_messages = FALSE;
 
+/**
+ * memphis_debug_set_print_progress:
+ * @show_progress: a boolean
+ *
+ * Define if progress messages should be printed.
+ *
+ * Since: 0.1
+ */
 void memphis_debug_set_print_progress (gboolean show_progress)
 {
     memphis_print_progress_messages = show_progress;
@@ -39,6 +47,15 @@ gboolean memphis_debug_get_print_progress ()
     return memphis_print_progress_messages;
 }
 
+/**
+ * memphis_info:
+ * @format: a printf format string
+ * @...: optional arguments
+ *
+ * Prints stuff.
+ *
+ * Since: 0.1
+ */
 void
 memphis_info (const gchar *format, ...)
 {
@@ -50,6 +67,16 @@ memphis_info (const gchar *format, ...)
     }
 }
 
+
+/**
+ * memphis_debug:
+ * @format: a printf format string
+ * @...: optional arguments
+ *
+ * Prints a debug message.
+ *
+ * Since: 0.1
+ */
 #ifdef ENABLE_DEBUG
 
 void
