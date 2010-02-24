@@ -103,7 +103,7 @@ memphis_map_init (MemphisMap *self)
 /**
  * memphis_map_new:
  *
- * Returns a new #MemphisMap without any data.
+ * Returns: a new #MemphisMap without any data.
  *
  * Since: 0.1
  */
