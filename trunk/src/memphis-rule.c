@@ -21,7 +21,7 @@
 
 /**
  * SECTION:memphis-rule
- * @short_description: describes a drawing rule
+ * @short_description: Describes a drawing rule.
  *
  * A boxed struct to describe a drawing rule for the #MemphisRuleSet.
  */
