@@ -19,7 +19,7 @@
 
 /**
  * SECTION:memphis
- * @short_description: OpenStreetMap rendering library
+ * @short_description: OpenStreetMap rendering library.
  *
  * Libmemphis is a generic glib/cairo based OSM renderer library.
  * It draws maps on arbitrary cairo surfaces. 
