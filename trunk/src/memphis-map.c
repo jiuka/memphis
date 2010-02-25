@@ -116,7 +116,7 @@ memphis_map_new ()
 /**
  * memphis_map_load_from_file:
  * @map: a #MemphisMap
- * @filename: a path to a OSM map file
+ * @filename: (array): a path to a OSM map file
  * @error: a pointer to a GError or NULL
  *
  * Load map data from an OSM XML file.
@@ -139,7 +139,7 @@ memphis_map_load_from_file (MemphisMap *map, const gchar *filename,
 /**
  * memphis_map_load_from_data:
  * @map: a #MemphisMap
- * @data: a character array with OSM data
+ * @data: (array length=size): a character array with OSM data
  * @size: the size of the array
  * @error: a pointer to a GError or NULL
  *
@@ -177,10 +177,10 @@ memphis_map_free (MemphisMap *map)
 /**
  * memphis_map_get_bounding_box:
  * @map: a #MemphisMap
- * @minlat: the minimum latitude
- * @minlon: the minimum longitude
- * @maxlat: the maximum latitude
- * @maxlon: the maximum longitude
+ * @minlat: (out): the minimum latitude
+ * @minlon: (out): the minimum longitude
+ * @maxlat: (out): the maximum latitude
+ * @maxlon: (out): the maximum longitude
  *
  * Get the exent of the bounding box that contains all map data.
  *

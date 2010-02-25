@@ -56,7 +56,7 @@ AC_CHECK_HEADER([expat.h], [],
   [AC_MSG_ERROR([cannot find expat.h header])])
 
 # check for gtk-doc
-GTK_DOC_CHECK(1.9)
+GTK_DOC_CHECK(1.12)
 
 # check for gobject-introspection
 GOBJECT_INTROSPECTION_CHECK([0.6.7])
