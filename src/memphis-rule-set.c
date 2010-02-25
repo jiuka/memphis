@@ -123,7 +123,7 @@ memphis_rule_set_new ()
 /**
  * memphis_rule_set_load_from_file:
  * @rules: a #MemphisRuleSet
- * @filename: a path to a rules file
+ * @filename: (array): a path to a rules file
  * @error: a pointer to a GError or NULL
  *
  * Load rules from an XML file.
@@ -147,7 +147,7 @@ memphis_rule_set_load_from_file (MemphisRuleSet *rules,
 /**
  * memphis_rule_set_load_from_data:
  * @rules: a #MemphisRuleSet
- * @data: a character array with rules XML data
+ * @data: (array length=size): a character array with rules XML data
  * @size: the size of the array
  * @error: a pointer to a GError or NULL
  *
@@ -216,12 +216,13 @@ memphis_rule_set_set_bg_color (MemphisRuleSet *self,
 /**
  * memphis_rule_set_get_bg_color:
  * @rules: a #MemphisRuleSet
- * @r: red color component
- * @g: green color component
- * @b: blue color component
- * @a: transparency
+ * @r: (out): red color component
+ * @g: (out): green color component
+ * @b: (out): blue color component
+ * @a: (out): transparency
  *
- * Retuns the background color and the transparency of the background.
+ * Assigns the background color and the transparency of the background
+ * to r, g, b and a.
  *
  * Since: 0.1
  */
@@ -244,7 +245,8 @@ memphis_rule_set_get_bg_color (MemphisRuleSet *self,
  * memphis_rule_set_get_rule_ids:
  * @rules: a #MemphisRuleSet
  *
- * Returns: a list of rule id strings.
+ * Returns: (transfer full): a list of rule id strings.
+ * Free the list with g_slist_free when done.
  *
  * These strings have the following form:
  * key1|key2|...|keyN:value1|value2|...|valueM
@@ -555,9 +557,9 @@ search_rule (cfgRule *rules, gchar **keys, gchar **values)
 /**
  * memphis_rule_set_get_rule:
  * @rules: a #MemphisRuleSet
- * @id: an id string
+ * @id: (array): an id string
  *
- * Returns: a #MemphisRule that has the given id string or NULL otherwise.
+ * Returns: (allow-none): a #MemphisRule that has the given id string or NULL otherwise.
  * 
  * Since: 0.1
  */
@@ -633,7 +635,7 @@ memphis_rule_set_set_rule (MemphisRuleSet *self, MemphisRule *rule)
 /**
  * memphis_rule_set_remove_rule:
  * @rules: a #MemphisRuleSet
- * @id: an id string
+ * @id: (array): an id string
  *
  * Removes the rule with the given id from the rules set.
  *
