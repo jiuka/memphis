@@ -70,3 +70,38 @@ libmemphis_0_2_la_LDFLAGS = \
 	-version-info $(LIBRARY_VERSION) \
 	-export-symbols-regex \
 	^memphis_.*
+
+CLEANFILES =
+
+
+# gobject-introspection support:
+-include $(INTROSPECTION_MAKEFILE)
+INTROSPECTION_GIRS =
+INTROSPECTION_SCANNER_ARGS = --add-include-path=$(srcdir)
+INTROSPECTION_COMPILER_ARGS = --includedir=$(srcdir)
+
+if HAVE_INTROSPECTION
+introspection_sources = \
+	$(libmemphis_include_HEADERS) \
+	memphis-map.c \
+	memphis-rule.c \
+	memphis-rule-set.c \
+	memphis-renderer.c \
+	memphis-data-pool.c \
+	memphis-debug.c
+
+Memphis-0.2.gir: libmemphis-0.2.la
+Memphis_0_2_gir_INCLUDES = GObject-2.0 GLib-2.0 cairo-1.0
+Memphis_0_2_gir_CFLAGS = $(DEPS_CFLAGS)
+Memphis_0_2_gir_LIBS = libmemphis-0.2.la
+Memphis_0_2_gir_FILES = $(addprefix $(srcdir)/,$(introspection_sources))
+INTROSPECTION_GIRS += Memphis-0.2.gir
+
+girdir = $(datadir)/gir-1.0
+dist_gir_DATA = $(INTROSPECTION_GIRS)
+
+typelibdir = $(libdir)/girepository-1.0
+typelib_DATA = $(INTROSPECTION_GIRS:.gir=.typelib)
+
+CLEANFILES += $(dist_gir_DATA) $(typelib_DATA)
+endif

@@ -9,7 +9,7 @@ m4_define([memphis_version],
 m4_define([api_version],
           [memphis_major_version.memphis_minor_version])
 
-AC_PREREQ(2.61)
+AC_PREREQ(2.62)
 AC_INIT([memphis],
         [memphis_version],
         [http://trac.openstreetmap.ch/trac/memphis/])
@@ -17,7 +17,7 @@ AC_CONFIG_SRCDIR([src/memphis.h])
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([-Wno-portability])
 AC_LIBTOOL_DLOPEN
 
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
@@ -58,6 +58,9 @@ AC_CHECK_HEADER([expat.h], [],
 # check for gtk-doc
 GTK_DOC_CHECK(1.9)
 
+# check for geobject introspection
+GOBJECT_INTROSPECTION_CHECK([0.6.7])
+
 # -----------------------------------------------------------
 # Enable debug
 # -----------------------------------------------------------
@@ -86,5 +89,6 @@ echo "          Prefix: ${prefix}"
 echo "  Compiler flags: ${CPPFLAGS}"
 echo "           Debug: ${enable_debug}"
 echo "   Documentation: ${enable_gtk_doc}"
+echo "   Introspection: ${enable_introspection}"
 echo ""
 
