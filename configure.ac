@@ -58,7 +58,7 @@ AC_CHECK_HEADER([expat.h], [],
 # check for gtk-doc
 GTK_DOC_CHECK(1.9)
 
-# check for geobject introspection
+# check for gobject-introspection
 GOBJECT_INTROSPECTION_CHECK([0.6.7])
 
 # -----------------------------------------------------------
