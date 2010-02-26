@@ -57,7 +57,7 @@ void memphis_renderer_set_resolution (MemphisRenderer *renderer,
     guint resolution);
 void memphis_renderer_set_map (MemphisRenderer *renderer,
     MemphisMap* map);
-void memphis_renderer_set_rules_set (MemphisRenderer *renderer,
+void memphis_renderer_set_rule_set (MemphisRenderer *renderer,
     MemphisRuleSet* rules);
 
 guint memphis_renderer_get_resolution (MemphisRenderer *renderer);
