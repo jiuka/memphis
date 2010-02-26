@@ -116,7 +116,7 @@ memphis_map_new ()
 /**
  * memphis_map_load_from_file:
  * @map: a #MemphisMap
- * @filename: (array): a path to a OSM map file
+ * @filename: a path to a OSM map file
  * @error: a pointer to a GError or NULL
  *
  * Load map data from an OSM XML file.
@@ -139,7 +139,7 @@ memphis_map_load_from_file (MemphisMap *map, const gchar *filename,
 /**
  * memphis_map_load_from_data:
  * @map: a #MemphisMap
- * @data: (array length=size): a character array with OSM data
+ * @data: a character array with OSM data
  * @size: the size of the array
  * @error: a pointer to a GError or NULL
  *

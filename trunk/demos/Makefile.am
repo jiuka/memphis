@@ -8,4 +8,5 @@ tile_renderer_SOURCES = tile-renderer.c
 
 EXTRA_DIST = \
 	map.osm \
-	rule.xml
+	rule.xml \
+	javascript_seed_example.js
