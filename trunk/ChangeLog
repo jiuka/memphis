@@ -1,9 +1,25 @@
-0.2.0  ???
+0.2.0  27. February 2010
 
-	New features:
+  Big libmemphis infrastructure and bugfix release.
+
+  API changes:
+   * Rename memphis_renderer_set_rules_set to renderer_set_rule_set.
+   * Add error handling to all file and parsing related functions.
+     All *_load_from_file and *_load_from_data functions are affected.
+
+	What's new?
 	 * Support for background color transparency.
+   * Gobject-introspection support. You can now write Memphis
+     applications in Javascript and all other languages that use Gir
+     or Typelib introspection files. But be aware that the Cairo
+     introspection support is still buggy and incomplete.
+   * Gtk-Doc documenation generation (HTML or via Devhelp).
+   * Code cleanup and minor bugfixes.
 
-0.1.0  25 October 2009
+	Known Bugs:
+	 * Conditional drawing rules are broken and should not be used.
+
+0.1.0  25. October 2009
 
     The first release of Memphis and libmemphis.
 
