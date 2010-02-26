@@ -123,7 +123,7 @@ memphis_renderer_new_full (MemphisRuleSet *rules, MemphisMap *map)
   if (map)
     memphis_renderer_set_map (r, map);
   if (rules)
-    memphis_renderer_set_rules_set (r, rules);
+    memphis_renderer_set_rule_set (r, rules);
   return r;
 }
 
@@ -360,16 +360,16 @@ memphis_renderer_get_map (MemphisRenderer *self)
 }
 
 /**
- * memphis_renderer_set_rules_set:
+ * memphis_renderer_set_rule_set:
  * @renderer: a #MemphisRenderer
  * @rules: a #MemphisRuleSet
  *
  * Sets the drawing rules for the renderer.
  *
- * Since: 0.1
+ * Since: 0.2
  */
 void
-memphis_renderer_set_rules_set (MemphisRenderer *self,
+memphis_renderer_set_rule_set (MemphisRenderer *self,
     MemphisRuleSet *rules)
 {
   g_return_if_fail (MEMPHIS_IS_RENDERER (self) &&
@@ -459,7 +459,7 @@ memphis_renderer_set_property (GObject *object,
         memphis_renderer_set_map (self, g_value_get_object (value));
         break;
       case PROP_RULE_SET:
-        memphis_renderer_set_rules_set (self, g_value_get_object (value));
+        memphis_renderer_set_rule_set (self, g_value_get_object (value));
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);

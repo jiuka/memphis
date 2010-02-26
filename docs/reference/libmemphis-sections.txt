@@ -24,7 +24,7 @@ memphis_renderer_new_full
 memphis_renderer_free
 memphis_renderer_set_resolution
 memphis_renderer_set_map
-memphis_renderer_set_rules_set
+memphis_renderer_set_rule_set
 memphis_renderer_get_resolution
 memphis_renderer_get_map
 memphis_renderer_get_rule_set
