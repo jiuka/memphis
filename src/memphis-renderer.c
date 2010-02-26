@@ -216,7 +216,7 @@ memphis_renderer_draw_png (MemphisRenderer *renderer,
 /**
  * memphis_renderer_draw_tile:
  * @renderer: a #MemphisRenderer
- * @cr: a Cairo context
+ * @cr: (inout): a Cairo context
  * @x: x coordinates
  * @y: y coordinates
  * @zoom_level: the zoom level

@@ -123,7 +123,7 @@ memphis_rule_set_new ()
 /**
  * memphis_rule_set_load_from_file:
  * @rules: a #MemphisRuleSet
- * @filename: (array): a path to a rules file
+ * @filename: a path to a rules file
  * @error: a pointer to a GError or NULL
  *
  * Load rules from an XML file.
@@ -147,7 +147,7 @@ memphis_rule_set_load_from_file (MemphisRuleSet *rules,
 /**
  * memphis_rule_set_load_from_data:
  * @rules: a #MemphisRuleSet
- * @data: (array length=size): a character array with rules XML data
+ * @data: a character array with rules XML data
  * @size: the size of the array
  * @error: a pointer to a GError or NULL
  *
@@ -557,7 +557,7 @@ search_rule (cfgRule *rules, gchar **keys, gchar **values)
 /**
  * memphis_rule_set_get_rule:
  * @rules: a #MemphisRuleSet
- * @id: (array): an id string
+ * @id: an id string
  *
  * Returns: (allow-none): a #MemphisRule that has the given id string or NULL otherwise.
  * 
@@ -635,7 +635,7 @@ memphis_rule_set_set_rule (MemphisRuleSet *self, MemphisRule *rule)
 /**
  * memphis_rule_set_remove_rule:
  * @rules: a #MemphisRuleSet
- * @id: (array): an id string
+ * @id: an id string
  *
  * Removes the rule with the given id from the rules set.
  *
