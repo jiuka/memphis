@@ -710,9 +710,9 @@ memphis_renderer_tile_has_data (MemphisRenderer *self, guint x, guint y,
     return FALSE;
 
   minx = lon2tilex (osm->minlon, zoom_level);
-  miny = lat2tiley (osm->minlat, zoom_level);
   maxx = lon2tilex (osm->maxlon, zoom_level);
-  maxy = lat2tiley (osm->maxlat, zoom_level);
+  miny = lat2tiley (osm->maxlat, zoom_level);
+  maxy = lat2tiley (osm->minlat, zoom_level);
 
   if (x < minx || x > maxx || y < miny || y > maxy)
     return FALSE;
