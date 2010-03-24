@@ -13,3 +13,5 @@ pkgconfig_DATA = $(pcfiles)
 pkgconfigdir = $(libdir)/pkgconfig
 
 CLEANFILES = $(pcfiles)
+
+EXTRA_DIST = m4/introspection.m4
