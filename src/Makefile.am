@@ -44,7 +44,13 @@ libmemphis_0_2_la_SOURCES = \
 	memphis-renderer.c \
 	memphis-data-pool.c \
 	memphis-debug.c
-	
+
+libmemphis_0_2_la_LIBADD = $(DEPS_LIBS)
+
+libmemphis_0_2_la_LDFLAGS = \
+	-version-info $(LIBRARY_VERSION) \
+	-export-symbols-regex ^memphis_.*
+
 noinst_HEADERS = \
 	memphis-private.h \
 	libmercator.h \
@@ -62,17 +68,9 @@ libmemphis_include_HEADERS = \
 	memphis-map.h \
 	memphis-renderer.h
 
-libmemphis_0_2_la_LIBADD = $(DEPS_LIBS)
-
 libmemphis_includedir = $(includedir)/libmemphis-0.2/memphis
 
-libmemphis_0_2_la_LDFLAGS = \
-	-version-info $(LIBRARY_VERSION) \
-	-export-symbols-regex \
-	^memphis_.*
-
 CLEANFILES =
-
 
 # gobject-introspection support:
 -include $(INTROSPECTION_MAKEFILE)

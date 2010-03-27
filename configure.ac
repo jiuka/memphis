@@ -49,6 +49,9 @@ PKG_CHECK_MODULES(DEPS,
   ]
 )
 
+# link against libmath
+DEPS_LIBS+="-lm"
+
 # check for expat
 AC_CHECK_LIB([expat], [XML_ParserCreate], [DEPS_LIBS="$DEPS_LIBS -lexpat"],
   [AC_MSG_ERROR([cannot find expat library])])
