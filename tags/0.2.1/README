@@ -1,0 +1,29 @@
+Memphis is a map-rendering application and a library for
+OpenStreetMap written in C using eXpat, Cairo and GLib. It's licensed
+under the terms of the GNU Lesser General Public License.
+
+Web page: http://trac.openstreetmap.ch/trac/memphis/
+
+-----------------
+Dependencies:
+-----------------
+
+glib-2.0 >= 2.16
+gobject-2.0 >= 2.10
+cairo >= 1.4
+expat >= 2.0
+
+-----------------
+Buliding:
+-----------------
+
+$ ./configure
+$ make
+$ sudo make install
+
+-----------------
+Using:
+-----------------
+
+$ cd src
+$ ./memphis rule.xml map.osm
