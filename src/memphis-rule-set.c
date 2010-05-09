@@ -246,7 +246,7 @@ memphis_rule_set_get_bg_color (MemphisRuleSet *self,
  * @rules: a #MemphisRuleSet
  *
  * Returns: (transfer full): a list of rule id strings.
- * Free the list with g_slist_free when done.
+ * Free the list with g_list_free when done.
  *
  * These strings have the following form:
  * key1|key2|...|keyN:value1|value2|...|valueM
