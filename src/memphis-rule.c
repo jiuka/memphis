@@ -28,6 +28,25 @@
 
 #include "memphis-rule.h"
 
+static const GEnumValue _memphis_rule_type_values[] = {
+  { MEMPHIS_RULE_TYPE_UNKNOWN, "MEMPHIS_RULE_TYPE_UNKNOWN", "unknown" },
+  { MEMPHIS_RULE_TYPE_NODE, "MEMPHIS_RULE_TYPE_NODE", "node" },
+  { MEMPHIS_RULE_TYPE_WAY, "MEMPHIS_RULE_TYPE_WAY", "way" },
+  { MEMPHIS_RULE_TYPE_RELATION, "MEMPHIS_RULE_TYPE_RELATION", "relation" },
+  { 0, NULL, NULL }
+};
+
+GType
+memphis_rule_type_get_type (void)
+{
+  static GType type = 0;
+
+  if (G_UNLIKELY (type == 0))
+    type = g_enum_register_static ("MemphisRuleType", _memphis_rule_type_values);
+
+  return type;
+}
+
 static void
 rule_attr_free (MemphisRuleAttr * attr)
 {
