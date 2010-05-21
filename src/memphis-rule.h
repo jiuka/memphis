@@ -28,6 +28,10 @@ typedef struct _MemphisRuleAttr MemphisRuleAttr;
 
 #define MEMPHIS_RULE(obj)     ((MemphisRule *) (obj))
 
+GType memphis_rule_attr_get_type (void) G_GNUC_CONST;
+#define MEMPHIS_TYPE_RULE_ATTR (memphis_rule_attr_get_type ())
+#define MEMPHIS_RULE_ATTR(obj) ((MemphisRuleAttr *) (obj))
+
 /**
  * MemphisRuleAttr:
  * @z_min: minimum visible zoom level
@@ -54,8 +58,39 @@ struct _MemphisRuleAttr {
   gdouble size;
 };
 
+/**
+ * memphis_rule_attr_new:
+ *
+ * Returns: a new #MemphisRuleAttr.
+ *
+ * Since: 0.2
+ */
+MemphisRuleAttr * memphis_rule_attr_new (void);
+
+/**
+ * memphis_rule_attr_copy:
+ * @attr: a #MemphisRuleAttr
+ *
+ * Returns: a copy of the rule attribute.
+ *
+ * Since: 0.2
+ */
+MemphisRuleAttr * memphis_rule_attr_copy (const MemphisRuleAttr *attr);
+
+/**
+ * memphis_rule_attr_free:
+ * @attr: a #MemphisRuleAttr
+ *
+ * Frees the memory of a #MemphisRuleAttr.
+ *
+ * Since: 0.1
+ */
+void memphis_rule_attr_free (MemphisRuleAttr *attr);
+
+
 #define MEMPHIS_TYPE_RULE_TYPE memphis_rule_type_get_type()
 GType memphis_rule_type_get_type (void);
+
 
 /**
  * MemphisRuleType:
