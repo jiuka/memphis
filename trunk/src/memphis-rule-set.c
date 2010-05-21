@@ -308,7 +308,7 @@ rule_new_from_cfgRule (cfgRule *curr)
     {
       if (drw->type == POLYGONE)
         {
-          rule->polygon = g_slice_new0 (MemphisRuleAttr);
+          rule->polygon = memphis_rule_attr_new ();
           rule->polygon->color_red = drw->color[0];
           rule->polygon->color_green = drw->color[1];
           rule->polygon->color_blue = drw->color[2];
@@ -322,7 +322,7 @@ rule_new_from_cfgRule (cfgRule *curr)
         {
           if (line_seen) {
             /* line with border */
-            rule->border = g_slice_new0 (MemphisRuleAttr);
+            rule->border = memphis_rule_attr_new ();
             rule->border->color_red = rule->line->color_red;
             rule->border->color_green = rule->line->color_green;
             rule->border->color_blue = rule->line->color_blue;
@@ -343,7 +343,7 @@ rule_new_from_cfgRule (cfgRule *curr)
             
           } else {
             /* only a single line */
-            rule->line = g_slice_new0 (MemphisRuleAttr);
+            rule->line = memphis_rule_attr_new ();
             rule->line->color_red = drw->color[0];
             rule->line->color_green = drw->color[1];
             rule->line->color_blue = drw->color[2];
@@ -357,7 +357,7 @@ rule_new_from_cfgRule (cfgRule *curr)
         }
       else if (drw->type == TEXT)
         {
-          rule->text = g_slice_new0 (MemphisRuleAttr);
+          rule->text = memphis_rule_attr_new ();
           rule->text->color_red = drw->color[0];
           rule->text->color_green = drw->color[1];
           rule->text->color_blue = drw->color[2];
