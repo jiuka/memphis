@@ -47,8 +47,27 @@ memphis_rule_type_get_type (void)
   return type;
 }
 
-static void
-rule_attr_free (MemphisRuleAttr * attr)
+GType
+memphis_rule_attr_get_type (void)
+{
+  static GType type = 0;
+
+  if (G_UNLIKELY (type == 0))
+    type = g_boxed_type_register_static (g_intern_static_string ("MemphisRuleAttr"),
+          (GBoxedCopyFunc) memphis_rule_attr_copy,
+          (GBoxedFreeFunc) memphis_rule_attr_free);
+
+  return type;
+}
+
+MemphisRuleAttr*
+memphis_rule_attr_new ()
+{
+  return g_slice_new (MemphisRuleAttr);
+}
+
+void
+memphis_rule_attr_free (MemphisRuleAttr * attr)
 {
   g_assert (attr != NULL);
 
@@ -58,8 +77,8 @@ rule_attr_free (MemphisRuleAttr * attr)
   g_slice_free (MemphisRuleAttr, attr);
 }
 
-static MemphisRuleAttr *
-rule_attr_copy (MemphisRuleAttr * attr)
+MemphisRuleAttr *
+memphis_rule_attr_copy (const MemphisRuleAttr * attr)
 {
   g_assert (attr != NULL);
 
@@ -137,13 +156,13 @@ memphis_rule_copy (const MemphisRule *rule)
   if (rule->values)
     res->values = g_strdupv (rule->values);
   if (rule->polygon)
-    res->polygon = rule_attr_copy (rule->polygon);
+    res->polygon = memphis_rule_attr_copy (rule->polygon);
   if (rule->line)
-    res->line = rule_attr_copy (rule->line);
+    res->line = memphis_rule_attr_copy (rule->line);
   if (rule->border)
-    res->border = rule_attr_copy (rule->border);
+    res->border = memphis_rule_attr_copy (rule->border);
   if (rule->text)
-    res->text = rule_attr_copy (rule->text);
+    res->text = memphis_rule_attr_copy (rule->text);
 
   return res;
 }
@@ -169,13 +188,13 @@ memphis_rule_free (MemphisRule *rule)
   if (rule->values)
     g_strfreev (rule->values);
   if (rule->polygon)
-    rule_attr_free (rule->polygon);
+    memphis_rule_attr_free (rule->polygon);
   if (rule->line)
-    rule_attr_free (rule->line);
+    memphis_rule_attr_free (rule->line);
   if (rule->border)
-    rule_attr_free (rule->border);
+    memphis_rule_attr_free (rule->border);
   if (rule->text)
-    rule_attr_free (rule->text);
+    memphis_rule_attr_free (rule->text);
 
   g_slice_free (MemphisRule, rule);
 }
