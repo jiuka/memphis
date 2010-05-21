@@ -60,12 +60,27 @@ memphis_rule_attr_get_type (void)
   return type;
 }
 
+/**
+ * memphis_rule_attr_new:
+ *
+ * Returns: a new #MemphisRuleAttr.
+ *
+ * Since: 0.2.2
+ */
 MemphisRuleAttr*
 memphis_rule_attr_new ()
 {
   return g_slice_new (MemphisRuleAttr);
 }
 
+/**
+ * memphis_rule_attr_free:
+ * @attr: a #MemphisRuleAttr
+ *
+ * Frees the memory of a #MemphisRuleAttr.
+ *
+ * Since: 0.2.2
+ */
 void
 memphis_rule_attr_free (MemphisRuleAttr * attr)
 {
@@ -77,6 +92,14 @@ memphis_rule_attr_free (MemphisRuleAttr * attr)
   g_slice_free (MemphisRuleAttr, attr);
 }
 
+/**
+ * memphis_rule_attr_copy:
+ * @attr: a #MemphisRuleAttr
+ *
+ * Returns: a copy of the rule attribute.
+ *
+ * Since: 0.2.2
+ */
 MemphisRuleAttr *
 memphis_rule_attr_copy (const MemphisRuleAttr * attr)
 {

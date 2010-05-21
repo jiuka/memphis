@@ -58,39 +58,12 @@ struct _MemphisRuleAttr {
   gdouble size;
 };
 
-/**
- * memphis_rule_attr_new:
- *
- * Returns: a new #MemphisRuleAttr.
- *
- * Since: 0.2
- */
-MemphisRuleAttr * memphis_rule_attr_new (void);
-
-/**
- * memphis_rule_attr_copy:
- * @attr: a #MemphisRuleAttr
- *
- * Returns: a copy of the rule attribute.
- *
- * Since: 0.2
- */
-MemphisRuleAttr * memphis_rule_attr_copy (const MemphisRuleAttr *attr);
-
-/**
- * memphis_rule_attr_free:
- * @attr: a #MemphisRuleAttr
- *
- * Frees the memory of a #MemphisRuleAttr.
- *
- * Since: 0.1
- */
-void memphis_rule_attr_free (MemphisRuleAttr *attr);
-
-
 #define MEMPHIS_TYPE_RULE_TYPE memphis_rule_type_get_type()
 GType memphis_rule_type_get_type (void);
 
+MemphisRuleAttr * memphis_rule_attr_new (void);
+MemphisRuleAttr * memphis_rule_attr_copy (const MemphisRuleAttr *attr);
+void memphis_rule_attr_free (MemphisRuleAttr *attr);
 
 /**
  * MemphisRuleType:
@@ -138,33 +111,8 @@ struct _MemphisRule {
 GType memphis_rule_get_type (void) G_GNUC_CONST;
 #define MEMPHIS_TYPE_RULE (memphis_rule_get_type ())
 
-/**
- * memphis_rule_new:
- *
- * Returns: a new #MemphisRule.
- *
- * Since: 0.1
- */
 MemphisRule * memphis_rule_new (void);
-
-/**
- * memphis_rule_copy:
- * @rule: a #MemphisRule
- *
- * Returns: a copy of the rule.
- *
- * Since: 0.1
- */
 MemphisRule * memphis_rule_copy (const MemphisRule *rule);
-
-/**
- * memphis_rule_free:
- * @rule: a #MemphisRule
- *
- * Frees the memory of a #MemphisRule.
- *
- * Since: 0.1
- */
 void memphis_rule_free (MemphisRule *rule);
 
 G_END_DECLS

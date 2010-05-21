@@ -3,3 +3,5 @@ memphis_map_get_type
 memphis_renderer_get_type
 memphis_rule_get_type
 memphis_rule_set_get_type
+memphis_rule_attr_get_type
+memphis_rule_type_get_type
