@@ -194,6 +194,11 @@ memphis_map_get_bounding_box (MemphisMap *map,
     gdouble *maxlon)
 {
   MemphisMapPrivate *priv = MEMPHIS_MAP_GET_PRIVATE (map);
+  if (priv->map == NULL)
+    {
+      *minlat = *minlon = *maxlat = *maxlon = 0.0;
+      return;
+    }
 
   *minlat = priv->map->minlat;
   *minlon = priv->map->minlon;
