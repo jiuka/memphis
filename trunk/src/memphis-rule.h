@@ -54,6 +54,9 @@ struct _MemphisRuleAttr {
   gdouble size;
 };
 
+#define MEMPHIS_TYPE_RULE_TYPE memphis_rule_type_get_type()
+GType memphis_rule_type_get_type (void);
+
 /**
  * MemphisRuleType:
  * @MEMPHIS_RULE_TYPE_UNKNOWN: unknown
