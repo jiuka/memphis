@@ -1,4 +1,8 @@
 <SECTION>
+<FILE>memphis</FILE>
+</SECTION>
+
+<SECTION>
 <FILE>memphis-data-pool</FILE>
 <TITLE>MemphisDataPool</TITLE>
 MemphisDataPool
@@ -97,27 +101,38 @@ MemphisRuleSetClass
 </SECTION>
 
 <SECTION>
-<FILE>memphis</FILE>
-</SECTION>
-
-<SECTION>
 <FILE>memphis-debug</FILE>
+<TITLE>MemphisDebug</TITLE>
 memphis_debug
 memphis_info
 memphis_debug_set_print_progress
 memphis_debug_get_print_progress
+<SUBSECTION Standard>
+<SUBSECTION Private>
 </SECTION>
 
 <SECTION>
 <FILE>memphis-rule</FILE>
+<TITLE>MemphisRule</TITLE>
 MemphisRule
-MemphisRuleAttr
 MEMPHIS_RULE
-MemphisRuleType
 memphis_rule_get_type
 MEMPHIS_TYPE_RULE
 memphis_rule_new
 memphis_rule_copy
 memphis_rule_free
+<TITLE>MemphisRuleType</TITLE>
+MemphisRuleType
+MEMPHIS_TYPE_RULE_TYPE
+<TITLE>MemphisRuleAttribute</TITLE>
+MemphisRuleAttr
+MEMPHIS_RULE_ATTR
+MEMPHIS_TYPE_RULE_ATTR
+memphis_rule_attr_new
+memphis_rule_attr_copy
+memphis_rule_attr_free
+<SUBSECTION Standard>
+memphis_rule_attr_get_type
+memphis_rule_type_get_type
+<SUBSECTION Private>
 </SECTION>
-
