@@ -76,12 +76,37 @@ if test x$enable_debug = xyes; then
 fi
 
 # -----------------------------------------------------------
+# Enable Vala Bindings
+# -----------------------------------------------------------
+
+AC_ARG_ENABLE(vala,
+  AC_HELP_STRING([--enable-vala],
+  	[install Vala bindings [default=no]]),[],[enable_vala="no"])
+
+if test x$enable_vala = xyes; then
+  AM_PROG_VALAC([0.8.0])
+  if test x${VALAC} = x""; then
+    exit 0;
+  fi
+  VALA_EXAMPLE_PACKAGES="--pkg cairo --pkg memphis-0.2"
+  PKG_CHECK_MODULES(VALA_EXAMPLE, [glib-2.0, cairo, memphis-0.2])
+  AC_SUBST(VALA_EXAMPLE_CFLAGS)
+  AC_SUBST(VALA_EXAMPLE_LIBS)
+  AC_SUBST(VALA_EXAMPLE_PACKAGES)
+fi
+
+AM_CONDITIONAL(ENABLE_VALA, test x${VALAC} != x"")
+
+# -----------------------------------------------------------
 AC_CONFIG_FILES([Makefile
                  memphis/Makefile
                  demos/Makefile
                  tests/Makefile
                  docs/reference/Makefile
                  memphis.pc
+                 bindings/Makefile
+                 bindings/vala/Makefile
+                 bindings/vala/demos/Makefile
                 ])
 AC_OUTPUT
 
@@ -92,6 +117,8 @@ echo "          Prefix: ${prefix}"
 echo "  Compiler flags: ${CPPFLAGS}"
 echo "           Debug: ${enable_debug}"
 echo "   Documentation: ${enable_gtk_doc}"
+echo ""
 echo "   Introspection: ${enable_introspection}"
+echo "   Vala bindings: ${enable_vala}"
 echo ""
 
