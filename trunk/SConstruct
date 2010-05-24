@@ -44,7 +44,7 @@ SOURCES = [
     'memphis/memphis-map.c',
     'memphis/memphis-rule.c',
     'memphis/memphis-rule-set.c',
-    'memphis/memphis-renderer.c',
+    'memphis/memphis-renderer.c'
 ]
 
 Default(env.Program('memphis/memphis', source = ['memphis/main.c', SOURCES]))

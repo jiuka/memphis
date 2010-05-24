@@ -1,4 +1,4 @@
-SUBDIRS = memphis demos tests docs/reference
+SUBDIRS = memphis demos tests docs/reference bindings
 
 ACLOCAL_AMFLAGS = -I m4
 
