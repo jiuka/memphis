@@ -1,0 +1,17 @@
+.deps
+.libs
+*.o
+*.lo
+*.la
+config.log
+demos/tiles/
+demos/tiles/*
+Makefile.in
+Makefile
+missing
+configure
+compile
+libtool
+depcomp
+install-sh
+ltmain.sh
