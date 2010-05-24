@@ -121,10 +121,8 @@ MEMPHIS_TYPE_RULE
 memphis_rule_new
 memphis_rule_copy
 memphis_rule_free
-<TITLE>MemphisRuleType</TITLE>
 MemphisRuleType
 MEMPHIS_TYPE_RULE_TYPE
-<TITLE>MemphisRuleAttribute</TITLE>
 MemphisRuleAttr
 MEMPHIS_RULE_ATTR
 MEMPHIS_TYPE_RULE_ATTR
