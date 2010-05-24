@@ -13,7 +13,7 @@ AC_PREREQ(2.62)
 AC_INIT([memphis],
         [memphis_version],
         [http://trac.openstreetmap.ch/trac/memphis/])
-AC_CONFIG_SRCDIR([src/memphis.h])
+AC_CONFIG_SRCDIR([memphis/memphis.h])
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -77,7 +77,7 @@ fi
 
 # -----------------------------------------------------------
 AC_CONFIG_FILES([Makefile
-                 src/Makefile
+                 memphis/Makefile
                  demos/Makefile
                  tests/Makefile
                  docs/reference/Makefile

@@ -23,9 +23,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../osm05.h"
-#include "../main.h"
-#include "../mlib.h"
+#include "../memphis/osm05.h"
+#include "../memphis/main.h"
+#include "../memphis/mlib.h"
 
 
 memphisOpt  *opts;

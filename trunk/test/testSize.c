@@ -21,8 +21,8 @@
 #include <stdlib.h>
 #include <cairo.h>
 
-#include "../osm05.h"
-#include "../ruleset.h"
+#include "../memphis/osm05.h"
+#include "../memphis/ruleset.h"
 
 int main () {
     

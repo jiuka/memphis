@@ -22,7 +22,7 @@ DOC_MAIN_SGML_FILE=$(DOC_MODULE)-docs.sgml
 # gtk-doc will search all .c & .h files beneath here for inline comments
 # documenting the functions and macros.
 # e.g. DOC_SOURCE_DIR=../../../gtk
-DOC_SOURCE_DIR=../../src
+DOC_SOURCE_DIR=../../memphis
 
 # Extra options to pass to gtkdoc-scangobj. Not normally needed.
 SCANGOBJ_OPTIONS=
@@ -49,8 +49,8 @@ FIXXREF_OPTIONS=
 # Used for dependencies. The docs will be rebuilt if any of these change.
 # e.g. HFILE_GLOB=$(top_srcdir)/gtk/*.h
 # e.g. CFILE_GLOB=$(top_srcdir)/gtk/*.c
-HFILE_GLOB=$(top_srcdir)/src/*.h
-CFILE_GLOB=$(top_srcdir)/src/*.c
+HFILE_GLOB=$(top_srcdir)/memphis/*.h
+CFILE_GLOB=$(top_srcdir)/memphis/*.c
 
 # Extra header to include when scanning, which are not under DOC_SOURCE_DIR
 # e.g. EXTRA_HFILES=$(top_srcdir}/contrib/extra.h
@@ -78,8 +78,8 @@ expand_content_files=
 # signals and properties.
 # e.g. GTKDOC_CFLAGS=-I$(top_srcdir) -I$(top_builddir) $(GTK_DEBUG_FLAGS)
 # e.g. GTKDOC_LIBS=$(top_builddir)/gtk/$(gtktargetlib)
-GTKDOC_CFLAGS=$(DEPS_CFLAGS) -I$(top_srcdir)/src 
-GTKDOC_LIBS=$(DEPS_LIBS) $(top_builddir)/src/libmemphis-0.2.la
+GTKDOC_CFLAGS=$(DEPS_CFLAGS) -I$(top_srcdir)/memphis
+GTKDOC_LIBS=$(DEPS_LIBS) $(top_builddir)/memphis/libmemphis-0.2.la
 
 # This includes the standard gtk-doc make rules, copied by gtkdocize.
 include $(top_srcdir)/gtk-doc.make

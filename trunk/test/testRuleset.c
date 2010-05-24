@@ -24,9 +24,9 @@
 #include <string.h>
 
 
-#include "../ruleset.h"
-#include "../main.h"
-#include "../mlib.h"
+#include "../memphis/ruleset.h"
+#include "../memphis/main.h"
+#include "../memphis/mlib.h"
 
 memphisOpt   *opts;
 GStringChunk *stringChunk;

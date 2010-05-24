@@ -22,8 +22,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../textpath.h"
-#include "../ruleset.h"
+#include "../memphis/textpath.h"
+#include "../memphis/ruleset.h"
 
 int main () {
 	cairo_surface_t *surf;

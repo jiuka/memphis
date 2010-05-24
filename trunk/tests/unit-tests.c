@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "../src/memphis.h"
+#include <memphis/memphis.h>
 #include <string.h>
 #include <math.h>
 
