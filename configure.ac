@@ -27,7 +27,7 @@ AC_PROG_CC
 AM_PROG_CC_C_O
 AM_PROG_LIBTOOL
 
-CPPFLAGS+="-Wall -Werror"
+CPPFLAGS="${CPPFLAGS} -Wall"
 
 # API_VERSION is used to generate pc file only
 API_VERSION=api_version
@@ -50,7 +50,7 @@ PKG_CHECK_MODULES(DEPS,
 )
 
 # link against libmath
-DEPS_LIBS+="-lm"
+DEPS_LIBS="${DEPS_LIBS} -lm"
 
 # check for expat
 AC_CHECK_LIB([expat], [XML_ParserCreate], [DEPS_LIBS="$DEPS_LIBS -lexpat"],
