@@ -86,16 +86,18 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
 
         while (*atts != NULL) {
             if(strcmp((char *) *(atts), "background") == 0) {
+                unsigned int r, g, b, a;
                 if(sscanf((char *) *(atts+1),"#%2x%2x%2x%2x",
-                        (unsigned int *)&ruleset->background[0],
-                        (unsigned int *)&ruleset->background[1],
-                        (unsigned int *)&ruleset->background[2],
-                        (unsigned int *)&ruleset->background[3])
+                        &r, &g, &b, &a)
                         < 4)
                 {
                     // Default background alpha value
-                    ruleset->background[3] = 255;
+                    a = 255;
                 }
+                ruleset->background[0] = r;
+                ruleset->background[1] = g;
+                ruleset->background[2] = b;
+                ruleset->background[3] = a;
             }
             atts+=2;
         }
@@ -183,10 +185,11 @@ cfgStartElement(void *userData, const char *name, const char **atts) {
 
         while (*atts != NULL) {
             if(strcmp((char *) *(atts), "color") == 0) {
-                sscanf((char *) *(atts+1),"#%2x%2x%2x",
-                        (unsigned int *)&new->color[0],
-                        (unsigned int *)&new->color[1],
-                        (unsigned int *)&new->color[2]);
+                unsigned int r, g, b;
+                sscanf((char *) *(atts+1),"#%2x%2x%2x", &r, &g, &b);
+                new->color[0] = r;
+                new->color[1] = g;
+                new->color[2] = b;
             } else if(strcmp((char *) *(atts), "width") == 0) {
                 sscanf((char *) *(atts+1),"%f",&new->width);
             } else if(strcmp((char *) *(atts), "pattern") == 0) {
