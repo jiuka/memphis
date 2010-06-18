@@ -21,6 +21,7 @@
 #include <glib/gstdio.h>
 #include <expat.h>
 #include <string.h>
+#include <locale.h>
 
 #include "ruleset.h"
 #include "mlib.h"
@@ -251,6 +252,10 @@ cfgRules* rulesetRead(const char *filename, GError **error)
 {
     memphis_debug ("rulesetRead");
 
+    // Reset the locale, otherwise we get in trouble if we convert a string to double
+    // in a language that uses strange decimal characters (like German).
+    setlocale(LC_ALL, "C");
+
     // Local Vars
     GTimer *tRulesetRead = g_timer_new();
     unsigned int size;
@@ -377,6 +382,10 @@ cfgRules* rulesetRead_from_buffer (const char *buffer, guint size,
         GError **error)
 {
     memphis_debug ("rulesetRead");
+
+    // Reset the locale, otherwise we get in trouble if we convert a string to double
+    // in a language that uses strange decimal characters (like German).
+    setlocale(LC_ALL, "C");
 
     g_assert (buffer != NULL && size > 0);
 
