@@ -80,6 +80,27 @@ map_free ()
   memphis_map_free (map);
 }
 
+static void
+map_bounding_box ()
+{
+	MemphisMap *map;
+  map = memphis_map_new ();
+  GError *err = NULL;
+  memphis_map_load_from_file (map, MAP_PATH, &err);
+  g_assert (err == NULL);
+
+	gdouble minlat, minlon, maxlat, maxlon;
+	memphis_map_get_bounding_box (map, &minlat, &minlon, &maxlat, &maxlon);
+
+	//g_print ("%f %f %f %f ", minlat, minlon, maxlat, maxlon);
+	g_assert (fabs (minlat - 47.100044694)  < EPS);
+	g_assert (fabs (minlon - 9.140625)  < EPS);
+	g_assert (fabs (maxlat - 47.159840013)  < EPS);
+	g_assert (fabs (maxlon - 9.228515625)  < EPS);
+
+  memphis_map_free (map);
+}
+
 /* MemphisRule */
 
 static void
@@ -512,6 +533,7 @@ main (int argc, char **argv)
   g_test_add_func ("/map/free", map_free);
   g_test_add_func ("/map/load_data", map_load_data);
   g_test_add_func ("/map/load_file", map_load_file);
+  g_test_add_func ("/map/bounding_box", map_bounding_box);
 
   g_test_add_func ("/rule/new", rule_new);
 

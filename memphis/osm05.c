@@ -23,6 +23,7 @@
 #include <time.h>
 #include <expat.h>
 #include <string.h>
+#include <locale.h>
 
 #include "mlib.h"
 #include "osm05.h"
@@ -272,6 +273,10 @@ osmEndElement(void *userData, const char *name) {
 osmFile* osmRead(const char *filename, GError **error) {
     memphis_debug ("osmRead");
 
+    // Reset the locale, otherwise we get in trouble if we convert a string to double
+    // in a language that uses strange decimal characters (like German).
+    setlocale(LC_ALL, "C");
+
     // Local Vars
     GTimer *tOsmRead = g_timer_new();
     unsigned int size;
@@ -416,6 +421,10 @@ osmFile* osmRead_from_buffer (const char *buffer, guint size,
         GError **error)
 {
     memphis_debug ("osmRead");
+
+    // Reset the locale, otherwise we get in trouble if we convert a string to double
+    // in a language that uses strange decimal characters (like German).
+    setlocale(LC_ALL, "C");
 
     g_assert (buffer != NULL && size > 0);
 
