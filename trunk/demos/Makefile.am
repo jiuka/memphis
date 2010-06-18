@@ -6,7 +6,11 @@ AM_LDFLAGS = $(DEPS_LIBS) ../memphis/libmemphis-0.2.la
 
 tile_renderer_SOURCES = tile-renderer.c
 
+memphisrulesdir = $(datadir)/memphis
+memphisrules_DATA = \
+	default-rules.xml
+
 EXTRA_DIST = \
 	map.osm \
-	rule.xml \
+	default-rules.xml \
 	javascript_seed_example.js
