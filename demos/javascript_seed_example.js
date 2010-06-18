@@ -17,7 +17,7 @@ var map = new Memphis.Map ();
 map.load_from_file ("map.osm");
 
 var rules = new Memphis.RuleSet ();
-rules.load_from_file ("rule.xml");
+rules.load_from_file ("default-rules.xml");
 
 var r = new Memphis.Renderer.full (rules, map);
 r.set_resolution (256);

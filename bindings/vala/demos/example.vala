@@ -25,7 +25,7 @@ int main ()
 	/* load a drawing rules file */
 	var rules = new Memphis.RuleSet ();
 	try {
-		rules.load_from_file ("../../../demos/rule.xml");
+		rules.load_from_file ("../../../demos/default-rules.xml");
 	} catch (GLib.Error e) {
 		GLib.warning (e.message);
 	}

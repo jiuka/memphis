@@ -22,7 +22,7 @@
 #include <math.h>
 
 #define RESOLUTION 512
-#define RULES_PATH "../demos/rule.xml"
+#define RULES_PATH "../demos/default-rules.xml"
 #define MAP_PATH "../demos/map.osm"
 #define EPS 0.0001
 
