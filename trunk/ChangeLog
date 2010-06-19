@@ -1,3 +1,12 @@
+0.2.3  20. June 2010
+  Bugfix release:
+   * Remove bashisms from configure.ac.
+   * Vala example: Fix circular libmemphis dependency (Łukasz Jernaś).
+   * Fix a segfault in the rules parser on big-endian machines.
+   * Install the default rules set (default-rules.xml).
+   * Fix the parsing of doubles in certain locales.
+   * Sync the default rules set with the champlain demo.
+
 0.2.2  24. May 2010
    * Add Vala bindings and a Vala example.
    * Make MemphisRuleAttr a GBoxed type. (Emmanuel Rodriguez) 
