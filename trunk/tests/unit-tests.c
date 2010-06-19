@@ -207,7 +207,7 @@ rule_set_get_rule ()
 
   // one
   rule = memphis_rule_set_get_rule (rules,
-      "natural:water|coastline"); // not available
+      "natural:water|beach"); // not available
   g_assert (rule == NULL);
 
   // two
@@ -264,7 +264,7 @@ rule_set_set_and_get_line_w_border ()
   bsize = g_test_rand_double_range (0.0, 1000.0);
 
   rule = memphis_rule_set_get_rule (rules,
-      "railway:rail");
+      "highway:cycleway");
   g_assert (MEMPHIS_RULE (rule));
   g_assert (rule->line != NULL);
   rule->line->color_red = r;
@@ -288,7 +288,7 @@ rule_set_set_and_get_line_w_border ()
   memphis_rule_free (rule);
 
   rule = memphis_rule_set_get_rule (rules,
-      "railway:rail");
+      "highway:cycleway");
 
   g_assert_cmpint (rule->line->color_red, ==, r);
   g_assert_cmpint (rule->line->color_green, ==, g);
@@ -333,7 +333,7 @@ rule_set_rm_rule ()
 
   g_assert (memphis_rule_set_remove_rule (rules, "highway:motorway"));
   g_assert (memphis_rule_set_remove_rule (rules, "highway:primary"));
-  g_assert (!memphis_rule_set_remove_rule (rules, "natural:water|coastline"));
+  g_assert (!memphis_rule_set_remove_rule (rules, "natural:water"));
 
   memphis_rule_set_free (rules);
 }

@@ -3,7 +3,7 @@
 
     <!-- Draw landuse/natural first -->
     <rule e="way" k="landuse|natural" v="*">
-       <rule e="way" k="natural" v="water">
+       <rule e="way" k="natural" v="water|coastline">
             <polygone color="#b5d6f1"/>
         </rule>
        <rule e="way" k="landuse|natural" v="wood|forest">
@@ -14,20 +14,23 @@
             <polygone color="#e2cf80"/>
             <line color="#5A6332" width="0.2"/>
         </rule>
-        <rule e="way" k="landuse" v="cemetery">
+        <rule e="way" k="landuse|natural" v="beach">
+            <polygone color="#FEF0BA"/>
+        </rule>
+<!--    <rule e="way" k="landuse" v="cemetery">
             <rule e="way" k="religion" v="christian">
-                <!--<polygone pattern="landuse-cemetery-christian"/> -->
+                <polygone pattern="landuse-cemetery-christian"/>
                 <line color="#eeeeee" width="0.2"/>
             </rule>
             <else>
-                <!-- <polygone pattern="landuse-cemetery"/> -->
+                <polygone pattern="landuse-cemetery"/>
                 <line color="#eeeeee" width="0.2"/>
             </else>
-        </rule>
+        </rule> 
         <rule e="way" k="landuse" v="vineyard">
-            <!-- <polygone pattern="landuse-vineyard"/> -->
+            <polygone pattern="landuse-vineyard"/>
             <line color="#eeeeee" width="0.2"/>
-        </rule>
+        </rule> -->
     </rule>
         <rule e="way" k="landuse" v="field|farm|farmland|allotments|village_green|recreation_ground|meadow|grass">
             <polygone color="#bde3cb"/>
@@ -79,99 +82,87 @@
         <rule e="way" k="landuse" v="basin">
             <polygone color="#b5d6f1"/>
         </rule>
-
     </rule>
+
     <rule e="way" k="building" v="*">
         <polygone color="#dddddd" zoom="15:17"/>
-        <line color="#cccccc" width="0.1" zoom="15:17"/>
+        <line color="#cccccc" width="0.1" zoom="15:18"/>
     </rule>
-    
-    
    
     <!-- Railway -->
     <rule e="way" k="railway" v="monorail">
-            <line color="#000000" width="2.5"/>
-            <line color="#ffffff" width="1.5"/>
+            <!-- <line color="#000000" width="1.5"/> -->
+            <line color="#151515" width="1"/>
     </rule>
     <rule e="way" k="railway" v="preserved">
-            <line color="#000000" width="2.5"/>
-            <line color="#ffffff" width="1.5"/>
+            <!-- <line color="#000000" width="1.5"/> -->
+            <line color="#151515" width="1"/>
     </rule>
     <rule e="way" k="railway" v="narrow_gauge">
-            <line color="#000000" width="2.5"/>
-            <line color="#ffffff" width="1.5"/>
+            <!-- <line color="#000000" width="1.5"/> -->
+            <line color="#151515" width="1"/>
     </rule>
     <rule e="way" k="railway" v="rail">
-            <line color="#000000" width="3"/>
-            <line color="#ffffff" width="2"/>
+            <!-- <line color="#000000" width="1.5"/> -->
+            <line color="#151515" width="1"/>
     </rule>
 
     <!-- Draw highways -->
     <rule e="way" k="highway" v="*">
-        <rule e="way" k="highway" v="footway|track">
-            <line color="#777777" width="1" zoom="14:17"/>
-            <line color="#efeaa0" width="0.5" zoom="14:17"/>
+        <rule e="way" k="highway" v="footway|track|steps">
+            <line color="#777777" width="1" zoom="14:18"/>
+            <line color="#efeaa0" width="0.5" zoom="14:18"/>
         </rule>
-        <rule e="way" k="highway" v="cycleway|bridleway">
-            <line color="#777777" width="1" zoom="14:17"/>
-            <line color="#efa0a0" width="0.5" zoom="14:17"/>
+        <rule e="way" k="highway" v="bridleway">
+            <line color="#777777" width="1" zoom="14:18"/>
+            <line color="#efa0a0" width="0.5" zoom="14:18"/>
+        </rule>
+        <rule e="way" k="highway" v="cycleway">
+            <line color="#777777" width="1" zoom="14:18"/>
+            <line color="#485FD2" width="0.5" zoom="14:18"/>
         </rule>
         <rule e="way" k="highway" v="track">
-            <line color="#777777" width="1.5" zoom="13:17"/>
-            <line color="#efeaa0" width="1" zoom="13:17"/>
+            <line color="#777777" width="1.5" zoom="13:18"/>
+            <line color="#efeaa0" width="1" zoom="13:18"/>
+        </rule>
+        <rule e="way" k="highway" v="living_street|service">
+            <line color="#777777" width="2.5" zoom="13:18"/>
+            <line color="#D2D2D2" width="2" zoom="13:18"/>
+            <text color="#000000" width="2" zoom="17:18"/>
         </rule>
         <rule e="way" k="highway" v="residential|unclassified|pedestrian">
-            <line color="#777777" width="3" zoom="12:17"/>
-            <line color="#ffffff" width="2" zoom="12:17"/>
-            <text color="#000000" width="2" zoom="17:17"/>
+            <line color="#777777" width="3" zoom="12:18"/>
+            <line color="#ffffff" width="2.5" zoom="12:18"/>
+            <text color="#000000" width="2" zoom="17:18"/>
         </rule>
         <rule e="way" k="highway" v="tertiary">
             <line color="#777777" width="3"/>
-            <line color="#f7f496" width="2"/>
-            <text color="#000000" width="2" zoom="17:17"/>
+            <line color="#f7f496" width="2.5"/> <!-- yellow -->
+            <text color="#000000" width="2" zoom="17:18"/>
         </rule>
         <rule e="way" k="highway" v="secondary">
-            <line color="#777777" width="4"/>
-            <line color="#FDBF6F" width="3"/>
-            <text color="#000000" width="3" zoom="17:17"/>
+            <line color="#777777" width="3.5"/>
+            <line color="#FDBF6F" width="3"/> <!-- orange -->
+            <text color="#000000" width="3" zoom="16:18"/>
         </rule>
         <rule e="way" k="highway" v="primary">
-            <line color="#777777" width="4"/>
-            <line color="#e46d71" width="3"/>
-            <text color="#000000" width="3" zoom="16:17"/>
+            <line color="#777777" width="3.5"/>
+            <line color="#EC989A" width="3"/> <!-- red -->
+            <text color="#000000" width="3" zoom="16:18"/>
+        </rule>
+        <rule e="way" k="highway" v="trunk_link">
+            <line color="#777777" width="5"/>
+            <line color="#7FC97F" width="4.5"/> <!-- green -->
         </rule>
         <rule e="way" k="highway" v="trunk">
             <line color="#777777" width="5"/>
-            <line color="#7FC97F" width="4"/>
-            <text color="#000000" width="4" zoom="16:17"/>
+            <line color="#7FC97F" width="4.5"/>
+            <text color="#000000" width="4" zoom="16:18"/>
         </rule>
         <rule e="way" k="highway" v="motorway">
-            <line color="#777777" width="6"/>
-            <line color="#809BC0" width="5"/>
-            <text color="#000000" width="5" zoom="16:17"/>
+            <line color="#777777" width="5.5"/>
+            <line color="#809BC0" width="5"/> <!-- blue -->
+            <text color="#000000" width="4.5" zoom="16:18"/>
         </rule>
     </rule>
-    
-
-    <!-- Select all nodes and ways (unless they have an osmarender:render=no tag) -->
-    <!--
-    <rule e="node|way" k="landuse" v="~|yes">
-       <rule e="way" k="landuse" v="landfill|quarry">
-            <polygone color="0.88,0.81,0.50"/>
-            <line color="0.35,0.38,0.19" width="1"/>
-        </rule>
-        <rule e="way" k="landuse" v="cemetery">
-            <rule e="way" k="religion" v="christian">
-                <polygone pattern="landuse-cemetery-christian"/>
-                <line color="0.93.0.93.0.93" width="1"/>
-            </rule>
-            <else>
-                <polygone pattern="landuse-cemetery"/>
-                <line color="0.93.0.93.0.93" width="1"/>
-            </else>
-        </rule>
-        <rule e="way" k="landuse" v="vineyard">
-            <area class="landuse-vineyard"/>
-        </rule>
-    </rule>-->
 </rules>
