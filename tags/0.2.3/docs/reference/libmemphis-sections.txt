@@ -1,0 +1,136 @@
+<SECTION>
+<FILE>memphis</FILE>
+</SECTION>
+
+<SECTION>
+<FILE>memphis-data-pool</FILE>
+<TITLE>MemphisDataPool</TITLE>
+MemphisDataPool
+memphis_data_pool_new
+<SUBSECTION Standard>
+MEMPHIS_DATA_POOL
+MEMPHIS_IS_DATA_POOL
+MEMPHIS_TYPE_DATA_POOL
+memphis_data_pool_get_type
+MEMPHIS_DATA_POOL_CLASS
+MEMPHIS_IS_DATA_POOL_CLASS
+MEMPHIS_DATA_POOL_GET_CLASS
+<SUBSECTION Private>
+MemphisDataPoolClass
+</SECTION>
+
+<SECTION>
+<FILE>memphis-renderer</FILE>
+<TITLE>MemphisRenderer</TITLE>
+MemphisRenderer
+memphis_renderer_new
+memphis_renderer_new_full
+memphis_renderer_free
+memphis_renderer_set_resolution
+memphis_renderer_set_map
+memphis_renderer_set_rule_set
+memphis_renderer_get_resolution
+memphis_renderer_get_map
+memphis_renderer_get_rule_set
+memphis_renderer_draw_tile
+memphis_renderer_get_row_count
+memphis_renderer_get_column_count
+memphis_renderer_get_min_x_tile
+memphis_renderer_get_max_x_tile
+memphis_renderer_get_min_y_tile
+memphis_renderer_get_max_y_tile
+memphis_renderer_tile_has_data
+<SUBSECTION Standard>
+MEMPHIS_RENDERER
+MEMPHIS_IS_RENDERER
+MEMPHIS_TYPE_RENDERER
+memphis_renderer_get_type
+MEMPHIS_RENDERER_CLASS
+MEMPHIS_IS_RENDERER_CLASS
+MEMPHIS_RENDERER_GET_CLASS
+<SUBSECTION Private>
+MemphisRendererClass
+memphis_renderer_draw_png
+</SECTION>
+
+<SECTION>
+<FILE>memphis-map</FILE>
+<TITLE>MemphisMap</TITLE>
+MemphisMap
+memphis_map_new
+memphis_map_free
+memphis_map_load_from_file
+memphis_map_load_from_data
+memphis_map_get_bounding_box
+<SUBSECTION Standard>
+MEMPHIS_MAP
+MEMPHIS_IS_MAP
+MEMPHIS_TYPE_MAP
+memphis_map_get_type
+MEMPHIS_MAP_CLASS
+MEMPHIS_IS_MAP_CLASS
+MEMPHIS_MAP_GET_CLASS
+<SUBSECTION Private>
+MemphisMapClass
+</SECTION>
+
+<SECTION>
+<FILE>memphis-rule-set</FILE>
+<TITLE>MemphisRuleSet</TITLE>
+MemphisRuleSet
+memphis_rule_set_new
+memphis_rule_set_free
+memphis_rule_set_load_from_file
+memphis_rule_set_load_from_data
+memphis_rule_set_set_bg_color
+memphis_rule_set_get_bg_color
+memphis_rule_set_get_rule_ids
+memphis_rule_set_set_rule
+memphis_rule_set_get_rule
+memphis_rule_set_remove_rule
+<SUBSECTION Standard>
+MEMPHIS_RULE_SET
+MEMPHIS_IS_RULE_SET
+MEMPHIS_TYPE_RULE_SET
+memphis_rule_set_get_type
+MEMPHIS_RULE_SET_CLASS
+MEMPHIS_IS_RULE_SET_CLASS
+MEMPHIS_RULE_SET_GET_CLASS
+<SUBSECTION Private>
+MemphisRuleSetClass
+</SECTION>
+
+<SECTION>
+<FILE>memphis-debug</FILE>
+<TITLE>MemphisDebug</TITLE>
+memphis_debug
+memphis_info
+memphis_debug_set_print_progress
+memphis_debug_get_print_progress
+<SUBSECTION Standard>
+<SUBSECTION Private>
+</SECTION>
+
+<SECTION>
+<FILE>memphis-rule</FILE>
+<TITLE>MemphisRule</TITLE>
+MemphisRule
+MEMPHIS_RULE
+memphis_rule_get_type
+MEMPHIS_TYPE_RULE
+memphis_rule_new
+memphis_rule_copy
+memphis_rule_free
+MemphisRuleType
+MEMPHIS_TYPE_RULE_TYPE
+MemphisRuleAttr
+MEMPHIS_RULE_ATTR
+MEMPHIS_TYPE_RULE_ATTR
+memphis_rule_attr_new
+memphis_rule_attr_copy
+memphis_rule_attr_free
+<SUBSECTION Standard>
+memphis_rule_attr_get_type
+memphis_rule_type_get_type
+<SUBSECTION Private>
+</SECTION>
