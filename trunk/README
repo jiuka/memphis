@@ -5,7 +5,7 @@ under the terms of the GNU Lesser General Public License.
 Web page: http://trac.openstreetmap.ch/trac/memphis/
 
 -----------------
-Dependencies:
+ Dependencies:
 -----------------
 
 glib-2.0 >= 2.16
@@ -14,7 +14,7 @@ cairo >= 1.4
 expat >= 2.0
 
 -----------------
-Buliding:
+ Buliding:
 -----------------
 
 $ ./configure
@@ -22,8 +22,38 @@ $ make
 $ sudo make install
 
 -----------------
-Using:
+ Memphis Usage:
 -----------------
 
 $ cd src
 $ ./memphis rule.xml map.osm
+
+--------------------
+ Libmemphis Usage:
+--------------------
+
+Includes:
+#include <memphis/memphis.h>
+
+Compile you application:
+$ gcc your-app.c -o your-app `pkg-config --cflags --libs memphis-0.2`
+
+More details: http://trac.openstreetmap.ch/trac/memphis/wiki/LibMemphis
+
+--------------------
+ Demos:
+--------------------
+
+The tile-renderer demo renders all tiles of a certain zoom level as PNG images.
+The output is wiritten into the 'tiles' folder.
+
+$ cd demos
+$ ./tile-renderer <zoom level> <map file>
+
+The tile-server demo implements a web server that renders tiles.
+Example URL: http://localhost:80/14/8608/5754.png
+
+$ cd demos
+$ ./tile-server [-d] [-p <port>] [-m <mapfile>] [-r <rulefile>]
+
+
