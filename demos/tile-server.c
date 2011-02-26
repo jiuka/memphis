@@ -229,7 +229,7 @@ void web(gint fd, gint hit)
 int main (int argc, char **argv) {
   gint pid, listenfd, socketfd, hit;
   gchar *port;
-  size_t length;
+  socklen_t length;
   static struct sockaddr_in cli_addr; /* static = initialised to zeros */
   static struct sockaddr_in serv_addr; /* static = initialised to zeros */
 
