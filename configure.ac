@@ -95,7 +95,7 @@ if test x$enable_vala = xyes; then
   AC_SUBST(VALA_EXAMPLE_PACKAGES)
 fi
 
-AM_CONDITIONAL(ENABLE_VALA, test x${VALAC} != x"")
+AM_CONDITIONAL(ENABLE_VALA, test x$enable_vala = xyes"")
 
 # -----------------------------------------------------------
 AC_CONFIG_FILES([Makefile
