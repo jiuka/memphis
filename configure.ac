@@ -3,7 +3,7 @@
 #
 m4_define([memphis_major_version], [0])
 m4_define([memphis_minor_version], [2])
-m4_define([memphis_micro_version], [3])
+m4_define([memphis_micro_version], [4])
 m4_define([memphis_version],
           [memphis_major_version.memphis_minor_version.memphis_micro_version])
 m4_define([api_version],
