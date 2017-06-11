@@ -17,6 +17,7 @@ expat >= 2.0
  Buliding:
 -----------------
 
+$ ./autogen.sh
 $ ./configure
 $ make
 $ sudo make install
