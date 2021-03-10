@@ -47,30 +47,19 @@ memphis_rule_type_get_type (void)
   return type;
 }
 
-GType
-memphis_rule_attr_get_type (void)
-{
-  static GType type = 0;
-
-  if (G_UNLIKELY (type == 0))
-    type = g_boxed_type_register_static (g_intern_static_string ("MemphisRuleAttr"),
-          (GBoxedCopyFunc) memphis_rule_attr_copy,
-          (GBoxedFreeFunc) memphis_rule_attr_free);
-
-  return type;
-}
+G_DEFINE_BOXED_TYPE(MemphisRuleAttr, memphis_rule_attr, memphis_rule_attr_copy, memphis_rule_attr_free)
 
 /**
  * memphis_rule_attr_new:
  *
  * Returns: a new #MemphisRuleAttr.
  *
- * Since: 0.2.2
+ * Since: 0.2
  */
 MemphisRuleAttr*
 memphis_rule_attr_new ()
 {
-  return g_slice_new (MemphisRuleAttr);
+  return g_new0 (MemphisRuleAttr, 1);
 }
 
 /**
@@ -79,17 +68,15 @@ memphis_rule_attr_new ()
  *
  * Frees the memory of a #MemphisRuleAttr.
  *
- * Since: 0.2.2
+ * Since: 0.2
  */
 void
 memphis_rule_attr_free (MemphisRuleAttr * attr)
 {
   g_assert (attr != NULL);
 
-  if (attr->style)
-    g_free (attr->style);
-
-  g_slice_free (MemphisRuleAttr, attr);
+  g_clear_pointer (&attr->style, g_free);
+  g_free (attr);
 }
 
 /**
@@ -98,7 +85,7 @@ memphis_rule_attr_free (MemphisRuleAttr * attr)
  *
  * Returns: a copy of the rule attribute.
  *
- * Since: 0.2.2
+ * Since: 0.2
  */
 MemphisRuleAttr *
 memphis_rule_attr_copy (const MemphisRuleAttr * attr)
@@ -106,7 +93,7 @@ memphis_rule_attr_copy (const MemphisRuleAttr * attr)
   g_assert (attr != NULL);
 
   MemphisRuleAttr * new;
-  new = g_slice_dup (MemphisRuleAttr, attr);
+  new = g_memdup2 (attr, sizeof(MemphisRuleAttr));
 
   if (attr->style)
     new->style = g_strdup (attr->style);
@@ -114,21 +101,7 @@ memphis_rule_attr_copy (const MemphisRuleAttr * attr)
   return new;
 }
 
-GType
-memphis_rule_get_type (void)
-{
-  static GType type = 0;
-
-  if (G_UNLIKELY (type == 0))
-    {
-      type = g_boxed_type_register_static (
-          g_intern_static_string ("MemphisRule"),
-          (GBoxedCopyFunc) memphis_rule_copy,
-          (GBoxedFreeFunc) memphis_rule_free);
-    }
-
-  return type;
-}
+G_DEFINE_BOXED_TYPE(MemphisRule, memphis_rule, memphis_rule_copy, memphis_rule_free)
 
 /**
  * memphis_rule_new:
@@ -143,14 +116,8 @@ memphis_rule_get_type (void)
 MemphisRule *
 memphis_rule_new (void)
 {
-  MemphisRule *rule = g_slice_new (MemphisRule);
-  rule->keys = NULL;
-  rule->values = NULL;
+  MemphisRule *rule = g_new0 (MemphisRule, 1);
   rule->type = MEMPHIS_RULE_TYPE_UNKNOWN;
-  rule->polygon = NULL;
-  rule->line = NULL;
-  rule->border = NULL;
-  rule->text = NULL;
   return rule;
 }
 
@@ -168,12 +135,12 @@ memphis_rule_new (void)
 MemphisRule *
 memphis_rule_copy (const MemphisRule *rule)
 {
+  MemphisRule *res;
+
   if (G_UNLIKELY (rule == NULL))
     return NULL;
 
-  MemphisRule *res;
-  res = g_slice_dup (MemphisRule, rule);
-
+  res = g_memdup2 (rule, sizeof(MemphisRule));
   if (rule->keys)
     res->keys = g_strdupv (rule->keys);
   if (rule->values)
@@ -202,22 +169,15 @@ memphis_rule_copy (const MemphisRule *rule)
 void
 memphis_rule_free (MemphisRule *rule)
 {
-
   if (G_UNLIKELY (rule == NULL))
     return;
 
-  if (rule->keys)
-    g_strfreev (rule->keys);
-  if (rule->values)
-    g_strfreev (rule->values);
-  if (rule->polygon)
-    memphis_rule_attr_free (rule->polygon);
-  if (rule->line)
-    memphis_rule_attr_free (rule->line);
-  if (rule->border)
-    memphis_rule_attr_free (rule->border);
-  if (rule->text)
-    memphis_rule_attr_free (rule->text);
+  g_clear_pointer (&rule->keys, g_strfreev);
+  g_clear_pointer (&rule->values, g_strfreev);
+  g_clear_pointer (&rule->polygon, memphis_rule_attr_free);
+  g_clear_pointer (&rule->line, memphis_rule_attr_free);
+  g_clear_pointer (&rule->border, memphis_rule_attr_free);
+  g_clear_pointer (&rule->text, memphis_rule_attr_free);
 
-  g_slice_free (MemphisRule, rule);
+  g_free (rule);
 }

@@ -24,45 +24,20 @@
 
 G_BEGIN_DECLS
 
-#define MEMPHIS_TYPE_MAP memphis_map_get_type()
+#define MEMPHIS_TYPE_MAP memphis_map_get_type ()
+G_DECLARE_FINAL_TYPE (MemphisMap, memphis_map, MEMPHIS, MAP, GObject)
 
-#define MEMPHIS_MAP(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), MEMPHIS_TYPE_MAP, MemphisMap))
+MemphisMap* memphis_map_new (void);
 
-#define MEMPHIS_MAP_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_CAST ((klass), MEMPHIS_TYPE_MAP, MemphisMapClass))
-
-#define MEMPHIS_IS_MAP(obj) \
-  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), MEMPHIS_TYPE_MAP))
-
-#define MEMPHIS_IS_MAP_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_TYPE ((klass), MEMPHIS_TYPE_MAP))
-
-#define MEMPHIS_MAP_GET_CLASS(obj) \
-  (G_TYPE_INSTANCE_GET_CLASS ((obj), MEMPHIS_TYPE_MAP, MemphisMapClass))
-
-typedef struct {
-  GObject parent;
-} MemphisMap;
-
-typedef struct {
-  GObjectClass parent_class;
-} MemphisMapClass;
-
-GType memphis_map_get_type (void);
-
-MemphisMap* memphis_map_new ();
-void memphis_map_free (MemphisMap *map);
-
-void memphis_map_load_from_file (MemphisMap *map,
+void memphis_map_load_from_file (MemphisMap *self,
     const gchar *filename,
     GError **error);
-void memphis_map_load_from_data (MemphisMap *map,
+void memphis_map_load_from_data (MemphisMap *self,
     const gchar *data,
     guint size,
     GError **error);
 
-void memphis_map_get_bounding_box (MemphisMap *map,
+void memphis_map_get_bounding_box (MemphisMap *self,
     gdouble *minlat,
     gdouble *minlon,
     gdouble *maxlat,

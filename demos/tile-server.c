@@ -233,13 +233,11 @@ int main (int argc, char **argv) {
   static struct sockaddr_in cli_addr; /* static = initialised to zeros */
   static struct sockaddr_in serv_addr; /* static = initialised to zeros */
 
-  MemphisRuleSet *rules;
-  MemphisMap *map;
+  g_autoptr(MemphisRuleSet) rules = NULL;
+  g_autoptr(MemphisMap) map = NULL;
 
   GError *err = NULL;
   GOptionContext *context;
-
-  g_type_init ();
 
   context = g_option_context_new ("- render and serve OpenStreetMap map tiles");
   g_option_context_add_main_entries (context, entries, NULL);
@@ -326,9 +324,7 @@ int main (int argc, char **argv) {
   }
 
   // NOTREACHED
-  memphis_renderer_free (renderer);
-  memphis_map_free (map);
-  memphis_rule_set_free (rules);
+  g_object_unref (renderer);
 
   return 0;
 }

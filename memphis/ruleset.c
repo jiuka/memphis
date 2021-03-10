@@ -27,6 +27,7 @@
 #include "mlib.h"
 #include "memphis-data-pool.h"
 #include "memphis-debug.h"
+#include "memphis-private.h"
 
 #define BUFFSIZE 1024
 #define MAXDEPTH 20
@@ -75,8 +76,8 @@ static void XMLCALL
 cfgStartElement(void *userData, const char *name, const char **atts) {
     rulesUserData *data = (rulesUserData *)userData;
     cfgRules *ruleset = data->ruleset;
-    GStringChunk *stringChunk = data->pool->stringChunk;
-    GTree *stringTree = data->pool->stringTree;
+    GStringChunk *stringChunk = memphis_data_pool_get_string_chunk (data->pool);
+    GTree *stringTree = memphis_data_pool_get_string_tree (data->pool);
 
     memphis_debug ("cfgStartElement");
 

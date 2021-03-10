@@ -126,9 +126,6 @@ static void banner() {
 }
 
 int main(int argc, char **argv) {
-
-    g_type_init ();
-
     MemphisRuleSet *ruleset;
     MemphisMap *osm;
     MemphisRenderer *renderer;
@@ -179,9 +176,9 @@ int main(int argc, char **argv) {
     
     draw (renderer);
 
-    memphis_map_free (osm);
-    memphis_rule_set_free (ruleset);
-    memphis_renderer_free (renderer);
+    g_object_unref (osm);
+    g_object_unref (ruleset);
+    g_object_unref (renderer);
 
     return 0;
 }

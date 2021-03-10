@@ -25,35 +25,10 @@
 
 G_BEGIN_DECLS
 
-#define MEMPHIS_TYPE_RULE_SET memphis_rule_set_get_type()
+#define MEMPHIS_TYPE_RULE_SET memphis_rule_set_get_type ()
+G_DECLARE_FINAL_TYPE (MemphisRuleSet, memphis_rule_set, MEMPHIS, RULE_SET, GObject)
 
-#define MEMPHIS_RULE_SET(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), MEMPHIS_TYPE_RULE_SET, MemphisRuleSet))
-
-#define MEMPHIS_RULE_SET_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_CAST ((klass), MEMPHIS_TYPE_RULE_SET, MemphisRuleSetClass))
-
-#define MEMPHIS_IS_RULE_SET(obj) \
-  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), MEMPHIS_TYPE_RULE_SET))
-
-#define MEMPHIS_IS_RULE_SET_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_TYPE ((klass), MEMPHIS_TYPE_RULE_SET))
-
-#define MEMPHIS_RULE_SET_GET_CLASS(obj) \
-  (G_TYPE_INSTANCE_GET_CLASS ((obj), MEMPHIS_TYPE_RULE_SET, MemphisRuleSetClass))
-
-typedef struct {
-  GObject parent;
-} MemphisRuleSet;
-
-typedef struct {
-  GObjectClass parent_class;
-} MemphisRuleSetClass;
-
-GType memphis_rule_set_get_type (void);
-
-MemphisRuleSet* memphis_rule_set_new ();
-void memphis_rule_set_free (MemphisRuleSet *rules);
+MemphisRuleSet* memphis_rule_set_new (void);
 
 void memphis_rule_set_load_from_file (MemphisRuleSet *rules,
     const gchar *filename,
@@ -63,9 +38,9 @@ void memphis_rule_set_load_from_data (MemphisRuleSet *rules,
     guint size,
     GError **error);
 
-void memphis_rule_set_set_bg_color (MemphisRuleSet *rules,
+void memphis_rule_set_set_bg_color (MemphisRuleSet *self,
     guint8 r, guint8 g, guint8 b, guint8 a);
-void memphis_rule_set_get_bg_color (MemphisRuleSet *rules,
+void memphis_rule_set_get_bg_color (MemphisRuleSet *self,
     guint8 *r, guint8 *g, guint8 *b, guint8 *a);
 
 GList* memphis_rule_set_get_rule_ids (MemphisRuleSet *rules);

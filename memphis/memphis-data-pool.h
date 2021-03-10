@@ -24,34 +24,8 @@
 
 G_BEGIN_DECLS
 
-#define MEMPHIS_TYPE_DATA_POOL memphis_data_pool_get_type()
-
-#define MEMPHIS_DATA_POOL(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST ((obj), MEMPHIS_TYPE_DATA_POOL, MemphisDataPool))
-
-#define MEMPHIS_DATA_POOL_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_CAST ((klass), MEMPHIS_TYPE_DATA_POOL, MemphisDataPoolClass))
-
-#define MEMPHIS_IS_DATA_POOL(obj) \
-  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), MEMPHIS_TYPE_DATA_POOL))
-
-#define MEMPHIS_IS_DATA_POOL_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_TYPE ((klass), MEMPHIS_TYPE_DATA_POOL))
-
-#define MEMPHIS_DATA_POOL_GET_CLASS(obj) \
-  (G_TYPE_INSTANCE_GET_CLASS ((obj), MEMPHIS_TYPE_DATA_POOL, MemphisDataPoolClass))
-
-typedef struct {
-  GObject parent;
-  GStringChunk *stringChunk;
-  GTree *stringTree;
-} MemphisDataPool;
-
-typedef struct {
-  GObjectClass parent_class;
-} MemphisDataPoolClass;
-
-GType memphis_data_pool_get_type (void);
+#define MEMPHIS_TYPE_DATA_POOL memphis_data_pool_get_type ()
+G_DECLARE_FINAL_TYPE (MemphisDataPool, memphis_data_pool, MEMPHIS, DATA_POOL, GObject)
 
 MemphisDataPool* memphis_data_pool_new (void);
 

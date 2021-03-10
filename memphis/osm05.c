@@ -29,6 +29,7 @@
 #include "osm05.h"
 #include "memphis-data-pool.h"
 #include "memphis-debug.h"
+#include "memphis-private.h"
 
 #define BUFFSIZE 1024
 
@@ -94,8 +95,8 @@ static void XMLCALL
 osmStartElement(void *userData, const char *name, const char **atts) {
     mapUserData *data = (mapUserData *) userData;
     osmFile *osm = data->osm;
-    GStringChunk *stringChunk = data->pool->stringChunk;
-    GTree *stringTree = data->pool->stringTree;
+    GStringChunk *string_chunk = memphis_data_pool_get_string_chunk (data->pool);
+    GTree *string_tree = memphis_data_pool_get_string_tree (data->pool);
     
     memphis_debug ("osm05startElement");
     // Parsing Bounds
@@ -166,7 +167,7 @@ osmStartElement(void *userData, const char *name, const char **atts) {
                     return;
                 } else if(strcmp(k, "name") == 0) {
                     if (data->cWay) {
-                        data->cWay->name = m_string_chunk_get(stringChunk, stringTree, 
+                        data->cWay->name = m_string_chunk_get(string_chunk, string_tree, 
                                                         (char *) *(atts+1));
                     }
                     return;
@@ -177,8 +178,8 @@ osmStartElement(void *userData, const char *name, const char **atts) {
         }
 
         data->cTag = g_new(osmTag, 1);
-        data->cTag->key = m_string_chunk_get(stringChunk, stringTree, k);
-        data->cTag->value = m_string_chunk_get(stringChunk, stringTree, v);
+        data->cTag->key = m_string_chunk_get(string_chunk, string_tree, k);
+        data->cTag->value = m_string_chunk_get(string_chunk, string_tree, v);
 
         memphis_debug ("Tag: %s => %s", data->cTag->key, data->cTag->value);
 

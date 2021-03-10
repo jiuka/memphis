@@ -42,10 +42,6 @@
 #include "ruleset.h"
 #include "textpath.h"
 
-G_DEFINE_TYPE (MemphisRenderer, memphis_renderer, G_TYPE_OBJECT)
-
-#define MEMPHIS_RENDERER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), MEMPHIS_TYPE_RENDERER, MemphisRendererPrivate))
-
 #define MEMPHIS_RENDERER_MIN_ZOOM_LEVEL 12
 #define MEMPHIS_RENDERER_MAX_ZOOM_LEVEL 18
 
@@ -54,32 +50,34 @@ G_DEFINE_TYPE (MemphisRenderer, memphis_renderer, G_TYPE_OBJECT)
 #define LIST_FOREACH(iter, list) \
         for ((iter) = (list); (iter); (iter) = (iter)->next)
 
-enum
+struct _MemphisRenderer
 {
-  PROP_0,
-  PROP_MAP,
-  PROP_RULE_SET,
-  PROP_RESOLUTION
-};
+  GObject parent_instance;
 
-typedef struct _MemphisRendererPrivate MemphisRendererPrivate;
-struct _MemphisRendererPrivate
-{
   MemphisMap *map;
   MemphisRuleSet *rules;
   guint resolution;
 };
 
+G_DEFINE_TYPE (MemphisRenderer, memphis_renderer, G_TYPE_OBJECT)
+
+enum
+{
+  PROP_MAP = 1,
+  PROP_RULE_SET,
+  PROP_RESOLUTION,
+  N_PROPERTIES
+};
+
 /*
  * Internal used to save data of a renderer run
  */
-typedef struct renderInfo_ renderInfo;
-struct renderInfo_ {
-  coordinates     offset;
-  guint           zoom_level;
+typedef struct {
+  coordinates      offset;
+  guint            zoom_level;
   cairo_t         *cr;
-  MemphisRendererPrivate *priv;
-};
+  MemphisRenderer *renderer;
+} renderInfo;
 
 /*
  * Internal used return values for stringInStrings.
@@ -101,15 +99,15 @@ static int renderCairo (renderInfo *info);
 * Since: 0.1
 */
 MemphisRenderer*
-memphis_renderer_new ()
+memphis_renderer_new (void)
 {
   return g_object_new (MEMPHIS_TYPE_RENDERER, NULL);
 }
 
 /**
  * memphis_renderer_new_full:
- * @rules: (allow-none): a #MemphisRuleSet
- * @map: (allow-none): a #MemphisMap
+ * @rules: (nullable): a #MemphisRuleSet or %NULL
+ * @map: (nullable): a #MemphisMap or %NULL
  *
  * Returns: a fresh #MemphisRenderer with the given rules and map.
  *
@@ -118,34 +116,15 @@ memphis_renderer_new ()
 MemphisRenderer*
 memphis_renderer_new_full (MemphisRuleSet *rules, MemphisMap *map)
 {
-  MemphisRenderer* r = g_object_new (MEMPHIS_TYPE_RENDERER, NULL);
-
-  if (map)
-    memphis_renderer_set_map (r, map);
-  if (rules)
-    memphis_renderer_set_rule_set (r, rules);
-  return r;
-}
-
-/**
- * memphis_renderer_free:
- * @renderer: a #MemphisRenderer
- *
- * Frees the memory of #MemphisRenderer.
- *
- * Since: 0.1
- */
-void
-memphis_renderer_free (MemphisRenderer *renderer)
-{
-  g_return_if_fail (MEMPHIS_IS_RENDERER (renderer));
-  
-  g_object_unref (G_OBJECT (renderer));
+  return g_object_new (MEMPHIS_TYPE_RENDERER,
+                       "map", map,
+                       "rule-set", rules,
+                       NULL);
 }
 
 /**
  * memphis_renderer_draw_png: (skip)
- * @renderer: a #MemphisRenderer
+ * @self: a #MemphisRenderer
  * @filename: the path to the output file
  * @zoom_level: the zoom level
  * 
@@ -155,23 +134,22 @@ memphis_renderer_free (MemphisRenderer *renderer)
  * Should be removed!
  */
 void
-memphis_renderer_draw_png (MemphisRenderer *renderer, 
+memphis_renderer_draw_png (MemphisRenderer *self, 
     gchar *filename, guint zoom_level)
 {
-  g_return_if_fail (MEMPHIS_IS_RENDERER (renderer));
+  g_return_if_fail (MEMPHIS_IS_RENDERER (self));
 
-  MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (renderer);
   renderInfo *info;
   osmFile *osm;
   cfgRules *ruleset;
   coordinates min, max;
   cairo_surface_t *surface;
 
-  g_return_if_fail (MEMPHIS_IS_RULE_SET (priv->rules)
-      && MEMPHIS_IS_MAP (priv->map));
+  g_return_if_fail (MEMPHIS_IS_RULE_SET (self->rules)
+      && MEMPHIS_IS_MAP (self->map));
 
-  osm = memphis_map_get_osmFile (priv->map);
-  ruleset = memphis_rule_set_get_cfgRules (priv->rules);
+  osm = memphis_map_get_osmFile (self->map);
+  ruleset = memphis_rule_set_get_cfgRules (self->rules);
 
   if (ruleset == NULL || osm == NULL) {
     memphis_info ("No map and/or rules data: Draw nothing");
@@ -181,18 +159,18 @@ memphis_renderer_draw_png (MemphisRenderer *renderer,
   zoom_level = CLAMP (zoom_level, MEMPHIS_RENDERER_MIN_ZOOM_LEVEL,
       MEMPHIS_RENDERER_MAX_ZOOM_LEVEL);
 
-  min = coord2xy (osm->minlat, osm->minlon, zoom_level, priv->resolution);
-  max = coord2xy (osm->maxlat, osm->maxlon, zoom_level, priv->resolution);
+  min = coord2xy (osm->minlat, osm->minlon, zoom_level, self->resolution);
+  max = coord2xy (osm->maxlat, osm->maxlon, zoom_level, self->resolution);
   int w = (int) ceil (max.x - min.x);
   int h = (int) ceil (min.y - max.y);
 
   surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, w, h);
 
   info = g_new (renderInfo, 1);
-  info->offset = coord2xy (osm->maxlat, osm->minlon, zoom_level, priv->resolution);
+  info->offset = coord2xy (osm->maxlat, osm->minlon, zoom_level, self->resolution);
   info->zoom_level = zoom_level;
   info->cr = cairo_create (surface);
-  info->priv = priv;
+  info->renderer = self;
 
   cairo_rectangle (info->cr, 0, 0, w, h);
   cairo_set_source_rgba (info->cr,
@@ -215,8 +193,8 @@ memphis_renderer_draw_png (MemphisRenderer *renderer,
 
 /**
  * memphis_renderer_draw_tile:
- * @renderer: a #MemphisRenderer
- * @cr: (inout): a Cairo context
+ * @self: a #MemphisRenderer
+ * @cr: a Cairo context
  * @x: x coordinates
  * @y: y coordinates
  * @zoom_level: the zoom level
@@ -226,27 +204,26 @@ memphis_renderer_draw_png (MemphisRenderer *renderer,
  * Since: 0.1
  */
 void
-memphis_renderer_draw_tile (MemphisRenderer *renderer,
+memphis_renderer_draw_tile (MemphisRenderer *self,
     cairo_t *cr,
     guint x,
     guint y,
     guint zoom_level)
 {
-  g_return_if_fail (MEMPHIS_IS_RENDERER (renderer));
+  g_return_if_fail (MEMPHIS_IS_RENDERER (self));
 
-  MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (renderer);
   renderInfo *info;
   osmFile *osm;
   cfgRules *ruleset;
   coordinates crd;
 
-  if (!MEMPHIS_IS_RULE_SET (priv->rules) || !MEMPHIS_IS_MAP (priv->map)) {
+  if (!MEMPHIS_IS_RULE_SET (self->rules) || !MEMPHIS_IS_MAP (self->map)) {
     memphis_info ("No map and/or rules data: Draw nothing");
     return;
   }
 
-  osm = memphis_map_get_osmFile (priv->map);
-  ruleset = memphis_rule_set_get_cfgRules (priv->rules);
+  osm = memphis_map_get_osmFile (self->map);
+  ruleset = memphis_rule_set_get_cfgRules (self->rules);
 
   if (ruleset == NULL || osm == NULL) {
     memphis_info ("No map and/or rules data: Draw nothing");
@@ -257,14 +234,14 @@ memphis_renderer_draw_tile (MemphisRenderer *renderer,
   info->cr = cr;
   info->zoom_level = CLAMP (zoom_level, MEMPHIS_RENDERER_MIN_ZOOM_LEVEL,
       MEMPHIS_RENDERER_MAX_ZOOM_LEVEL);
-  info->priv = priv;
+  info->renderer = self;
 
   crd = tile2latlon (x, y, info->zoom_level);
-  info->offset = coord2xy (crd.x, crd.y, info->zoom_level, priv->resolution);
+  info->offset = coord2xy (crd.x, crd.y, info->zoom_level, self->resolution);
 
   memphis_debug (" Cairo rendering tile: (%i, %i, %i)", x, y, info->zoom_level);
 
-  cairo_rectangle (info->cr, 0, 0, priv->resolution, priv->resolution);
+  cairo_rectangle (info->cr, 0, 0, self->resolution, self->resolution);
   cairo_set_source_rgba (info->cr,
       (double) ruleset->background[0] / 255.0,
       (double) ruleset->background[1] / 255.0,
@@ -273,10 +250,10 @@ memphis_renderer_draw_tile (MemphisRenderer *renderer,
   cairo_fill (info->cr);
 
   // TODO: Is this a good cut-off to draw background tiles only?
-  if (x < memphis_renderer_get_max_x_tile (renderer, info->zoom_level) + 2 &&
-      x > memphis_renderer_get_min_x_tile (renderer, info->zoom_level) - 2 &&
-      y < memphis_renderer_get_max_y_tile (renderer, info->zoom_level) + 2 &&
-      y > memphis_renderer_get_min_y_tile (renderer, info->zoom_level) - 2)
+  if (x < memphis_renderer_get_max_x_tile (self, info->zoom_level) + 2 &&
+      x > memphis_renderer_get_min_x_tile (self, info->zoom_level) - 2 &&
+      y < memphis_renderer_get_max_y_tile (self, info->zoom_level) + 2 &&
+      y > memphis_renderer_get_min_y_tile (self, info->zoom_level) - 2)
   {
     renderCairo (info);
   }
@@ -300,8 +277,7 @@ memphis_renderer_set_resolution (MemphisRenderer *self, guint resolution)
 {
   g_return_if_fail (MEMPHIS_IS_RENDERER (self));
 
-  MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
-  priv->resolution = resolution;
+  self->resolution = resolution;
 }
 
 /**
@@ -317,14 +293,13 @@ memphis_renderer_get_resolution (MemphisRenderer *self)
 {
   g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), 0);
 
-  MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
-  return priv->resolution;
+  return self->resolution;
 }
 
 /**
  * memphis_renderer_set_map:
  * @renderer: a #MemphisRenderer
- * @map: a #MemphisMap
+ * @map: (nullable): a #MemphisMap
  *
  * Assigns a #MemphisMap to the renderer.
  *
@@ -333,20 +308,16 @@ memphis_renderer_get_resolution (MemphisRenderer *self)
 void
 memphis_renderer_set_map (MemphisRenderer *self, MemphisMap *map)
 {
-  g_return_if_fail (MEMPHIS_IS_RENDERER (self) && MEMPHIS_IS_MAP (map));
+  g_return_if_fail (MEMPHIS_IS_RENDERER (self));
 
-  MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
-  if (priv->map)
-    g_object_unref (priv->map);
-
-  priv->map = g_object_ref (map);
+  g_set_object (&self->map, map);
 }
 
 /**
  * memphis_renderer_get_map:
  * @renderer: a #MemphisRenderer
  *
- * Returns: (allow-none): the #MemphisMap of this renderer.
+ * Returns: (nullable) (transfer none): the #MemphisMap of this renderer.
  *
  * Since: 0.1
  */
@@ -355,8 +326,7 @@ memphis_renderer_get_map (MemphisRenderer *self)
 {
   g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), NULL);
 
-  MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
-  return priv->map;
+  return self->map;
 }
 
 /**
@@ -372,21 +342,16 @@ void
 memphis_renderer_set_rule_set (MemphisRenderer *self,
     MemphisRuleSet *rules)
 {
-  g_return_if_fail (MEMPHIS_IS_RENDERER (self) &&
-      MEMPHIS_IS_RULE_SET (rules));
+  g_return_if_fail (MEMPHIS_IS_RENDERER (self));
 
-  MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
-  if (priv->rules)
-    g_object_unref (priv->rules);
-
-  priv->rules = g_object_ref (rules);
+  g_set_object (&self->rules, rules);
 }
 
 /**
  * memphis_renderer_get_rule_set:
  * @renderer: a #MemphisRenderer
  *
- * Returns: (allow-none): the #MemphisRuleSet of the renderer.
+ * Returns: (nullable) (transfer none): the #MemphisRuleSet of the renderer.
  *
  * Since: 0.1
  */
@@ -395,28 +360,18 @@ memphis_renderer_get_rule_set (MemphisRenderer *self)
 {
   g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), 0);
 
-  MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
-  return priv->rules;
+  return self->rules;
 }
 
 static void
 memphis_renderer_dispose (GObject *object)
 {
   MemphisRenderer *self = MEMPHIS_RENDERER (object);
-  MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
 
-  if (priv->map)
-    g_object_unref (G_OBJECT (priv->map));
-  if (priv->rules)
-    g_object_unref (G_OBJECT (priv->rules));
+  g_clear_object (&self->map);
+  g_clear_object (&self->rules);
 
   G_OBJECT_CLASS (memphis_renderer_parent_class)->dispose (object);
-}
-
-static void
-memphis_renderer_finalize (GObject *object)
-{
-  G_OBJECT_CLASS (memphis_renderer_parent_class)->finalize (object);
 }
 
 static void
@@ -426,17 +381,16 @@ memphis_renderer_get_property (GObject *object,
     GParamSpec *pspec)
 {
   MemphisRenderer *self = MEMPHIS_RENDERER (object);
-  MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
   switch (property_id)
     {
       case PROP_RESOLUTION:
-        g_value_set_uint (value, priv->resolution);
+        g_value_set_uint (value, self->resolution);
         break;
       case PROP_MAP:
-        g_value_set_object (value, priv->map);
+        g_value_set_object (value, self->map);
         break;
       case PROP_RULE_SET:
-        g_value_set_object (value, priv->rules);
+        g_value_set_object (value, self->rules);
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -471,12 +425,9 @@ memphis_renderer_class_init (MemphisRendererClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-  g_type_class_add_private (klass, sizeof (MemphisRendererPrivate));
-
   object_class->get_property = memphis_renderer_get_property;
   object_class->set_property = memphis_renderer_set_property;
   object_class->dispose = memphis_renderer_dispose;
-  object_class->finalize = memphis_renderer_finalize;
 
   /**
   * MemphisRenderer:resolution:
@@ -529,10 +480,7 @@ memphis_renderer_class_init (MemphisRendererClass *klass)
 static void
 memphis_renderer_init (MemphisRenderer *self)
 {
-  MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
-  priv->map = NULL;
-  priv->rules = NULL;
-  priv->resolution = MEMPHIS_DEFAULT_RESOLUTION;
+  self->resolution = MEMPHIS_DEFAULT_RESOLUTION;
 }
 
 /**
@@ -581,16 +529,15 @@ memphis_renderer_get_column_count (MemphisRenderer *self, guint zoom_level)
 gint
 memphis_renderer_get_min_x_tile (MemphisRenderer *self, guint zoom_level)
 {
-  g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), -1);
-
-  MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
   osmFile *osm;
 
-  if (!MEMPHIS_IS_MAP (priv->map))
+  g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), -1);
+
+  if (!self->map)
     return -1;
 
-  osm = memphis_map_get_osmFile (priv->map);
-  if (osm == NULL)
+  osm = memphis_map_get_osmFile (self->map);
+  if (!osm)
     return -1;
 
   return lon2tilex (osm->minlon, zoom_level);
@@ -608,16 +555,15 @@ memphis_renderer_get_min_x_tile (MemphisRenderer *self, guint zoom_level)
 gint
 memphis_renderer_get_max_x_tile (MemphisRenderer *self, guint zoom_level)
 {
-  g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), -1);
-  
-  MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
   osmFile *osm;
 
-  if (!MEMPHIS_IS_MAP (priv->map))
+  g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), -1);
+
+  if (!self->map)
     return -1;
 
-  osm = memphis_map_get_osmFile (priv->map);
-  if (osm == NULL)
+  osm = memphis_map_get_osmFile (self->map);
+  if (!osm)
     return -1;
 
   return lon2tilex (osm->maxlon, zoom_level);
@@ -635,16 +581,15 @@ memphis_renderer_get_max_x_tile (MemphisRenderer *self, guint zoom_level)
 gint
 memphis_renderer_get_min_y_tile (MemphisRenderer *self, guint zoom_level)
 {
-  g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), -1);
-  
-  MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
   osmFile *osm;
 
-  if (!MEMPHIS_IS_MAP (priv->map))
+  g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), -1);
+
+  if (!self->map)
     return -1;
 
-  osm = memphis_map_get_osmFile (priv->map);
-  if (osm == NULL)
+  osm = memphis_map_get_osmFile (self->map);
+  if (!osm)
     return -1;
 
   return lat2tiley (osm->maxlat, zoom_level);
@@ -662,16 +607,15 @@ memphis_renderer_get_min_y_tile (MemphisRenderer *self, guint zoom_level)
 gint
 memphis_renderer_get_max_y_tile (MemphisRenderer *self, guint zoom_level)
 {
-  g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), -1);
-  
-  MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
   osmFile *osm;
 
-  if (!MEMPHIS_IS_MAP (priv->map))
+  g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), -1);
+
+  if (!self->map)
     return -1;
 
-  osm = memphis_map_get_osmFile (priv->map);
-  if (osm == NULL)
+  osm = memphis_map_get_osmFile (self->map);
+  if (!osm)
     return -1;
 
   return lat2tiley (osm->minlat, zoom_level);
@@ -684,7 +628,7 @@ memphis_renderer_get_max_y_tile (MemphisRenderer *self, guint zoom_level)
  * @y: y coordinates
  * @zoom_level: the zoom level
  *
- * Returns: true if the renderer has map data for this zoom level and tile
+ * Returns: %TRUE if the renderer has map data for this zoom level and tile
  * number.
  *
  * If no data is available an empty tile with background color will be
@@ -696,16 +640,15 @@ gboolean
 memphis_renderer_tile_has_data (MemphisRenderer *self, guint x, guint y,
     guint zoom_level)
 {
-  g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), FALSE);
-
   gint minx, miny, maxx, maxy;
-  MemphisRendererPrivate *priv = MEMPHIS_RENDERER_GET_PRIVATE (self);
   osmFile *osm;
 
-  if (!MEMPHIS_IS_MAP (priv->map))
+  g_return_val_if_fail (MEMPHIS_IS_RENDERER (self), FALSE);
+
+  if (!self->map)
     return FALSE;
 
-  osm = memphis_map_get_osmFile (priv->map);
+  osm = memphis_map_get_osmFile (self->map);
   if (osm == NULL)
     return FALSE;
 
@@ -732,20 +675,20 @@ static void drawPath (renderInfo *info, GSList *nodes)
   GSList *iter;
   osmNode *nd;
   coordinates xy;
-  MemphisRendererPrivate *p = info->priv;
+  MemphisRenderer *self = info->renderer;
 
   memphis_debug ("drawPath");
 
   iter = nodes;
   nd = iter->data;
-  xy = coord2xy (nd->lat, nd->lon, info->zoom_level, p->resolution);
+  xy = coord2xy (nd->lat, nd->lon, info->zoom_level, self->resolution);
   cairo_move_to (info->cr, xy.x - info->offset.x,
                            xy.y - info->offset.y);
 
   iter = g_slist_next(iter);
   while (iter) {
     nd = iter->data;
-    xy = coord2xy (nd->lat, nd->lon, info->zoom_level, p->resolution);
+    xy = coord2xy (nd->lat, nd->lon, info->zoom_level, self->resolution);
     cairo_line_to (info->cr, xy.x - info->offset.x,
                              xy.y - info->offset.y);
     iter = g_slist_next (iter);
@@ -953,8 +896,8 @@ static void renderPaths (renderInfo *info, int layer,
 {
   int paths = 0;
   osmWay *way;
-  MemphisRendererPrivate *p = info->priv;
-  osmFile *osm = memphis_map_get_osmFile (p->map); // FIXME: speed
+  MemphisRenderer *self = info->renderer;
+  osmFile *osm = memphis_map_get_osmFile (self->map); // FIXME: speed
 
   // Loop through ways for
   LIST_FOREACH(way, osm->ways) {
@@ -992,8 +935,8 @@ static void renderText (renderInfo *info, int layer,
     cfgRule *rule, cfgDraw *draw)
 {
   osmWay *way;
-  MemphisRendererPrivate *p = info->priv;
-  osmFile *osm = memphis_map_get_osmFile (p->map); // FIXME: speed
+  MemphisRenderer *self = info->renderer;
+  osmFile *osm = memphis_map_get_osmFile (self->map); // FIXME: speed
 
   while (draw) {
       if (draw->type == TEXT) {
@@ -1023,8 +966,8 @@ static void renderText (renderInfo *info, int layer,
 static int renderCairo (renderInfo *info)
 {
   int layer;
-  MemphisRendererPrivate *p = info->priv;
-  cfgRules *ruleset = memphis_rule_set_get_cfgRules (p->rules);
+  MemphisRenderer *self = info->renderer;
+  cfgRules *ruleset = memphis_rule_set_get_cfgRules (self->rules);
 
   memphis_debug ("renderCairo");
 

@@ -33,55 +33,22 @@
 #include "memphis-rule-set.h"
 #include "memphis-data-pool.h"
 
-G_DEFINE_TYPE (MemphisRuleSet, memphis_rule_set, G_TYPE_OBJECT)
-
-#define MEMPHIS_RULE_SET_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), MEMPHIS_TYPE_RULE_SET, MemphisRuleSetPrivate))
-
-enum
+struct _MemphisRuleSet
 {
-  PROP_0,
-};
+  GObject parent_instance;
 
-typedef struct _MemphisRuleSetPrivate MemphisRuleSetPrivate;
-
-struct _MemphisRuleSetPrivate {
   cfgRules *ruleset;
 };
 
-static void
-memphis_rule_set_get_property (GObject *object, guint property_id,
-                              GValue *value, GParamSpec *pspec)
-{
-  //MemphisRuleSet *self = MEMPHIS_RULE_SET (object);
-  //MemphisRuleSetPrivate *priv = MEMPHIS_RULE_SET_GET_PRIVATE (self);
-  switch (property_id)
-  {
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-  }
-}
-
-static void
-memphis_rule_set_set_property (GObject *object, guint property_id,
-                              const GValue *value, GParamSpec *pspec)
-{
-  //MemphisRuleSet *self = MEMPHIS_RULE_SET (object);
-  switch (property_id)
-  {
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-  }
-}
+G_DEFINE_TYPE (MemphisRuleSet, memphis_rule_set, G_TYPE_OBJECT)
 
 static void
 memphis_rule_set_finalize (GObject *object)
 {
   MemphisRuleSet *self = MEMPHIS_RULE_SET (object);
-  MemphisRuleSetPrivate *priv = MEMPHIS_RULE_SET_GET_PRIVATE (self);
 
-  if (priv->ruleset != NULL)
-    rulesetFree(priv->ruleset);
-  
+  g_clear_pointer (&self->ruleset, rulesetFree);
+
   G_OBJECT_CLASS (memphis_rule_set_parent_class)->finalize (object);
 }
 
@@ -90,18 +57,13 @@ memphis_rule_set_class_init (MemphisRuleSetClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-  g_type_class_add_private (klass, sizeof (MemphisRuleSetPrivate));
-
-  object_class->get_property = memphis_rule_set_get_property;
-  object_class->set_property = memphis_rule_set_set_property;
   object_class->finalize = memphis_rule_set_finalize;
 }
 
 static void
 memphis_rule_set_init (MemphisRuleSet *self)
 {
-  MemphisRuleSetPrivate *priv = MEMPHIS_RULE_SET_GET_PRIVATE (self);
-  priv->ruleset = NULL;
+  self->ruleset = rulesetNew ();
 }
 
 /**
@@ -112,19 +74,16 @@ memphis_rule_set_init (MemphisRuleSet *self)
  * Since: 0.1
  */
 MemphisRuleSet*
-memphis_rule_set_new ()
+memphis_rule_set_new (void)
 {
-  MemphisRuleSet* self = g_object_new (MEMPHIS_TYPE_RULE_SET, NULL);
-  MemphisRuleSetPrivate *priv = MEMPHIS_RULE_SET_GET_PRIVATE (self);
-  priv->ruleset = rulesetNew ();
-  return self;
+  return g_object_new (MEMPHIS_TYPE_RULE_SET, NULL);
 }
 
 /**
  * memphis_rule_set_load_from_file:
  * @rules: a #MemphisRuleSet
  * @filename: a path to a rules file
- * @error: a pointer to a GError or NULL
+ * @error: a pointer to a #GError or %NULL
  *
  * Load rules from an XML file.
  *
@@ -137,11 +96,9 @@ memphis_rule_set_load_from_file (MemphisRuleSet *rules,
 {
   g_return_if_fail (MEMPHIS_IS_RULE_SET (rules) && filename != NULL);
 
-  MemphisRuleSetPrivate *priv = MEMPHIS_RULE_SET_GET_PRIVATE (rules);
-  if (priv->ruleset != NULL)
-    rulesetFree (priv->ruleset);
+  g_clear_pointer (&rules->ruleset, rulesetFree);
 
-  priv->ruleset = rulesetRead (filename, error);
+  rules->ruleset = rulesetRead (filename, error);
 }
 
 /**
@@ -149,7 +106,7 @@ memphis_rule_set_load_from_file (MemphisRuleSet *rules,
  * @rules: a #MemphisRuleSet
  * @data: a character array with rules XML data
  * @size: the size of the array
- * @error: a pointer to a GError or NULL
+ * @error: a pointer to a #GError or %NULL
  *
  * Load rules data from an XML file.
  *
@@ -163,32 +120,14 @@ memphis_rule_set_load_from_data (MemphisRuleSet *rules,
 {
   g_return_if_fail (MEMPHIS_IS_RULE_SET (rules) && data != NULL);
 
-  MemphisRuleSetPrivate *priv = MEMPHIS_RULE_SET_GET_PRIVATE (rules);
-  if (priv->ruleset != NULL)
-    rulesetFree (priv->ruleset);
+  g_clear_pointer (&rules->ruleset, rulesetFree);
 
-  priv->ruleset = rulesetRead_from_buffer (data, size, error);
-}
-
-/**
- * memphis_rule_set_free:
- * @rules: a #MemphisRuleSet
- *
- * Frees the memory of a #MemphisRuleSet.
- *
- * Since: 0.1
- */
-void
-memphis_rule_set_free (MemphisRuleSet *rules)
-{
-  g_return_if_fail (MEMPHIS_IS_RULE_SET (rules));
-
-  g_object_unref (G_OBJECT (rules));
+  rules->ruleset = rulesetRead_from_buffer (data, size, error);
 }
 
 /**
  * memphis_rule_set_set_bg_color:
- * @rules: a #MemphisRuleSet
+ * @self: a #MemphisRuleSet
  * @r: red color component
  * @g: green color component
  * @b: blue color component
@@ -205,17 +144,15 @@ memphis_rule_set_set_bg_color (MemphisRuleSet *self,
     guint8 b,
     guint8 a)
 {
-  MemphisRuleSetPrivate *priv = MEMPHIS_RULE_SET_GET_PRIVATE (self);
-
-  priv->ruleset->background[0] = r;
-  priv->ruleset->background[1] = g;
-  priv->ruleset->background[2] = b;
-  priv->ruleset->background[3] = a;
+  self->ruleset->background[0] = r;
+  self->ruleset->background[1] = g;
+  self->ruleset->background[2] = b;
+  self->ruleset->background[3] = a;
 }
 
 /**
  * memphis_rule_set_get_bg_color:
- * @rules: a #MemphisRuleSet
+ * @self: a #MemphisRuleSet
  * @r: (out): red color component
  * @g: (out): green color component
  * @b: (out): blue color component
@@ -233,20 +170,18 @@ memphis_rule_set_get_bg_color (MemphisRuleSet *self,
     guint8 *b,
     guint8 *a)
 {
-  MemphisRuleSetPrivate *priv = MEMPHIS_RULE_SET_GET_PRIVATE (self);
-
-  *r = priv->ruleset->background[0];
-  *g = priv->ruleset->background[1];
-  *b = priv->ruleset->background[2];
-  *a = priv->ruleset->background[3];
+  *r = self->ruleset->background[0];
+  *g = self->ruleset->background[1];
+  *b = self->ruleset->background[2];
+  *a = self->ruleset->background[3];
 }
 
 /**
  * memphis_rule_set_get_rule_ids:
  * @rules: a #MemphisRuleSet
  *
- * Returns: (transfer full): a list of rule id strings.
- * Free the list with g_list_free when done.
+ * Returns: (transfer full) (element-type utf8): a list of rule id strings.
+ * Free the list with g_list_free_full() when done.
  *
  * These strings have the following form:
  * key1|key2|...|keyN:value1|value2|...|valueM
@@ -260,10 +195,8 @@ memphis_rule_set_get_rule_ids (MemphisRuleSet *self)
 {
   g_return_val_if_fail (MEMPHIS_IS_RULE_SET (self), NULL);
 
-  MemphisRuleSetPrivate *priv = MEMPHIS_RULE_SET_GET_PRIVATE (self);
-
   GList *list = NULL;
-  cfgRule *curr = priv->ruleset->rule;
+  cfgRule *curr = self->ruleset->rule;
   while (curr != NULL)
    {
      if (curr->draw != NULL)
@@ -449,6 +382,8 @@ cfgRule_new_from_rule (MemphisRule *rule)
 {
   int c, len;
   MemphisDataPool *pool = memphis_data_pool_new ();
+  GStringChunk *string_chunk = memphis_data_pool_get_string_chunk (pool);
+  GTree *string_tree = memphis_data_pool_get_string_tree (pool);
   cfgRule *new = g_new (cfgRule, 1);
 
   switch (rule->type)
@@ -471,8 +406,8 @@ cfgRule_new_from_rule (MemphisRule *rule)
   for(c = 0; c < len; c++)
     {
       char *tmp = new->value[c];
-      new->value[c] = m_string_chunk_get(pool->stringChunk,
-                                         pool->stringTree, tmp);
+      new->value[c] = m_string_chunk_get(string_chunk,
+                                         string_tree, tmp);
       g_free(tmp);
     }
   new->key = g_strdupv (rule->keys);
@@ -480,8 +415,8 @@ cfgRule_new_from_rule (MemphisRule *rule)
   for(c = 0; c < len; c++)
     {
       char *tmp = new->key[c];
-      new->key[c] = m_string_chunk_get(pool->stringChunk,
-                                       pool->stringTree, tmp);
+      new->key[c] = m_string_chunk_get(string_chunk,
+                                       string_tree, tmp);
       g_free(tmp);
     }
 
@@ -559,7 +494,7 @@ search_rule (cfgRule *rules, gchar **keys, gchar **values)
  * @rules: a #MemphisRuleSet
  * @id: an id string
  *
- * Returns: (allow-none): a #MemphisRule that has the given id string or NULL otherwise.
+ * Returns: (nullable): a #MemphisRule that has the given id string or %NULL otherwise.
  * 
  * Since: 0.1
  */
@@ -568,14 +503,12 @@ memphis_rule_set_get_rule (MemphisRuleSet *self, const gchar *id)
 {
   g_return_val_if_fail (MEMPHIS_IS_RULE_SET (self) && id != NULL, NULL);
 
-  MemphisRuleSetPrivate *priv = MEMPHIS_RULE_SET_GET_PRIVATE (self);
-
   gchar **tmp = g_strsplit (id, ":", -1);
   gchar **keys = g_strsplit (tmp[0], "|", -1);
   gchar **values = g_strsplit (tmp[1], "|", -1);
   g_strfreev (tmp);
 
-  cfgRule *res = search_rule (priv->ruleset->rule, keys, values);
+  cfgRule *res = search_rule (self->ruleset->rule, keys, values);
 
   g_strfreev (keys);
   g_strfreev (values);
@@ -600,8 +533,7 @@ memphis_rule_set_set_rule (MemphisRuleSet *self, MemphisRule *rule)
 {
   g_return_if_fail (MEMPHIS_IS_RULE_SET (self) && MEMPHIS_RULE (rule));
 
-  MemphisRuleSetPrivate *priv = MEMPHIS_RULE_SET_GET_PRIVATE (self);
-  cfgRule *res = search_rule (priv->ruleset->rule, rule->keys, rule->values);
+  cfgRule *res = search_rule (self->ruleset->rule, rule->keys, rule->values);
   cfgDraw *drw, *tmp;
 
   if (res != NULL)
@@ -621,14 +553,14 @@ memphis_rule_set_set_rule (MemphisRuleSet *self, MemphisRule *rule)
   else
     {
       /* Append cfgRule at last position */
-      cfgRule *curr = priv->ruleset->rule;
+      cfgRule *curr = self->ruleset->rule;
       while (curr->next != NULL)
         curr = curr->next;
 
       cfgRule *new = cfgRule_new_from_rule (rule);
 
       curr->next = new;
-      priv->ruleset->cntRule++;
+      self->ruleset->cntRule++;
     }
 }
 
@@ -648,8 +580,6 @@ memphis_rule_set_remove_rule (MemphisRuleSet *self, const gchar *id)
 {
   g_return_val_if_fail (MEMPHIS_IS_RULE_SET (self) && id != NULL, FALSE);
 
-  MemphisRuleSetPrivate *priv = MEMPHIS_RULE_SET_GET_PRIVATE (self);
-
   gchar **tmp = g_strsplit (id, ":", -1);
   gchar **keys = g_strsplit (tmp[0], "|", -1);
   gchar **values = g_strsplit (tmp[1], "|", -1);
@@ -661,7 +591,7 @@ memphis_rule_set_remove_rule (MemphisRuleSet *self, const gchar *id)
   gboolean miss = FALSE;
   gint num_keys = g_strv_length (keys);
   gint num_values = g_strv_length (values);
-  cfgRule *curr = priv->ruleset->rule;
+  cfgRule *curr = self->ruleset->rule;
   cfgRule *prev = NULL;
 
   while (curr != NULL && !found)
@@ -710,7 +640,7 @@ memphis_rule_set_remove_rule (MemphisRuleSet *self, const gchar *id)
 
   prev->next = curr->next;
   cfgRuleFree (curr);
-  priv->ruleset->cntRule--;
+  self->ruleset->cntRule--;
   return TRUE;
 }
 
@@ -721,7 +651,5 @@ memphis_rule_set_get_cfgRules (MemphisRuleSet *self)
 {
   g_assert (self != NULL);
 
-  MemphisRuleSetPrivate *priv = MEMPHIS_RULE_SET_GET_PRIVATE (self);
-
-  return priv->ruleset;
+  return self->ruleset;
 }

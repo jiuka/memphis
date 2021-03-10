@@ -30,54 +30,22 @@
 #include "memphis-map.h"
 #include "osm05.h"
 
-G_DEFINE_TYPE (MemphisMap, memphis_map, G_TYPE_OBJECT)
-
-#define MEMPHIS_MAP_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), MEMPHIS_TYPE_MAP, MemphisMapPrivate))
-
-enum
+struct _MemphisMap
 {
-  PROP_0,
-};
+  GObject parent_instance;
 
-typedef struct _MemphisMapPrivate MemphisMapPrivate;
-
-struct _MemphisMapPrivate {
   osmFile *map;
 };
 
-static void
-memphis_map_get_property (GObject *object, guint property_id,
-                              GValue *value, GParamSpec *pspec)
-{
-  //MemphisMap *self = MEMPHIS_MAP (object);
-  //MemphisMapPrivate *priv = MEMPHIS_MAP_GET_PRIVATE (self);
-  switch (property_id)
-  {
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-  }
-}
-
-static void
-memphis_map_set_property (GObject *object, guint property_id,
-                              const GValue *value, GParamSpec *pspec)
-{
-  //MemphisMap *self = MEMPHIS_MAP (object);
-  switch (property_id)
-  {
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);;
-  }
-}
+G_DEFINE_TYPE (MemphisMap, memphis_map, G_TYPE_OBJECT)
 
 static void
 memphis_map_finalize (GObject *object)
 {
   MemphisMap *self = MEMPHIS_MAP (object);
-  MemphisMapPrivate *priv = MEMPHIS_MAP_GET_PRIVATE (self);
 
-  if (priv->map != NULL)
-    osmFree (priv->map);
+  g_clear_pointer (&self->map, osmFree);
+
   G_OBJECT_CLASS (memphis_map_parent_class)->finalize (object);
 }
 
@@ -86,18 +54,12 @@ memphis_map_class_init (MemphisMapClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-  g_type_class_add_private (klass, sizeof (MemphisMapPrivate));
-
-  object_class->get_property = memphis_map_get_property;
-  object_class->set_property = memphis_map_set_property;
   object_class->finalize = memphis_map_finalize;
 }
 
 static void
 memphis_map_init (MemphisMap *self)
 {
-  MemphisMapPrivate *priv = MEMPHIS_MAP_GET_PRIVATE (self);
-  priv->map = NULL;
 }
 
 /**
@@ -108,14 +70,14 @@ memphis_map_init (MemphisMap *self)
  * Since: 0.1
  */
 MemphisMap*
-memphis_map_new ()
+memphis_map_new (void)
 {
   return g_object_new (MEMPHIS_TYPE_MAP, NULL);
 }
 
 /**
  * memphis_map_load_from_file:
- * @map: a #MemphisMap
+ * @self: a #MemphisMap
  * @filename: a path to a OSM map file
  * @error: a pointer to a GError or NULL
  *
@@ -124,21 +86,18 @@ memphis_map_new ()
  * Since: 0.2
  */
 void
-memphis_map_load_from_file (MemphisMap *map, const gchar *filename,
+memphis_map_load_from_file (MemphisMap *self, const gchar *filename,
     GError **error)
 {
-  g_return_if_fail (MEMPHIS_IS_MAP (map) && filename != NULL);
+  g_return_if_fail (MEMPHIS_IS_MAP (self) && filename != NULL);
 
-  MemphisMapPrivate *priv = MEMPHIS_MAP_GET_PRIVATE (map);
-  if (priv->map != NULL)
-    osmFree (priv->map);
-
-  priv->map = osmRead (filename, error);
+  g_clear_pointer (&self->map, osmFree);
+  self->map = osmRead (filename, error);
 }
 
 /**
  * memphis_map_load_from_data:
- * @map: a #MemphisMap
+ * @self: a #MemphisMap
  * @data: a character array with OSM data
  * @size: the size of the array
  * @error: a pointer to a GError or NULL
@@ -148,35 +107,18 @@ memphis_map_load_from_file (MemphisMap *map, const gchar *filename,
  * Since: 0.2
  */
 void
-memphis_map_load_from_data (MemphisMap *map, const gchar *data,
+memphis_map_load_from_data (MemphisMap *self, const gchar *data,
     guint size, GError **error)
 {
-  g_return_if_fail (MEMPHIS_IS_MAP (map) && data != NULL);
+  g_return_if_fail (MEMPHIS_IS_MAP (self) && data != NULL);
 
-  MemphisMapPrivate *priv = MEMPHIS_MAP_GET_PRIVATE (map);
-  if (priv->map != NULL)
-    osmFree (priv->map);
-
-  priv->map = osmRead_from_buffer (data, size, error);
-}
-
-/**
- * memphis_map_free:
- * @map: a #MemphisMap
- *
- * Frees the memory of a #MemphisMap.
- *
- * Since: 0.1
- */
-void
-memphis_map_free (MemphisMap *map)
-{
-  g_object_unref (G_OBJECT (map));
+  g_clear_pointer (&self->map, osmFree);
+  self->map = osmRead_from_buffer (data, size, error);
 }
 
 /**
  * memphis_map_get_bounding_box:
- * @map: a #MemphisMap
+ * @self: a #MemphisMap
  * @minlat: (out): the minimum latitude
  * @minlon: (out): the minimum longitude
  * @maxlat: (out): the maximum latitude
@@ -187,32 +129,30 @@ memphis_map_free (MemphisMap *map)
  * Since: 0.1
  */
 void
-memphis_map_get_bounding_box (MemphisMap *map,
+memphis_map_get_bounding_box (MemphisMap *self,
     gdouble *minlat,
     gdouble *minlon,
     gdouble *maxlat,
     gdouble *maxlon)
 {
-  MemphisMapPrivate *priv = MEMPHIS_MAP_GET_PRIVATE (map);
-  if (priv->map == NULL)
+  if (self->map == NULL)
     {
       *minlat = *minlon = *maxlat = *maxlon = 0.0;
       return;
     }
 
-  *minlat = priv->map->minlat;
-  *minlon = priv->map->minlon;
-  *maxlat = priv->map->maxlat;
-  *maxlon = priv->map->maxlon;
+  *minlat = self->map->minlat;
+  *minlon = self->map->minlon;
+  *maxlat = self->map->maxlat;
+  *maxlon = self->map->maxlon;
 }
 
 /* private shared functions */
 
 osmFile *
-memphis_map_get_osmFile (MemphisMap *map)
+memphis_map_get_osmFile (MemphisMap *self)
 {
-  g_assert (MEMPHIS_IS_MAP (map));
+  g_assert (MEMPHIS_IS_MAP (self));
 
-  MemphisMapPrivate *priv = MEMPHIS_MAP_GET_PRIVATE (map);
-  return priv->map;
+  return self->map;
 }

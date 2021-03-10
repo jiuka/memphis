@@ -28,37 +28,26 @@
 #include "memphis-data-pool.h"
 #include "mlib.h"
 
+
+struct _MemphisDataPool
+{
+  GObject parent;
+  GStringChunk *stringChunk;
+  GTree *stringTree;
+};
+
 G_DEFINE_TYPE (MemphisDataPool, memphis_data_pool, G_TYPE_OBJECT)
 
 static MemphisDataPool *instance = NULL;
 
 static void
-memphis_data_pool_get_property (GObject *object, guint property_id,
-                              GValue *value, GParamSpec *pspec)
-{
-  switch (property_id) {
-  default:
-    G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-  }
-}
-
-static void
-memphis_data_pool_set_property (GObject *object, guint property_id,
-                              const GValue *value, GParamSpec *pspec)
-{
-  switch (property_id) {
-  default:
-    G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-  }
-}
-
-static void
 memphis_data_pool_finalize (GObject *object)
 {
   MemphisDataPool *self = (MemphisDataPool *) object;
-  g_tree_destroy (self->stringTree);
-  g_string_chunk_free (self->stringChunk);
-  
+
+  g_clear_pointer (&self->stringTree, g_tree_destroy);
+  g_clear_pointer (&self->stringChunk, g_string_chunk_free);
+
   G_OBJECT_CLASS (memphis_data_pool_parent_class)->finalize (object);
 }
 
@@ -67,8 +56,6 @@ memphis_data_pool_class_init (MemphisDataPoolClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-  object_class->get_property = memphis_data_pool_get_property;
-  object_class->set_property = memphis_data_pool_set_property;
   object_class->finalize = memphis_data_pool_finalize;
 }
 
@@ -102,4 +89,20 @@ memphis_data_pool_new (void)
     }
 
   return pool;
+}
+
+GStringChunk *
+memphis_data_pool_get_string_chunk (MemphisDataPool *self)
+{
+  g_return_val_if_fail (MEMPHIS_IS_DATA_POOL (self), NULL);
+
+  return self->stringChunk;
+}
+
+GTree *
+memphis_data_pool_get_string_tree (MemphisDataPool *self)
+{
+  g_return_val_if_fail (MEMPHIS_IS_DATA_POOL (self), NULL);
+
+  return self->stringTree;
 }
