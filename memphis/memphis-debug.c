@@ -25,7 +25,6 @@
  */
 
 #include "memphis-debug.h"
-#include "config.h"
 
 gboolean memphis_print_progress_messages = FALSE;
 
