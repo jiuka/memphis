@@ -38,11 +38,11 @@ int main () {
     opts->debug=1;
 
     stringChunk = g_string_chunk_new(256);
-    stringTree = g_tree_new(m_tree_strcmp);
+    stringTree = g_tree_new((GCompareFunc) g_strcmp0);
 
     osmFile *osm = (osmFile *) osmRead("test/map.osm", 1);
 
-    g_tree_destroy(stringTree);
+    g_tree_unref(stringTree);
 
     osmFree(osm);
 

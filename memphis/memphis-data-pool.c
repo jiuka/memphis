@@ -22,7 +22,7 @@
  * @short_description: The Memphis data pool.
  *
  * A singleton that provides a shared pool of efficient memory.
- * (i.e. a GStringChunk and a GTree for strings).
+ * (i.e. a #GStringChunk and a #GTree for strings).
  */
 
 #include "memphis-data-pool.h"
@@ -45,7 +45,7 @@ memphis_data_pool_finalize (GObject *object)
 {
   MemphisDataPool *self = (MemphisDataPool *) object;
 
-  g_clear_pointer (&self->stringTree, g_tree_destroy);
+  g_clear_pointer (&self->stringTree, g_tree_unref);
   g_clear_pointer (&self->stringChunk, g_string_chunk_free);
 
   G_OBJECT_CLASS (memphis_data_pool_parent_class)->finalize (object);
@@ -63,7 +63,7 @@ static void
 memphis_data_pool_init (MemphisDataPool *self)
 {
   self->stringChunk = g_string_chunk_new (265);
-  self->stringTree = g_tree_new (m_tree_strcmp);
+  self->stringTree = g_tree_new ((GCompareFunc) g_strcmp0);
 }
 
 /**
