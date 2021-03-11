@@ -188,7 +188,7 @@ memphis_renderer_draw_png (MemphisRenderer *self,
 
   g_free (info);
 
-  memphis_debug ("Rendering file '%s' done.", filename);
+  g_debug ("Rendering file '%s' done.", filename);
 }
 
 /**
@@ -239,7 +239,7 @@ memphis_renderer_draw_tile (MemphisRenderer *self,
   crd = tile2latlon (x, y, info->zoom_level);
   info->offset = coord2xy (crd.x, crd.y, info->zoom_level, self->resolution);
 
-  memphis_debug (" Cairo rendering tile: (%i, %i, %i)", x, y, info->zoom_level);
+  g_debug (" Cairo rendering tile: (%i, %i, %i)", x, y, info->zoom_level);
 
   cairo_rectangle (info->cr, 0, 0, self->resolution, self->resolution);
   cairo_set_source_rgba (info->cr,
@@ -260,7 +260,7 @@ memphis_renderer_draw_tile (MemphisRenderer *self,
 
   g_free (info);
 
-  memphis_debug (" done.");
+  g_debug (" done.");
 }
 
 /**
@@ -677,7 +677,7 @@ static void drawPath (renderInfo *info, GSList *nodes)
   coordinates xy;
   MemphisRenderer *self = info->renderer;
 
-  memphis_debug ("drawPath");
+  g_debug ("drawPath");
 
   iter = nodes;
   nd = iter->data;
@@ -703,7 +703,7 @@ static void drawPath (renderInfo *info, GSList *nodes)
  */
 static void strokePath (renderInfo *info)
 {
-  memphis_debug ("strokePath");
+  g_debug ("strokePath");
 
   cairo_set_line_width (info->cr, 0);
   cairo_stroke (info->cr);
@@ -718,7 +718,7 @@ static void strokePath (renderInfo *info)
  */
 static void drawPolygone (renderInfo *info, cfgDraw *draw)
 {
-  memphis_debug ("drawPolygone");
+  g_debug ("drawPolygone");
 
   cairo_surface_t *image = NULL;
   cairo_pattern_t *pattern = NULL;
@@ -766,7 +766,7 @@ static void drawPolygone (renderInfo *info, cfgDraw *draw)
  */
 static void drawLine (renderInfo *info, cfgDraw *draw)
 {
-  memphis_debug ("drawLine");
+  g_debug ("drawLine");
 
   cairo_set_line_cap (info->cr, CAIRO_LINE_CAP_ROUND);
   cairo_set_line_join (info->cr, CAIRO_LINE_JOIN_ROUND);
@@ -787,7 +787,7 @@ static void drawLine (renderInfo *info, cfgDraw *draw)
  */
 static void drawText (renderInfo *info, char *text, cfgDraw *draw)
 {
-  memphis_debug ("drawText");
+  g_debug ("drawText");
 
   cairo_select_font_face (info->cr, "sans-serif", CAIRO_FONT_SLANT_NORMAL,
                                             CAIRO_FONT_WEIGHT_NORMAL);
@@ -805,7 +805,7 @@ static void drawText (renderInfo *info, char *text, cfgDraw *draw)
  */
 static compare_result_e stringInStrings(char *string, char **strings)
 {
-  memphis_debug ("stringInStrings");
+  g_debug ("stringInStrings");
 
   compare_result_e r = TAG_CMP_NOT_EQUAL;
   while (*strings != NULL) {
@@ -831,7 +831,7 @@ static int matchRule (cfgRule *rule, osmTag *tag)
 {
   int k, v;
 
-  memphis_debug ("matchRule");
+  g_debug ("matchRule");
 
   while(tag) {
       k = stringInStrings (tag->key, rule->key);
@@ -856,7 +856,7 @@ static int matchRule (cfgRule *rule, osmTag *tag)
  */
 static int checkRule (cfgRule *rule, osmTag *tag, short int type)
 {
-  memphis_debug ("checkRule");
+  g_debug ("checkRule");
 
   int not;
   cfgRule *iter;
@@ -969,7 +969,7 @@ static int renderCairo (renderInfo *info)
   MemphisRenderer *self = info->renderer;
   cfgRules *ruleset = memphis_rule_set_get_cfgRules (self->rules);
 
-  memphis_debug ("renderCairo");
+  g_debug ("renderCairo");
 
   // Vars used while looping through data
   cfgRule     *rule;

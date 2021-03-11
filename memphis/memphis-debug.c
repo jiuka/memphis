@@ -72,33 +72,3 @@ memphis_info (const gchar *format, ...)
         va_end (args);
     }
 }
-
-
-/**
- * memphis_debug:
- * @format: a printf format string
- * @...: optional arguments
- *
- * Prints a debug message.
- *
- * Since: 0.1
- */
-#ifdef ENABLE_DEBUG
-
-void
-memphis_debug (const gchar *format, ...)
-{
-    va_list args;
-    va_start (args, format);
-    g_logv (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, format, args);
-    va_end (args);
-}
-
-#else
-
-void
-memphis_debug (const gchar *format, ...)
-{
-}
-
-#endif /* ENABLE_DEBUG */

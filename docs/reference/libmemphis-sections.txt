@@ -100,7 +100,6 @@ MemphisRuleSetClass
 <SECTION>
 <FILE>memphis-debug</FILE>
 <TITLE>MemphisDebug</TITLE>
-memphis_debug
 memphis_info
 memphis_debug_set_print_progress
 memphis_debug_get_print_progress

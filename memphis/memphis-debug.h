@@ -25,7 +25,6 @@
 
 G_BEGIN_DECLS
 
-void memphis_debug (const gchar *format, ...) G_GNUC_PRINTF (1, 2);
 void memphis_info (const gchar *format, ...) G_GNUC_PRINTF (1, 2);
 
 void memphis_debug_set_print_progress (gboolean show_progress);
