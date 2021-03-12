@@ -88,17 +88,23 @@ memphis_rule_set_new (void)
  * Load rules from an XML file.
  *
  * Since: 0.2
+ *
+ * Returns: %TRUE on success, %FALSE otherwise and @error is set.
  */
-void
+gboolean
 memphis_rule_set_load_from_file (MemphisRuleSet *rules,
     const gchar *filename,
     GError **error)
 {
-  g_return_if_fail (MEMPHIS_IS_RULE_SET (rules) && filename != NULL);
+  g_return_val_if_fail (MEMPHIS_IS_RULE_SET (rules) && filename != NULL, FALSE);
 
   g_clear_pointer (&rules->ruleset, rulesetFree);
 
   rules->ruleset = rulesetRead (filename, error);
+  if (!rules->ruleset)
+    return FALSE;
+
+  return TRUE;
 }
 
 /**
@@ -111,18 +117,24 @@ memphis_rule_set_load_from_file (MemphisRuleSet *rules,
  * Load rules data from an XML file.
  *
  * Since: 0.2
+ *
+ * Returns: %TRUE on success, %FALSE otherwise and @error is set.
  */
-void
+gboolean
 memphis_rule_set_load_from_data (MemphisRuleSet *rules,
     const gchar *data,
     guint size,
     GError **error)
 {
-  g_return_if_fail (MEMPHIS_IS_RULE_SET (rules) && data != NULL);
+  g_return_val_if_fail (MEMPHIS_IS_RULE_SET (rules) && data != NULL, FALSE);
 
   g_clear_pointer (&rules->ruleset, rulesetFree);
 
   rules->ruleset = rulesetRead_from_buffer (data, size, error);
+  if (!rules->ruleset)
+    return FALSE;
+
+  return TRUE;
 }
 
 /**

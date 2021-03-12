@@ -29,10 +29,10 @@ G_DECLARE_FINAL_TYPE (MemphisMap, memphis_map, MEMPHIS, MAP, GObject)
 
 MemphisMap* memphis_map_new (void);
 
-void memphis_map_load_from_file (MemphisMap *self,
+gboolean memphis_map_load_from_file (MemphisMap *self,
     const gchar *filename,
     GError **error);
-void memphis_map_load_from_data (MemphisMap *self,
+gboolean memphis_map_load_from_data (MemphisMap *self,
     const gchar *data,
     guint size,
     GError **error);

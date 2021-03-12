@@ -17,6 +17,9 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#ifndef __MEMPHIS_H__
+#define __MEMPHIS_H__
+
 /**
  * SECTION:memphis
  * @short_description: OpenStreetMap rendering library.
@@ -24,9 +27,6 @@
  * Libmemphis is a generic glib/cairo based OSM renderer library.
  * It draws maps on arbitrary cairo surfaces. 
  */
-
-#ifndef __MEMPHIS_H__
-#define __MEMPHIS_H__
 
 #include <glib.h>
 

@@ -269,7 +269,7 @@ osmEndElement(void *userData, const char *name) {
 }
 
 /**
- * rulesetRead
+ * osmRead
  */
 osmFile* osmRead(const char *filename, GError **error) {
     g_debug ("osmRead");

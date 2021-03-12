@@ -79,20 +79,26 @@ memphis_map_new (void)
  * memphis_map_load_from_file:
  * @self: a #MemphisMap
  * @filename: a path to a OSM map file
- * @error: a pointer to a GError or NULL
+ * @error: a pointer to a #GError or %NULL
  *
  * Load map data from an OSM XML file.
  *
  * Since: 0.2
+ *
+ * Returns: %TRUE on success, %FALSE otherwise and @error is set.
  */
-void
+gboolean
 memphis_map_load_from_file (MemphisMap *self, const gchar *filename,
     GError **error)
 {
-  g_return_if_fail (MEMPHIS_IS_MAP (self) && filename != NULL);
+  g_return_val_if_fail (MEMPHIS_IS_MAP (self) && filename != NULL, FALSE);
 
   g_clear_pointer (&self->map, osmFree);
   self->map = osmRead (filename, error);
+  if (!self->map)
+    return FALSE;
+
+  return TRUE;
 }
 
 /**
@@ -100,29 +106,35 @@ memphis_map_load_from_file (MemphisMap *self, const gchar *filename,
  * @self: a #MemphisMap
  * @data: a character array with OSM data
  * @size: the size of the array
- * @error: a pointer to a GError or NULL
+ * @error: a pointer to a #GError or %NULL
  *
  * Load map data from an OSM XML file.
  *
  * Since: 0.2
+ *
+ * Returns: %TRUE on success, %FALSE otherwise and @error is set.
  */
-void
+gboolean
 memphis_map_load_from_data (MemphisMap *self, const gchar *data,
     guint size, GError **error)
 {
-  g_return_if_fail (MEMPHIS_IS_MAP (self) && data != NULL);
+  g_return_val_if_fail (MEMPHIS_IS_MAP (self) && data != NULL, FALSE);
 
   g_clear_pointer (&self->map, osmFree);
   self->map = osmRead_from_buffer (data, size, error);
+  if (!self->map)
+    return FALSE;
+
+  return TRUE;
 }
 
 /**
  * memphis_map_get_bounding_box:
  * @self: a #MemphisMap
- * @minlat: (out): the minimum latitude
- * @minlon: (out): the minimum longitude
- * @maxlat: (out): the maximum latitude
- * @maxlon: (out): the maximum longitude
+ * @minlat: (out) (optional): the minimum latitude
+ * @minlon: (out) (optional): the minimum longitude
+ * @maxlat: (out) (optional): the maximum latitude
+ * @maxlon: (out) (optional): the maximum longitude
  *
  * Get the exent of the bounding box that contains all map data.
  *
@@ -135,16 +147,36 @@ memphis_map_get_bounding_box (MemphisMap *self,
     gdouble *maxlat,
     gdouble *maxlon)
 {
-  if (self->map == NULL)
+  g_return_if_fail (MEMPHIS_IS_MAP (self));
+
+  if (!self->map)
     {
-      *minlat = *minlon = *maxlat = *maxlon = 0.0;
+      if (minlat)
+        *minlat = 0.0;
+
+      if (minlon)
+        *minlon = 0.0;
+
+      if (maxlat)
+        *maxlat = 0.0;
+
+      if (maxlon)
+        *maxlon = 0.0;
+
       return;
     }
 
-  *minlat = self->map->minlat;
-  *minlon = self->map->minlon;
-  *maxlat = self->map->maxlat;
-  *maxlon = self->map->maxlon;
+  if (minlat)
+    *minlat = self->map->minlat;
+
+  if (minlon)
+    *minlon = self->map->minlon;
+
+  if (maxlat)
+    *maxlat = self->map->maxlat;
+
+  if (maxlon)
+    *maxlon = self->map->maxlon;
 }
 
 /* private shared functions */

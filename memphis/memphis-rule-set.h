@@ -30,10 +30,10 @@ G_DECLARE_FINAL_TYPE (MemphisRuleSet, memphis_rule_set, MEMPHIS, RULE_SET, GObje
 
 MemphisRuleSet* memphis_rule_set_new (void);
 
-void memphis_rule_set_load_from_file (MemphisRuleSet *rules,
+gboolean memphis_rule_set_load_from_file (MemphisRuleSet *rules,
     const gchar *filename,
     GError **error);
-void memphis_rule_set_load_from_data (MemphisRuleSet *rules,
+gboolean memphis_rule_set_load_from_data (MemphisRuleSet *rules,
     const gchar *data,
     guint size,
     GError **error);
