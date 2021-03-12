@@ -33,10 +33,12 @@ memphis_sources = files(
 
 memphis_dir = include_directories('.')
 
+memphis_public_deps = [
+	glib_dep, gobject_dep, cairo_dep
+]
+
 memphis_deps = [
-	glib_dep,
-	gobject_dep,
-	cairo_dep,
+	memphis_public_deps,
 	expat_dep,
 	m_dep
 ]
@@ -56,13 +58,13 @@ pkg.generate(memphis_lib,
 	filebase: 'memphis-0.2',
 	name: 'Memphis',
 	description: 'A map renderer for OpenStreetMap data',
-	requires: [ glib_dep, gobject_dep, cairo_dep]
+	requires: memphis_public_deps
 )
 
 memphis_dep = declare_dependency(
 	link_with: memphis_lib,
 	include_directories: root_dir,
-	dependencies: memphis_deps
+	dependencies: memphis_public_deps
 )
 
 if get_option('gir')
