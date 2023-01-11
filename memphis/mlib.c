@@ -23,9 +23,11 @@
 /*
  *
  */
-gchar* m_string_chunk_get(GStringChunk *chunk, GTree *tree,
-                           const gchar *string) {
-
+gchar *
+m_string_chunk_get (GStringChunk *chunk,
+                    GTree        *tree,
+                    const gchar  *string)
+{
     char* lookup;
 
     g_return_val_if_fail(chunk != NULL, NULL);
@@ -39,10 +41,6 @@ gchar* m_string_chunk_get(GStringChunk *chunk, GTree *tree,
     }
 
     return lookup;
-}
-
-gint m_tree_strcmp(gconstpointer  a, gconstpointer  b) {
-    return strcmp((char *)a,(char *)b);
 }
 
 /*

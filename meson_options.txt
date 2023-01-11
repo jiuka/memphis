@@ -1,0 +1,12 @@
+option('gir',
+       type: 'boolean', value: true,
+       description: 'Generate gir data (requires gobject-introspection)')
+option('vapi',
+       type: 'boolean', value: true,
+       description: 'Generate vapi data (requires vapigen)')
+option('gtk_doc',
+       type: 'boolean', value: false,
+       description: 'Build reference manual (requires gtk-doc)')
+option('demos',
+       type: 'boolean', value: false,
+       description: 'Build demonstration programs')

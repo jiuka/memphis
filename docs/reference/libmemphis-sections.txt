@@ -25,7 +25,6 @@ MemphisDataPoolClass
 MemphisRenderer
 memphis_renderer_new
 memphis_renderer_new_full
-memphis_renderer_free
 memphis_renderer_set_resolution
 memphis_renderer_set_map
 memphis_renderer_set_rule_set
@@ -58,7 +57,6 @@ memphis_renderer_draw_png
 <TITLE>MemphisMap</TITLE>
 MemphisMap
 memphis_map_new
-memphis_map_free
 memphis_map_load_from_file
 memphis_map_load_from_data
 memphis_map_get_bounding_box
@@ -79,7 +77,6 @@ MemphisMapClass
 <TITLE>MemphisRuleSet</TITLE>
 MemphisRuleSet
 memphis_rule_set_new
-memphis_rule_set_free
 memphis_rule_set_load_from_file
 memphis_rule_set_load_from_data
 memphis_rule_set_set_bg_color
@@ -103,7 +100,6 @@ MemphisRuleSetClass
 <SECTION>
 <FILE>memphis-debug</FILE>
 <TITLE>MemphisDebug</TITLE>
-memphis_debug
 memphis_info
 memphis_debug_set_print_progress
 memphis_debug_get_print_progress

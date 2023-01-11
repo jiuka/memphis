@@ -29,6 +29,7 @@
 #include "osm05.h"
 #include "memphis-data-pool.h"
 #include "memphis-debug.h"
+#include "memphis-private.h"
 
 #define BUFFSIZE 1024
 
@@ -94,13 +95,13 @@ static void XMLCALL
 osmStartElement(void *userData, const char *name, const char **atts) {
     mapUserData *data = (mapUserData *) userData;
     osmFile *osm = data->osm;
-    GStringChunk *stringChunk = data->pool->stringChunk;
-    GTree *stringTree = data->pool->stringTree;
+    GStringChunk *string_chunk = memphis_data_pool_get_string_chunk (data->pool);
+    GTree *string_tree = memphis_data_pool_get_string_tree (data->pool);
     
-    memphis_debug ("osm05startElement");
+    g_debug ("osm05startElement");
     // Parsing Bounds
     if (strncmp((char *) name, "bounds", 6) == 0) {
-        memphis_debug ("Parsing Bounds");
+        g_debug ("Parsing Bounds");
         while (*atts != NULL) {
             if(strcmp((char *) *(atts), "minlat" ) == 0) {
                 sscanf((char *) *(atts+1),"%f",&osm->minlat);
@@ -116,7 +117,7 @@ osmStartElement(void *userData, const char *name, const char **atts) {
     }
     // Parsing Node
     else if (strncmp((char *) name, "node", 4) == 0) {
-        memphis_debug ("Parsing Node");
+        g_debug ("Parsing Node");
         data->cNode = g_new(osmNode, 1);
         while (*atts != NULL) {
             if(strcmp((char *) *(atts), "id") == 0) {
@@ -137,12 +138,12 @@ osmStartElement(void *userData, const char *name, const char **atts) {
         g_hash_table_insert(osm->nodeidx, &data->cNode->id, data->cNode);
         node_list_prepend(data->cNode, &osm->nodes);
 
-        memphis_debug ("NODE: %i %f %f", data->cNode->id,
+        g_debug ("NODE: %i %f %f", data->cNode->id,
                 data->cNode->lat, data->cNode->lon);
     }
     // Parsing Tags
     else if (strncmp((char *) name, "tag", 4) == 0) {
-        memphis_debug ("Parsing Tag");
+        g_debug ("Parsing Tag");
 
         if (!data->cNode && !data->cWay) // End if there is nothing to add the tag to
             return;
@@ -166,7 +167,7 @@ osmStartElement(void *userData, const char *name, const char **atts) {
                     return;
                 } else if(strcmp(k, "name") == 0) {
                     if (data->cWay) {
-                        data->cWay->name = m_string_chunk_get(stringChunk, stringTree, 
+                        data->cWay->name = m_string_chunk_get(string_chunk, string_tree, 
                                                         (char *) *(atts+1));
                     }
                     return;
@@ -177,10 +178,10 @@ osmStartElement(void *userData, const char *name, const char **atts) {
         }
 
         data->cTag = g_new(osmTag, 1);
-        data->cTag->key = m_string_chunk_get(stringChunk, stringTree, k);
-        data->cTag->value = m_string_chunk_get(stringChunk, stringTree, v);
+        data->cTag->key = m_string_chunk_get(string_chunk, string_tree, k);
+        data->cTag->value = m_string_chunk_get(string_chunk, string_tree, v);
 
-        memphis_debug ("Tag: %s => %s", data->cTag->key, data->cTag->value);
+        g_debug ("Tag: %s => %s", data->cTag->key, data->cTag->value);
 
         data->cntTag++;
         if (data->cNode)
@@ -192,7 +193,7 @@ osmStartElement(void *userData, const char *name, const char **atts) {
     }
     // Parsing Way
     else if (strncmp((char *) name, "way", 3) == 0) {
-        memphis_debug ("Parsing Way");
+        g_debug ("Parsing Way");
         data->cWay = g_new(osmWay, 1);
         while (*atts != NULL) {
             if(strncmp((char *) *(atts), "id", 2) == 0) {
@@ -211,11 +212,11 @@ osmStartElement(void *userData, const char *name, const char **atts) {
         osm->waycnt++;
         way_list_prepend(data->cWay, &osm->ways);
 
-        memphis_debug ("WAY(%i)", data->cWay->id);
+        g_debug ("WAY(%i)", data->cWay->id);
     }
     // Parsing WayNode
     else if (strncmp((char *) name, "nd", 2) == 0) {
-        memphis_debug ("Parsing Nd");
+        g_debug ("Parsing Nd");
         int ref = 0;
         while (*atts != NULL) {
             if(strncmp((char *) *(atts), "ref", 2) == 0) {
@@ -238,7 +239,7 @@ osmStartElement(void *userData, const char *name, const char **atts) {
             // Insert WayNode
             data->cWay->nd = g_slist_prepend(data->cWay->nd, n);
 
-            memphis_debug (" ND( %f %f )", n->lat, n->lon);
+            g_debug (" ND( %f %f )", n->lat, n->lon);
 
             data->cNode = NULL;
         }
@@ -257,7 +258,7 @@ static void XMLCALL
 osmEndElement(void *userData, const char *name) {
     mapUserData *data = (mapUserData *) userData;
     
-    memphis_debug ("osm05endElement");
+    g_debug ("osm05endElement");
     if (strncmp((char *) name, "node", 4) == 0) {
         data->cNode = NULL;
     } else if (strncmp((char *) name, "way", 3) == 0) {
@@ -268,10 +269,10 @@ osmEndElement(void *userData, const char *name) {
 }
 
 /**
- * rulesetRead
+ * osmRead
  */
 osmFile* osmRead(const char *filename, GError **error) {
-    memphis_debug ("osmRead");
+    g_debug ("osmRead");
 
     // Reset the locale, otherwise we get in trouble if we convert a string to double
     // in a language that uses strange decimal characters (like German).
@@ -420,7 +421,7 @@ osmFile* osmRead(const char *filename, GError **error) {
 osmFile* osmRead_from_buffer (const char *buffer, guint size,
         GError **error)
 {
-    memphis_debug ("osmRead");
+    g_debug ("osmRead");
 
     // Reset the locale, otherwise we get in trouble if we convert a string to double
     // in a language that uses strange decimal characters (like German).

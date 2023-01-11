@@ -19,6 +19,7 @@
 
 #include "memphis-map.h"
 #include "memphis-rule-set.h"
+#include "memphis-data-pool.h"
 #include "osm05.h"
 #include "ruleset.h"
 
@@ -28,5 +29,9 @@
 osmFile *memphis_map_get_osmFile (MemphisMap *map);
 
 cfgRules *memphis_rule_set_get_cfgRules (MemphisRuleSet *ruleset);
+
+GStringChunk *memphis_data_pool_get_string_chunk (MemphisDataPool *self);
+
+GTree *memphis_data_pool_get_string_tree (MemphisDataPool *self);
 
 #endif /* _MEMPHIS_PRIVATE */

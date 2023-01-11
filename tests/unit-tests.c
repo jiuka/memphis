@@ -34,7 +34,7 @@ map_new ()
   MemphisMap *map = NULL;
   map = memphis_map_new ();
   g_assert (MEMPHIS_IS_MAP (map));
-  memphis_map_free (map);
+  g_object_unref (map);
 }
 
 static void
@@ -58,7 +58,7 @@ map_load_data ()
   GError *err = NULL;
   memphis_map_load_from_data (map, map_data, strlen (map_data), &err);
   g_assert (err == NULL);
-  memphis_map_free (map);
+  g_object_unref (map);
 }
 
 static void
@@ -69,7 +69,7 @@ map_load_file ()
   GError *err = NULL;
   memphis_map_load_from_file (map, MAP_PATH, &err);
   g_assert (err == NULL);
-  memphis_map_free (map);
+  g_object_unref (map);
 }
 
 static void
@@ -77,7 +77,7 @@ map_free ()
 {
   MemphisMap *map;
   map = memphis_map_new ();
-  memphis_map_free (map);
+  g_object_unref (map);
 }
 
 static void
@@ -98,7 +98,7 @@ map_bounding_box ()
 	g_assert (fabs (maxlat - 47.159840013)  < EPS);
 	g_assert (fabs (maxlon - 9.228515625)  < EPS);
 
-  memphis_map_free (map);
+  g_object_unref (map);
 }
 
 /* MemphisRule */
@@ -120,7 +120,7 @@ rule_set_new ()
   MemphisRuleSet *rules = NULL;
   rules = memphis_rule_set_new ();
   g_assert (MEMPHIS_IS_RULE_SET (rules));
-  memphis_rule_set_free (rules);
+  g_object_unref (rules);
 }
 
 static void
@@ -140,7 +140,7 @@ rule_set_load_data ()
   GError *err = NULL;
   memphis_rule_set_load_from_data (rules, rules_data, strlen (rules_data), &err);
   g_assert (err == NULL);
-  memphis_rule_set_free (rules);
+  g_object_unref (rules);
 
   const gchar rules_data2[] =
   "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\
@@ -152,7 +152,7 @@ rule_set_load_data ()
   err = NULL;
   memphis_rule_set_load_from_data (rules, rules_data2, strlen (rules_data2), &err);
   g_assert (err == NULL);
-  memphis_rule_set_free (rules);
+  g_object_unref (rules);
 }
 
 static void
@@ -165,7 +165,7 @@ rule_set_load_file ()
   g_assert (err == NULL);
   memphis_rule_set_load_from_file (rules, RULES_PATH, &err);
   g_assert (err == NULL);
-  memphis_rule_set_free (rules);
+  g_object_unref (rules);
 }
 
 static void
@@ -173,7 +173,7 @@ rule_set_free ()
 {
   MemphisRuleSet *rules;
   rules = memphis_rule_set_new ();
-  memphis_rule_set_free (rules);
+  g_object_unref (rules);
 }
 
 static void
@@ -194,7 +194,7 @@ rule_set_background ()
   g_assert_cmpuint(g1, ==, g2);
   g_assert_cmpuint(b1, ==, b2);
   g_assert_cmpuint(a1, ==, a2);
-  memphis_rule_set_free (rules);
+  g_object_unref (rules);
 }
 
 static void
@@ -231,7 +231,7 @@ rule_set_get_rule ()
   g_assert_cmpstr (rule->values[1], ==, "forest");
 
   memphis_rule_free (rule);
-  memphis_rule_set_free (rules);
+  g_object_unref (rules);
 }
 
 static void
@@ -307,7 +307,7 @@ rule_set_set_and_get_line_w_border ()
   g_assert (fabs (rule->border->size - bsize)  < EPS);
 
   memphis_rule_free (rule);
-  memphis_rule_set_free (rules);
+  g_object_unref (rules);
 }
 /*
 static void
@@ -321,7 +321,7 @@ rule_set_set_and_get_polygon_w_border ()
   // TODO
 
   memphis_rule_free (rule);
-  memphis_rule_set_free (rules);
+  g_object_unref (rules);
 }
 */
 static void
@@ -335,7 +335,7 @@ rule_set_rm_rule ()
   g_assert (memphis_rule_set_remove_rule (rules, "highway:primary"));
   g_assert (!memphis_rule_set_remove_rule (rules, "natural:water"));
 
-  memphis_rule_set_free (rules);
+  g_object_unref (rules);
 }
 
 static void
@@ -368,7 +368,7 @@ rule_set_add_rule ()
 
   memphis_rule_free (a_rule);
   memphis_rule_free (b_rule);
-  memphis_rule_set_free (rules);
+  g_object_unref (rules);
 }
 
 // TODO: incomplete rules? conflicting rules? empty rule-set?
@@ -381,12 +381,12 @@ renderer_new ()
   MemphisRenderer *r = NULL;
   r = memphis_renderer_new_full (NULL, NULL);
   g_assert (MEMPHIS_IS_RENDERER (r));
-  memphis_renderer_free (r);
+  g_object_unref (r);
 
   r = NULL;
   r = memphis_renderer_new ();
   g_assert (MEMPHIS_IS_RENDERER (r));
-  memphis_renderer_free (r);
+  g_object_unref (r);
 }
 
 static void
@@ -397,7 +397,7 @@ renderer_resolution ()
   guint res = g_test_rand_int_range (0, 100000);
   memphis_renderer_set_resolution (r, res);
   g_assert_cmpint (memphis_renderer_get_resolution (r), ==, res);
-  memphis_renderer_free (r);
+  g_object_unref (r);
 }
 
 static void
@@ -414,7 +414,7 @@ renderer_set_map ()
   g_assert (MEMPHIS_IS_MAP(map2));
   g_assert (map == map2);
 
-  memphis_renderer_free (r);
+  g_object_unref (r);
 
   // full constructor
   r = memphis_renderer_new_full (NULL, map);
@@ -423,8 +423,8 @@ renderer_set_map ()
   g_assert (MEMPHIS_IS_MAP(map2));
   g_assert (map == map2);
 
-  memphis_map_free (map);
-  memphis_renderer_free (r);
+  g_object_unref (map);
+  g_object_unref (r);
 }
 
 static void
@@ -459,8 +459,8 @@ renderer_tile_numbers ()
   g_assert (y1 == 5444);
   g_assert (y2 == 5452);
 
-  memphis_renderer_free (r);
-  memphis_map_free (map);
+  g_object_unref (r);
+  g_object_unref (map);
 }
 
 static void
@@ -483,7 +483,7 @@ renderer_draw_nothing ()
   cairo_destroy(cr);
   cairo_surface_destroy(surface);
 
-  memphis_renderer_free (r);
+  g_object_unref (r);
 }
 
 static void
@@ -517,15 +517,14 @@ renderer_draw_empty_map_and_rules ()
   cairo_destroy(cr);
   cairo_surface_destroy(surface);
 
-  memphis_renderer_free (r);
-  memphis_map_free (map);
-  memphis_rule_set_free (rules);
+  g_object_unref (r);
+  g_object_unref (map);
+  g_object_unref (rules);
 }
 
 int
 main (int argc, char **argv)
 {
-  g_type_init ();
   g_test_init (&argc, &argv, NULL);
   g_test_bug_base ("https://trac.openstreetmap.ch/trac/memphis/ticket/");
 

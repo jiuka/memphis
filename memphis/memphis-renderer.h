@@ -24,34 +24,14 @@
 #include <cairo.h>
 #include "memphis.h"
 
-#define MEMPHIS_TYPE_RENDERER                  (memphis_renderer_get_type ())
-#define MEMPHIS_RENDERER(obj)                  (G_TYPE_CHECK_INSTANCE_CAST ((obj), MEMPHIS_TYPE_RENDERER, MemphisRenderer))
-#define MEMPHIS_IS_RENDERER(obj)               (G_TYPE_CHECK_INSTANCE_TYPE ((obj), MEMPHIS_TYPE_RENDERER))
-#define MEMPHIS_RENDERER_CLASS(klass)          (G_TYPE_CHECK_CLASS_CAST ((klass), MEMPHIS_TYPE_RENDERER, MemphisRendererClass))
-#define MEMPHIS_IS_RENDERER_CLASS(klass)       (G_TYPE_CHECK_CLASS_TYPE ((klass), MEMPHIS_TYPE_RENDERER))
-#define MEMPHIS_RENDERER_GET_CLASS(obj)        (G_TYPE_INSTANCE_GET_CLASS ((obj), MEMPHIS_TYPE_RENDERER, MemphisRendererClass))
-
 G_BEGIN_DECLS
 
-typedef struct _MemphisRenderer        MemphisRenderer;
-typedef struct _MemphisRendererClass   MemphisRendererClass;
+#define MEMPHIS_TYPE_RENDERER memphis_renderer_get_type ()
+G_DECLARE_FINAL_TYPE (MemphisRenderer, memphis_renderer, MEMPHIS, RENDERER, GObject)
 
-struct _MemphisRenderer
-{
-  GObject parent_instance;
-};
-
-struct _MemphisRendererClass
-{
-  GObjectClass parent_class;
-};
-
-GType memphis_renderer_get_type (void);
-
-MemphisRenderer* memphis_renderer_new ();
+MemphisRenderer* memphis_renderer_new (void);
 MemphisRenderer* memphis_renderer_new_full (MemphisRuleSet *rules,
     MemphisMap *map);
-void memphis_renderer_free (MemphisRenderer *renderer);
 
 void memphis_renderer_set_resolution (MemphisRenderer *renderer,
     guint resolution);
@@ -64,11 +44,11 @@ guint memphis_renderer_get_resolution (MemphisRenderer *renderer);
 MemphisMap* memphis_renderer_get_map (MemphisRenderer *renderer);
 MemphisRuleSet* memphis_renderer_get_rule_set (MemphisRenderer *renderer);
 
-void memphis_renderer_draw_png (MemphisRenderer *renderer,
+void memphis_renderer_draw_png (MemphisRenderer *self,
     gchar *filename,
     guint zoom_level);
 
-void memphis_renderer_draw_tile (MemphisRenderer *renderer,
+void memphis_renderer_draw_tile (MemphisRenderer *self,
     cairo_t *cr,
     guint x,
     guint y,

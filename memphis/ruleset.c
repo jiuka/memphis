@@ -27,6 +27,7 @@
 #include "mlib.h"
 #include "memphis-data-pool.h"
 #include "memphis-debug.h"
+#include "memphis-private.h"
 
 #define BUFFSIZE 1024
 #define MAXDEPTH 20
@@ -75,10 +76,10 @@ static void XMLCALL
 cfgStartElement(void *userData, const char *name, const char **atts) {
     rulesUserData *data = (rulesUserData *)userData;
     cfgRules *ruleset = data->ruleset;
-    GStringChunk *stringChunk = data->pool->stringChunk;
-    GTree *stringTree = data->pool->stringTree;
+    GStringChunk *stringChunk = memphis_data_pool_get_string_chunk (data->pool);
+    GTree *stringTree = memphis_data_pool_get_string_tree (data->pool);
 
-    memphis_debug ("cfgStartElement");
+    g_debug ("cfgStartElement");
 
     // Parsing Rules
     if (strcmp((char *) name, "rules") == 0) {
@@ -224,7 +225,7 @@ cfgEndElement(void *userData, const char *name) {
     rulesUserData *data = (rulesUserData *)userData;
     cfgRules *ruleset = data->ruleset;
     
-    memphis_debug ("cfgEndElement");
+    g_debug ("cfgEndElement");
 
     if (strcmp(name, "rule") == 0) {
         // Fetching Parent from stack
@@ -250,7 +251,7 @@ cfgEndElement(void *userData, const char *name) {
  */
 cfgRules* rulesetRead(const char *filename, GError **error)
 {
-    memphis_debug ("rulesetRead");
+    g_debug ("rulesetRead");
 
     // Reset the locale, otherwise we get in trouble if we convert a string to double
     // in a language that uses strange decimal characters (like German).
@@ -381,7 +382,7 @@ cfgRules* rulesetRead(const char *filename, GError **error)
 cfgRules* rulesetRead_from_buffer (const char *buffer, guint size,
         GError **error)
 {
-    memphis_debug ("rulesetRead");
+    g_debug ("rulesetRead");
 
     // Reset the locale, otherwise we get in trouble if we convert a string to double
     // in a language that uses strange decimal characters (like German).

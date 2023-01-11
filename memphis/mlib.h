@@ -25,9 +25,9 @@
 /*
  *
  */
-gchar* m_string_chunk_get(GStringChunk *chunk, GTree *tree,
-                           const gchar *string);
-gint m_tree_strcmp(gconstpointer  a, gconstpointer  b);
+gchar* m_string_chunk_get(GStringChunk *chunk,
+                          GTree        *tree,
+                          const gchar  *string);
 
 #endif /* MLIB_H */
 

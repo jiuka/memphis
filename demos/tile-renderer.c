@@ -24,11 +24,9 @@
 #define RESOLUTION 256
 
 int main (int argc, char **argv) {
-  g_type_init ();
-  
-  MemphisRenderer *r;
-  MemphisRuleSet *rules;
-  MemphisMap *map;
+  g_autoptr(MemphisRenderer) r = NULL;
+  g_autoptr(MemphisRuleSet) rules = NULL;
+  g_autoptr(MemphisMap) map = NULL;
   cairo_surface_t *surface;
   cairo_t *cr;
   gint i, j, maxx, maxy;
@@ -87,10 +85,6 @@ int main (int argc, char **argv) {
           cairo_surface_destroy(surface);
         }
     }
-  
-  memphis_renderer_free (r);
-  memphis_map_free (map);
-  memphis_rule_set_free (rules);
 
   return 0;
 }
